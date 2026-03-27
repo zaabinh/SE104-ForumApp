@@ -1,0 +1,83 @@
+# =========================
+# FRONTEND (Next.js)
+# =========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/dist/
+frontend/*.log
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+
+# =========================
+# BACKEND (FastAPI / Python)
+# =========================
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/*.db
+backend/*.sqlite3
+
+backend/.env
+backend/venv/
+backend/.venv/
+backend/env/
+backend/ENV/
+
+# =========================
+# AI / Models / Data
+# =========================
+ai/models/
+ai/checkpoints/
+ai/data/
+ai/datasets/
+ai/*.h5
+ai/*.pt
+ai/*.pth
+ai/*.onnx
+ai/*.pkl
+
+# =========================
+# DATABASE
+# =========================
+database/*.sql
+database/*.dump
+
+# =========================
+# UPLOAD FILES
+# =========================
+backend/uploads/
+frontend/public/uploads/
+storage/
+uploads/
+
+# =========================
+# IDE & OS
+# =========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# =========================
+# LOGS & CACHE
+# =========================
+*.log
+.cache/
+.temp/
+.tmp/
+coverage/
+
+# =========================
+# MISC
+# =========================
+*.zip
+*.tar
+*.gz
+*.rar
