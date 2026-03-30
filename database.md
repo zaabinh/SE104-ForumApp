@@ -3,7 +3,21 @@
 Hệ thống cơ sở dữ liệu cho Forum tích hợp các tính năng xác thực, tương tác mạng xã hội (và định hướng AI).
 
 ---
+## Danh sách các Đối tượng (Objects/Entities)
 
+| STT | Tên lớp (Object) | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| 1 | **users** | Lưu trữ tài khoản, thông tin cá nhân, vai trò (Admin/Student) và trạng thái. |
+| 2 | **auth_sessions** | Quản lý phiên đăng nhập, Token và bảo mật IP (Bảo vệ Route). |
+| 3 | **posts** | Nội dung bài viết, tiêu đề, ảnh bìa và điểm xu hướng (Trending Score). |
+| 4 | **tags** | Danh mục các chủ đề để phân loại và lọc bài viết. |
+| 5 | **comments** | Bình luận và phản hồi bình luận (hỗ trợ phân cấp lồng nhau). |
+| 6 | **interactions** | Ghi lại các hành vi Like, Bookmark và Follow giữa các User. |
+| 7 | **notifications** | Hệ thống thông báo thời gian thực cho người dùng và Admin. |
+| 8 | **reports** | Quản lý các báo cáo vi phạm nội dung để Admin kiểm duyệt. |
+| 9 | **user_interests** | (AI Feature) Lưu trữ trọng số sở thích của User dựa trên Tag. |
+
+---
 ## 1. Nhóm Người dùng & Bảo mật (Authentication & Profile)
 
 ### Bảng: `users`
@@ -97,8 +111,6 @@ Hỗ trợ bình luận đa cấp (UC-16, UC-17).
 | `bookmarks` | `user_id`, `post_id` | Lưu bài viết vào danh sách cá nhân. |
 | `follows` | `follower_id`, `following_id` | Quan hệ theo dõi giữa các sinh viên. |
 
----
-
 ## 4. Quản trị & AI (Moderation & AI Features)
 
 ### Bảng: `reports`
@@ -133,5 +145,156 @@ Dữ liệu để cá nhân hóa bảng tin (Feed Recommendation).
 | `user_id` | UUID | FK (users.id) | |
 | `tag_id` | INT | FK (tags.id) | Tag mà user hay quan tâm |
 | `weight` | FLOAT | | Điểm cộng dồn dựa trên tương tác thực tế |
-
 ---
+```mermaid
+erDiagram
+
+    USERS {
+        UUID id PK
+        string username
+        string email
+        string password_hash
+        string full_name
+        string avatar_url
+        string bio
+        string role
+        string status
+        string provider
+        timestamp created_at
+    }
+
+    AUTH_SESSIONS {
+        UUID id PK
+        UUID user_id FK
+        string refresh_token
+        string ip_address
+        string user_agent
+        timestamp expires_at
+    }
+
+    POSTS {
+        int id PK
+        UUID user_id FK
+        string title
+        string slug
+        string content
+        string cover_image
+        int view_count
+        float trending_score
+        string status
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    TAGS {
+        int id PK
+        string tag_name
+        string slug
+    }
+
+    POST_TAGS {
+        int post_id FK
+        int tag_id FK
+    }
+
+    COMMENTS {
+        int id PK
+        int post_id FK
+        UUID user_id FK
+        int parent_id FK
+        string content
+        timestamp created_at
+    }
+
+    LIKES {
+        UUID user_id FK
+        int post_id FK
+    }
+
+    BOOKMARKS {
+        UUID user_id FK
+        int post_id FK
+    }
+
+    FOLLOWS {
+        UUID follower_id FK
+        UUID following_id FK
+    }
+
+    %% TÁCH REPORTS CHO CHUẨN
+    POST_REPORTS {
+        int id PK
+        UUID reporter_id FK
+        int post_id FK
+        string reason
+        string status
+    }
+
+    COMMENT_REPORTS {
+        int id PK
+        UUID reporter_id FK
+        int comment_id FK
+        string reason
+        string status
+    }
+
+    NOTIFICATIONS {
+        int id PK
+        UUID receiver_id FK
+        UUID sender_id FK
+        string type
+        int post_id FK
+        boolean is_read
+    }
+
+    USER_INTERESTS {
+        UUID user_id FK
+        int tag_id FK
+        float weight
+    }
+
+    %% ================= RELATIONSHIPS =================
+
+    %% USERS CORE
+    USERS ||--o{ AUTH_SESSIONS : "1-N sessions"
+    USERS ||--o{ POSTS : "1-N writes"
+    USERS ||--o{ COMMENTS : "1-N writes"
+
+    %% SOCIAL
+    USERS ||--o{ LIKES : ""
+    POSTS ||--o{ LIKES : ""
+    %% => N-N likes
+
+    USERS ||--o{ BOOKMARKS : ""
+    POSTS ||--o{ BOOKMARKS : ""
+    %% => N-N bookmarks
+
+    USERS ||--o{ FOLLOWS : "follow"
+    USERS ||--o{ FOLLOWS : "being followed"
+    %% => self N-N
+
+    %% CONTENT
+    POSTS ||--o{ COMMENTS : "1-N has"
+    COMMENTS ||--o{ COMMENTS : "1-N replies"
+
+    %% TAGS (N-N)
+    POSTS ||--o{ POST_TAGS : ""
+    TAGS ||--o{ POST_TAGS : ""
+    %% => POSTS N-N TAGS
+
+    %% USER INTERESTS (N-N)
+    USERS ||--o{ USER_INTERESTS : ""
+    TAGS ||--o{ USER_INTERESTS : ""
+
+    %% REPORTS (chuẩn hóa)
+    USERS ||--o{ POST_REPORTS : "reports"
+    POSTS ||--o{ POST_REPORTS : "reported"
+
+    USERS ||--o{ COMMENT_REPORTS : "reports"
+    COMMENTS ||--o{ COMMENT_REPORTS : "reported"
+
+    %% NOTIFICATIONS
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    USERS ||--o{ NOTIFICATIONS : "sends"
+    POSTS ||--o{ NOTIFICATIONS : "relates_to"
+```
