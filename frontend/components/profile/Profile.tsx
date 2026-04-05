@@ -187,7 +187,7 @@ export default function Profile() {
     );
   }
 
-  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-20' : 'md:ml-60';
+  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
 
   if (error || !profile) {
     return (
@@ -273,6 +273,9 @@ export default function Profile() {
     </main>
   );
 }
+
+
+
 
 
 

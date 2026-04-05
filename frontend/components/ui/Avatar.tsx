@@ -11,7 +11,10 @@ export default function Avatar({ src, alt, size = 40 }: AvatarProps) {
       alt={alt}
       width={size}
       height={size}
+      loading="lazy"
+      decoding="async"
       className="rounded-full border border-white/70 object-cover shadow-sm"
+      style={{ width: size, height: size }}
     />
   );
 }

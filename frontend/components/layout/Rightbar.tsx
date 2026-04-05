@@ -20,7 +20,7 @@ function Rightbar() {
   );
 
   return (
-    <aside className="scroll-panel sticky top-24 hidden max-h-[calc(100dvh-7rem)] space-y-4 overflow-y-auto pr-2 xl:block">
+    <aside className="scroll-panel hidden h-full min-h-0 space-y-4 overflow-y-auto pr-2 xl:block">
       <section className="card-surface soft-grid p-5">
         <div className="flex items-center justify-between">
           <div>

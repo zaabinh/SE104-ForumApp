@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiImage, FiPlusCircle, FiZap } from 'react-icons/fi';
 import FeedFilter from '@/components/feed/FeedFilter';
 import FeedSort from '@/components/feed/FeedSort';
@@ -18,13 +18,22 @@ type PostListProps = {
 };
 
 export default function PostList({ searchQuery = '' }: PostListProps) {
-  const { currentUser, posts, tags } = useForum();
+  const { currentUser, posts, tags, users, toggleBookmark, togglePostLike } = useForum();
   const [feedMode, setFeedMode] = useState<FeedMode>('for-you');
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('latest');
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(4);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const authorsById = useMemo(() => new Map(users.map((user) => [user.id, user])), [users]);
+  const likedPostIds = currentUser.likedPostIds;
+  const bookmarkedPostIds = currentUser.bookmarkedPostIds;
+  const handleSelectTag = useCallback((tag: string) => setActiveTag(tag), []);
+  const handleClearTag = useCallback(() => setActiveTag(null), []);
+  const handleFeedModeChange = useCallback((value: FeedMode) => setFeedMode(value), []);
+  const handleSortChange = useCallback((value: SortOption) => setSortBy(value), []);
+  const handleToggleLike = useCallback((postId: number) => togglePostLike(postId), [togglePostLike]);
+  const handleToggleBookmark = useCallback((postId: number) => toggleBookmark(postId), [toggleBookmark]);
 
   const filteredPosts = useMemo(() => {
     const term = searchQuery.trim().toLowerCase();
@@ -57,14 +66,16 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
   const loadMore = useCallback(() => {
     if (isLoadingMore || visibleCount >= filteredPosts.length) return;
     setIsLoadingMore(true);
-    window.setTimeout(() => {
-      setVisibleCount((prev) => prev + 6);
+    window.requestAnimationFrame(() => {
+      startTransition(() => {
+        setVisibleCount((prev) => prev + 4);
+      });
       setIsLoadingMore(false);
-    }, 650);
+    });
   }, [filteredPosts.length, isLoadingMore, visibleCount]);
 
   useEffect(() => {
-    setVisibleCount(6);
+    setVisibleCount(4);
   }, [feedMode, activeTag, sortBy, searchQuery]);
 
   useEffect(() => {
@@ -88,28 +99,21 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
 
   return (
     <section className="space-y-5">
-      <section className="dashboard-card overflow-hidden p-6">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
-          <div>
-            <p className="eyebrow">Feed wireframe</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">Modern community feed built like a SaaS workspace.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-ink-600">
-              Clear hierarchy, faster scanning, and visible engagement actions. The center column stays focused on reading while the right rail carries discovery and AI assistance.
-            </p>
+      <section className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="card-surface flex items-center gap-3 px-4 py-3">
+            <p className="text-sm font-semibold text-ink-800">Feed settings</p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            <div className="rounded-[24px] border border-uit-100 bg-white/70 p-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-ink-400">Posts today</p>
-              <p className="mt-3 text-2xl font-semibold text-ink-900">{filteredPosts.length}</p>
-            </div>
-            <div className="rounded-[24px] border border-uit-100 bg-white/70 p-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-ink-400">Trending tags</p>
-              <p className="mt-3 text-2xl font-semibold text-ink-900">{tags.length}</p>
-            </div>
-            <div className="rounded-[24px] border border-uit-100 bg-white/70 p-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-ink-400">Saved focus</p>
-              <p className="mt-3 text-2xl font-semibold text-ink-900">{currentUser.bookmarkedPostIds.length}</p>
-            </div>
+          <div className="card-surface flex items-center gap-3 px-4 py-3">
+            <p className="text-sm font-semibold text-ink-800">{filteredPosts.length} posts</p>
+          </div>
+        </div>
+        <div className="hidden items-center gap-3 xl:flex">
+          <div className="card-surface flex items-center gap-3 px-4 py-3">
+            <p className="text-sm font-semibold text-ink-800">{tags.length} tags</p>
+          </div>
+          <div className="card-surface flex items-center gap-3 px-4 py-3">
+            <p className="text-sm font-semibold text-ink-800">{currentUser.bookmarkedPostIds.length} saved</p>
           </div>
         </div>
       </section>
@@ -146,11 +150,11 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
       </section>
 
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <FeedTabs value={feedMode} onChange={setFeedMode} />
-        <FeedSort value={sortBy} onChange={setSortBy} />
+        <FeedTabs value={feedMode} onChange={handleFeedModeChange} />
+        <FeedSort value={sortBy} onChange={handleSortChange} />
       </div>
 
-      <FeedFilter tags={tags} activeTag={activeTag} onSelectTag={setActiveTag} onClear={() => setActiveTag(null)} />
+      <FeedFilter tags={tags} activeTag={activeTag} onSelectTag={handleSelectTag} onClear={handleClearTag} />
 
       {searchQuery ? (
         <div className="rounded-[24px] border border-white/70 bg-white/80 px-4 py-3 text-sm text-ink-600 shadow-card">
@@ -164,7 +168,29 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
           <p className="mt-2 text-sm text-ink-600">Try another keyword or clear the current tag filter.</p>
         </div>
       ) : (
-        visiblePosts.map((post) => <PostCard key={post.id} post={post} activeTag={activeTag} onSelectTag={setActiveTag} />)
+        <div className="grid gap-5 2xl:grid-cols-2">
+          {visiblePosts.map((post) => {
+            const author = authorsById.get(post.authorId);
+
+            if (!author) {
+              return null;
+            }
+
+            return (
+              <PostCard
+                key={post.id}
+                post={post}
+                author={author}
+                activeTag={activeTag}
+                onSelectTag={handleSelectTag}
+                liked={likedPostIds.includes(post.id)}
+                bookmarked={bookmarkedPostIds.includes(post.id)}
+                onLikeToggle={handleToggleLike}
+                onBookmarkToggle={handleToggleBookmark}
+              />
+            );
+          })}
+        </div>
       )}
 
       {isLoadingMore ? (

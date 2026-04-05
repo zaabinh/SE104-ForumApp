@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { BiUpvote } from 'react-icons/bi';
 import { BsBookmark, BsBookmarkFill } from 'react-icons/bs';
 import { FaRegComment } from 'react-icons/fa';
@@ -12,24 +13,25 @@ type PostActionsProps = {
   post: Post;
   compact?: boolean;
   onCommentClick?: () => void;
+  liked: boolean;
+  bookmarked: boolean;
+  onLikeToggle: (postId: number) => boolean;
+  onBookmarkToggle: (postId: number) => boolean;
 };
 
-export default function PostActions({ post, compact = false, onCommentClick }: PostActionsProps) {
-  const { currentUser, toggleBookmark, togglePostLike } = useForum();
+function PostActionsBase({ post, compact = false, onCommentClick, liked, bookmarked, onLikeToggle, onBookmarkToggle }: PostActionsProps) {
   const { pushToast } = useToast();
-  const liked = currentUser.likedPostIds.includes(post.id);
-  const bookmarked = currentUser.bookmarkedPostIds.includes(post.id);
   const baseClass = compact ? 'rounded-2xl px-3 py-2 text-sm' : 'rounded-2xl px-4 py-2.5 text-sm';
 
   const handleLike = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    const next = togglePostLike(post.id);
+    const next = onLikeToggle(post.id);
     pushToast(next ? 'Post liked' : 'Post like removed');
   };
 
   const handleBookmark = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    const next = toggleBookmark(post.id);
+    const next = onBookmarkToggle(post.id);
     pushToast(next ? 'Saved to bookmarks' : 'Removed from bookmarks');
   };
 
@@ -89,6 +91,28 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
         Share
       </button>
     </div>
+  );
+}
+
+const MemoPostActionsBase = memo(PostActionsBase);
+
+type ConnectedPostActionsProps = Omit<PostActionsProps, 'liked' | 'bookmarked' | 'onLikeToggle' | 'onBookmarkToggle'>;
+
+export function PurePostActions(props: PostActionsProps) {
+  return <MemoPostActionsBase {...props} />;
+}
+
+export default function PostActions(props: ConnectedPostActionsProps) {
+  const { currentUser, toggleBookmark, togglePostLike } = useForum();
+
+  return (
+    <MemoPostActionsBase
+      {...props}
+      liked={currentUser.likedPostIds.includes(props.post.id)}
+      bookmarked={currentUser.bookmarkedPostIds.includes(props.post.id)}
+      onLikeToggle={togglePostLike}
+      onBookmarkToggle={toggleBookmark}
+    />
   );
 }
 

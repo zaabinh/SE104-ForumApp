@@ -13,6 +13,7 @@ const robotoMono = Roboto_Mono({
   subsets: ['latin', 'latin-ext', 'vietnamese'],
   variable: '--font-mono',
   weight: ['400', '500', '700'],
+  preload: false,
 });
 
 export const metadata: Metadata = {

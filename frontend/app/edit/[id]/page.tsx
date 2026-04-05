@@ -34,7 +34,7 @@ export default function EditPostPage() {
     );
   }
 
-  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-20' : 'md:ml-60';
+  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
 
   if (!post || post.authorId !== currentUser.id) {
     return (
@@ -95,3 +95,6 @@ export default function EditPostPage() {
     </main>
   );
 }
+
+
+

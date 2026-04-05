@@ -17,6 +17,7 @@ export function useAuthGuard() {
 
       if (savedUser?.email && isMounted) {
         setUserEmail(savedUser.email);
+        setIsCheckingAuth(false);
       }
 
       try {
@@ -29,7 +30,8 @@ export function useAuthGuard() {
       } catch {
         clearAuthSession();
         if (isMounted) {
-          router.push('/login');
+          setIsCheckingAuth(false);
+          router.replace('/login');
         }
       }
     };

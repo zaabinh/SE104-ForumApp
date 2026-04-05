@@ -1,34 +1,35 @@
 'use client';
 
+import { memo, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { FiEye, FiTrendingUp, FiZap } from 'react-icons/fi';
-import PostActions from '@/components/post/PostActions';
+import { PurePostActions } from '@/components/post/PostActions';
 import Tag from '@/components/ui/Tag';
 import { formatRelativeTime } from '@/lib/mockData';
-import { useForum } from '@/lib/forumStore';
-import { Post } from '@/lib/types';
+import { Post, UserProfile } from '@/lib/types';
 
 type PostCardProps = {
   post: Post;
+  author: UserProfile;
   activeTag?: string | null;
   onSelectTag?: (tag: string) => void;
+  liked?: boolean;
+  bookmarked?: boolean;
+  onLikeToggle?: (postId: number) => boolean;
+  onBookmarkToggle?: (postId: number) => boolean;
 };
 
-export default function PostCard({ post, activeTag, onSelectTag }: PostCardProps) {
+function PostCard({ post, author, activeTag, onSelectTag, liked, bookmarked, onLikeToggle, onBookmarkToggle }: PostCardProps) {
   const router = useRouter();
-  const { getUserById } = useForum();
-  const author = getUserById(post.authorId);
-
-  if (!author) {
-    return null;
-  }
+  const handleOpenPost = useCallback(() => router.push(`/post/${post.id}`), [post.id, router]);
+  const handleCommentClick = useCallback(() => router.push(`/post/${post.id}`), [post.id, router]);
 
   return (
-    <article className="dashboard-card cursor-pointer select-none overflow-hidden p-5 transition-all duration-300 hover:-translate-y-1" onClick={() => router.push(`/post/${post.id}`)}>
+    <article className="dashboard-card content-auto cursor-pointer select-none overflow-hidden p-5 transition-all duration-300 hover:-translate-y-1" onClick={handleOpenPost}>
       <header className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Image src={author.avatar} alt={author.name} width={48} height={48} className="rounded-full border border-white/70 object-cover shadow-sm" />
+          <Image src={author.avatar} alt={author.name} width={48} height={48} sizes="48px" className="rounded-full border border-white/70 object-cover shadow-sm" />
           <div>
             <p className="text-sm font-semibold text-ink-900">{author.name}</p>
             <p className="text-xs text-ink-500">
@@ -54,7 +55,7 @@ export default function PostCard({ post, activeTag, onSelectTag }: PostCardProps
       </div>
 
       <div className="relative mt-5 h-64 overflow-hidden rounded-[26px]">
-        <Image src={post.image} alt={post.title} fill className="object-cover" />
+        <Image src={post.image} alt={post.title} fill sizes="(max-width: 1280px) 100vw, 900px" loading="lazy" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-900/55 via-transparent to-transparent" />
         <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl border border-white/20 bg-white/12 px-4 py-3 text-white backdrop-blur-md">
           <div>
@@ -76,7 +77,17 @@ export default function PostCard({ post, activeTag, onSelectTag }: PostCardProps
         </span>
       </div>
 
-      <PostActions post={post} compact onCommentClick={() => router.push(`/post/${post.id}`)} />
+      <PurePostActions
+        post={post}
+        compact
+        liked={liked}
+        bookmarked={bookmarked}
+        onLikeToggle={onLikeToggle}
+        onBookmarkToggle={onBookmarkToggle}
+        onCommentClick={handleCommentClick}
+      />
     </article>
   );
 }
+
+export default memo(PostCard);

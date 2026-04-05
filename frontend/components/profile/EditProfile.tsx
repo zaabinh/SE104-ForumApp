@@ -63,7 +63,7 @@ export default function EditProfile() {
     );
   }
 
-  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-20' : 'md:ml-60';
+  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
 
   return (
     <main className="min-h-screen bg-slate-100">
@@ -156,3 +156,6 @@ export default function EditProfile() {
     </main>
   );
 }
+
+
+

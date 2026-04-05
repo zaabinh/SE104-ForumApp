@@ -157,28 +157,28 @@ import ModernTable from './ModernTable';
 import Sidebar from '../layout/Sidebar';
 import Topbar from '../layout/Topbar';
 import Rightbar from '../layout/Rightbar';
+import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
 import { useState } from 'react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { isSidebarCollapsed, isMobileSidebarOpen, setIsSidebarCollapsed, setIsMobileSidebarOpen } = useResponsiveSidebar();
   const [userEmail] = useState('student@uit.edu.vn');
   const [searchQuery, setSearchQuery] = useState('');
 
   const toggleSidebarCollapse = () => setIsSidebarCollapsed(!isSidebarCollapsed);
-  const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
-  const closeMobileSidebar = () => setIsMobileOpen(false);
+  const toggleMobileSidebar = () => setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  const closeMobileSidebar = () => setIsMobileSidebarOpen(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
       <Sidebar 
         isCollapsed={isSidebarCollapsed}
-        isMobileOpen={isMobileOpen}
+        isMobileOpen={isMobileSidebarOpen}
         onToggleCollapse={toggleSidebarCollapse}
         onCloseMobile={closeMobileSidebar}
       />
       
-      <div className={`transition-all duration-200 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-60'}`}>
+      <div className={`transition-all duration-200 ${isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60'}`}>
         <Topbar 
           isSidebarCollapsed={isSidebarCollapsed}
           onOpenMobileSidebar={toggleMobileSidebar}
@@ -210,3 +210,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
+

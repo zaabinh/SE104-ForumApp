@@ -32,7 +32,7 @@ export default function PostDetailPage() {
     );
   }
 
-  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-20' : 'md:ml-60';
+  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
 
   if (!post) {
     return (
@@ -96,3 +96,6 @@ export default function PostDetailPage() {
     </main>
   );
 }
+
+
+
