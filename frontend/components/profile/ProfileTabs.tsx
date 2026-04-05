@@ -2,7 +2,7 @@
 
 import Tabs from '@/components/ui/Tabs';
 
-export type ProfileTab = 'posts' | 'comments' | 'bookmarks' | 'likes';
+export type ProfileTab = 'posts' | 'about' | 'activity' | 'bookmarks';
 
 type ProfileTabsProps = {
   value: ProfileTab;
@@ -11,9 +11,9 @@ type ProfileTabsProps = {
 
 const items: Array<{ value: ProfileTab; label: string }> = [
   { value: 'posts', label: 'Posts' },
-  { value: 'comments', label: 'Comments' },
-  { value: 'bookmarks', label: 'Bookmarks' },
-  { value: 'likes', label: 'Likes' },
+  { value: 'about', label: 'About' },
+  { value: 'activity', label: 'Activity' },
+  { value: 'bookmarks', label: 'Saved posts' },
 ];
 
 export default function ProfileTabs({ value, onChange }: ProfileTabsProps) {

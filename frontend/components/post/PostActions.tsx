@@ -19,7 +19,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
   const { pushToast } = useToast();
   const liked = currentUser.likedPostIds.includes(post.id);
   const bookmarked = currentUser.bookmarkedPostIds.includes(post.id);
-  const baseClass = compact ? 'rounded-xl px-3 py-2 text-sm' : 'rounded-2xl px-4 py-2 text-sm';
+  const baseClass = compact ? 'rounded-2xl px-3 py-2 text-sm' : 'rounded-2xl px-4 py-2.5 text-sm';
 
   const handleLike = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -53,7 +53,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
         type="button"
         onClick={handleLike}
         className={`inline-flex items-center gap-2 border transition-all duration-200 ${baseClass} ${
-          liked ? 'border-forum-primary bg-forum-primary/10 text-forum-primary' : 'border-slate-200 text-slate-600 hover:border-forum-primary hover:text-forum-primary'
+          liked ? 'border-uit-300 bg-uit-50 text-uit-700' : 'border-white/70 bg-white/80 text-ink-600 hover:border-uit-300 hover:text-uit-700'
         }`}
       >
         <BiUpvote className="h-4 w-4" />
@@ -65,7 +65,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
           event.stopPropagation();
           onCommentClick?.();
         }}
-        className={`inline-flex items-center gap-2 border border-slate-200 text-slate-600 transition-all duration-200 hover:border-forum-primary hover:text-forum-primary ${baseClass}`}
+        className={`inline-flex items-center gap-2 border border-white/70 bg-white/80 text-ink-600 transition-all duration-200 hover:border-uit-300 hover:text-uit-700 ${baseClass}`}
       >
         <FaRegComment className="h-4 w-4" />
         {post.comments}
@@ -74,7 +74,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
         type="button"
         onClick={handleBookmark}
         className={`inline-flex items-center gap-2 border transition-all duration-200 ${baseClass} ${
-          bookmarked ? 'border-forum-primary bg-forum-primary/10 text-forum-primary' : 'border-slate-200 text-slate-600 hover:border-forum-primary hover:text-forum-primary'
+          bookmarked ? 'border-uit-300 bg-uit-50 text-uit-700' : 'border-white/70 bg-white/80 text-ink-600 hover:border-uit-300 hover:text-uit-700'
         }`}
       >
         {bookmarked ? <BsBookmarkFill className="h-4 w-4" /> : <BsBookmark className="h-4 w-4" />}
@@ -83,7 +83,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
       <button
         type="button"
         onClick={handleShare}
-        className={`inline-flex items-center gap-2 border border-slate-200 text-slate-600 transition-all duration-200 hover:border-forum-primary hover:text-forum-primary ${baseClass}`}
+        className={`inline-flex items-center gap-2 border border-white/70 bg-white/80 text-ink-600 transition-all duration-200 hover:border-uit-300 hover:text-uit-700 ${baseClass}`}
       >
         <FiShare2 className="h-4 w-4" />
         Share
@@ -91,3 +91,4 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
     </div>
   );
 }
+

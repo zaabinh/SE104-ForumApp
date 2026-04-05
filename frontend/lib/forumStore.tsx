@@ -78,7 +78,19 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const persistState = () => window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const idleWindow = window as typeof window & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (idleWindow.requestIdleCallback) {
+      const idleId = idleWindow.requestIdleCallback(persistState, { timeout: 400 });
+      return () => idleWindow.cancelIdleCallback?.(idleId);
+    }
+
+    const timeoutId = window.setTimeout(persistState, 120);
+    return () => window.clearTimeout(timeoutId);
   }, [state]);
 
   const currentUser = useMemo(
