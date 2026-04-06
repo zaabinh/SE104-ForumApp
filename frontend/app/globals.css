@@ -4,10 +4,32 @@
 
 :root {
   color-scheme: light;
+  --app-bg:
+    radial-gradient(circle at top left, rgba(55, 107, 180, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(72, 200, 255, 0.16), transparent 22%),
+    linear-gradient(180deg, #f8fbff 0%, #f2f7ff 42%, #edf3ff 100%);
+}
+
+html {
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
   @apply bg-forum-bg text-forum-text antialiased;
+  background-image: var(--app-bg);
+  background-attachment: scroll;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+code,
+pre,
+.monospace {
+  font-family: var(--font-mono), 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
 }
 
 ::-webkit-scrollbar {
@@ -19,12 +41,80 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #547aa5;
+  background: linear-gradient(180deg, #8db3ff 0%, #376bb4 100%);
   border-radius: 999px;
+}
+
+.scroll-panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(55, 107, 180, 0.7) rgba(219, 232, 255, 0.6);
+  overscroll-behavior: contain;
+}
+
+.scroll-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-panel::-webkit-scrollbar-track {
+  background: rgba(219, 232, 255, 0.65);
+  border-radius: 999px;
+}
+
+.scroll-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(55, 107, 180, 0.95) 0%, rgba(72, 200, 255, 0.9) 100%);
+  border-radius: 999px;
+}
+
+.sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 680px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 @layer components {
   .card-surface {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-forum-primary/40;
+    @apply rounded-[28px] border border-white/60 bg-white/90 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-uit-300/70;
+  }
+  .dashboard-card {
+    @apply rounded-[30px] border border-white/60 bg-white/80 shadow-dashboard transition-all duration-300 hover:border-uit-300/70 hover:shadow-gradient;
+  }
+  .gradient-border {
+    @apply bg-gradient-to-r from-uit-600 via-ai-cyan to-ai-mint bg-clip-text text-transparent;
+  }
+  .glass-panel {
+    @apply rounded-[28px] border border-white/60 bg-white/60 shadow-glass backdrop-blur-2xl;
+  }
+  .subtle-ring {
+    @apply ring-1 ring-inset ring-white/50;
+  }
+  .section-title {
+    @apply text-lg font-semibold tracking-tight text-ink-900;
+  }
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.32em] text-uit-700;
+  }
+  .metric-value {
+    @apply text-3xl font-semibold tracking-tight text-ink-900;
+  }
+  .soft-grid {
+    background-image:
+      linear-gradient(rgba(145, 170, 215, 0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(145, 170, 215, 0.10) 1px, transparent 1px);
+    background-size: 22px 22px;
   }
 }

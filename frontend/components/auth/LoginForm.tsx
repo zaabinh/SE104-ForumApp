@@ -2,22 +2,25 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { mockLogin } from '@/lib/mockAuth';
+import { api, fetchCurrentUser, saveAuthSession } from '@/lib/axios';
 
 export default function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
-  const canSubmit = useMemo(() => email.includes('@') && password.length >= 6, [email, password]);
+  const canSubmit = useMemo(() => password.length >= 6, [identifier, password]);
+
+  useEffect(() => {
+    router.prefetch('/feed');
+  }, [router]);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,12 +35,25 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const response = await mockLogin({ email, password });
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setSuccess(`Welcome back! ${remember ? 'Your session will be remembered.' : ''}`);
-      router.push('/feed');
+      const response = await api.post('/auth/login', { identifier, password });
+      saveAuthSession(response.data);
+      await fetchCurrentUser();
+      setSuccess('Welcome back. Redirecting to your feed...');
+      startTransition(() => router.push('/feed'));
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Login failed. Please try again.');
+      const message =
+        typeof submitError === 'object' &&
+        submitError !== null &&
+        'response' in submitError &&
+        typeof submitError.response === 'object' &&
+        submitError.response !== null &&
+        'data' in submitError.response &&
+        typeof submitError.response.data === 'object' &&
+        submitError.response.data !== null &&
+        'detail' in submitError.response.data
+          ? String(submitError.response.data.detail)
+          : 'Login failed. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -45,7 +61,7 @@ export default function LoginForm() {
 
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
-      <Input id="login-email" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      <Input id="login-identifier" label="Email or Username" type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
       <div className="space-y-2">
         <Input
           id="login-password"
@@ -59,9 +75,6 @@ export default function LoginForm() {
           {showPassword ? 'Hide password' : 'Show password'}
         </button>
       </div>
-      <label className="flex items-center gap-2 text-sm text-slate-600">
-        <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Remember me
-      </label>
 
       {error ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p> : null}
       {success ? <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p> : null}
@@ -76,11 +89,6 @@ export default function LoginForm() {
           'Login'
         )}
       </Button>
-
-      <div className="grid grid-cols-2 gap-2">
-        <Button type="button" variant="outline">Login with Google</Button>
-        <Button type="button" variant="outline">Login with GitHub</Button>
-      </div>
 
       <p className="text-sm text-slate-600">
         Need an account?{' '}

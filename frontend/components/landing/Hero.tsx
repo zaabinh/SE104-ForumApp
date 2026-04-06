@@ -15,8 +15,10 @@ export default function Hero() {
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-slate-500">UIT Community</p>
           </div>
         </div>
-        <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">A modern developer community to read, share, and build ideas.</h1>
-        <p className="text-slate-600">Join thousands of developers discussing engineering, tooling, and product stories every day.</p>
+        <h1 className="text-4xl font-extrabold leading-tight md:text-5xl bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text">
+          AI-Powered Student Forum for Modern Universities
+        </h1>
+        <p className="text-slate-600">Connect with peers, discover intelligent insights, and accelerate your learning with our cutting-edge AI platform designed specifically for university students.</p>
         <div className="flex flex-wrap gap-3">
           <Link href="/register">
             <Button>Get Started</Button>

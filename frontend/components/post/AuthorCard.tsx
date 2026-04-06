@@ -48,10 +48,12 @@ export default function AuthorCard({ post }: AuthorCardProps) {
           </button>
         ) : (
           <FollowButton
+            userId={author.id}
             isFollowing={isFollowing}
-            onToggle={() => {
+            onToggle={(nextFollowing) => {
               const next = toggleFollowUser(author.id);
-              pushToast(next ? `Following ${author.name}` : `Unfollowed ${author.name}`);
+              const resolved = typeof nextFollowing === 'boolean' ? nextFollowing : next;
+              pushToast(resolved ? `Following ${author.name}` : `Unfollowed ${author.name}`);
             }}
           />
         )}

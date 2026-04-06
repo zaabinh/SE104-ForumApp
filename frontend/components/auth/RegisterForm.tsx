@@ -2,23 +2,32 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { mockRegister } from '@/lib/mockAuth';
+import { api } from '@/lib/axios';
 
 export default function RegisterForm() {
   const router = useRouter();
-  const [form, setForm] = useState({ username: '', email: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ username: '', email: '', fullName: '', password: '', confirmPassword: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const canSubmit = useMemo(
-    () => form.username.length > 2 && form.email.includes('@') && form.password.length >= 6 && form.password === form.confirmPassword,
+    () =>
+      form.username.length > 2 &&
+      form.email.includes('@') &&
+      form.fullName.trim().length > 1 &&
+      form.password.length >= 6 &&
+      form.password === form.confirmPassword,
     [form]
   );
+
+  useEffect(() => {
+    router.prefetch('/login');
+  }, [router]);
 
   const updateField = (key: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -35,16 +44,31 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      await mockRegister({
+      const response = await api.post('/auth/register', {
         username: form.username,
         email: form.email,
+        full_name: form.fullName,
         password: form.password,
       });
 
-      setSuccess('Registration completed. Redirecting to login...');
-      router.push('/login');
+      setSuccess(response.data.message ?? 'Registration completed. Redirecting to login...');
+      setTimeout(() => {
+        startTransition(() => router.push('/login'));
+      }, 800);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Registration failed. Please try again.');
+      const message =
+        typeof submitError === 'object' &&
+        submitError !== null &&
+        'response' in submitError &&
+        typeof submitError.response === 'object' &&
+        submitError.response !== null &&
+        'data' in submitError.response &&
+        typeof submitError.response.data === 'object' &&
+        submitError.response.data !== null &&
+        'detail' in submitError.response.data
+          ? String(submitError.response.data.detail)
+          : 'Registration failed. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -54,6 +78,7 @@ export default function RegisterForm() {
     <form className="space-y-4" onSubmit={onSubmit}>
       <Input id="register-username" label="Username" value={form.username} onChange={(e) => updateField('username', e.target.value)} required />
       <Input id="register-email" label="Email" type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} required />
+      <Input id="register-full-name" label="Full name" value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} required />
       <Input
         id="register-password"
         label="Password"

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { BiUpvote } from 'react-icons/bi';
 import { BsBookmark, BsBookmarkFill } from 'react-icons/bs';
 import { FaRegComment } from 'react-icons/fa';
@@ -12,24 +13,25 @@ type PostActionsProps = {
   post: Post;
   compact?: boolean;
   onCommentClick?: () => void;
+  liked: boolean;
+  bookmarked: boolean;
+  onLikeToggle: (postId: number) => boolean;
+  onBookmarkToggle: (postId: number) => boolean;
 };
 
-export default function PostActions({ post, compact = false, onCommentClick }: PostActionsProps) {
-  const { currentUser, toggleBookmark, togglePostLike } = useForum();
+function PostActionsBase({ post, compact = false, onCommentClick, liked, bookmarked, onLikeToggle, onBookmarkToggle }: PostActionsProps) {
   const { pushToast } = useToast();
-  const liked = currentUser.likedPostIds.includes(post.id);
-  const bookmarked = currentUser.bookmarkedPostIds.includes(post.id);
-  const baseClass = compact ? 'rounded-xl px-3 py-2 text-sm' : 'rounded-2xl px-4 py-2 text-sm';
+  const baseClass = compact ? 'rounded-2xl px-3 py-2 text-sm' : 'rounded-2xl px-4 py-2.5 text-sm';
 
   const handleLike = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    const next = togglePostLike(post.id);
+    const next = onLikeToggle(post.id);
     pushToast(next ? 'Post liked' : 'Post like removed');
   };
 
   const handleBookmark = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    const next = toggleBookmark(post.id);
+    const next = onBookmarkToggle(post.id);
     pushToast(next ? 'Saved to bookmarks' : 'Removed from bookmarks');
   };
 
@@ -53,7 +55,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
         type="button"
         onClick={handleLike}
         className={`inline-flex items-center gap-2 border transition-all duration-200 ${baseClass} ${
-          liked ? 'border-forum-primary bg-forum-primary/10 text-forum-primary' : 'border-slate-200 text-slate-600 hover:border-forum-primary hover:text-forum-primary'
+          liked ? 'border-uit-300 bg-uit-50 text-uit-700' : 'border-white/70 bg-white/80 text-ink-600 hover:border-uit-300 hover:text-uit-700'
         }`}
       >
         <BiUpvote className="h-4 w-4" />
@@ -65,7 +67,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
           event.stopPropagation();
           onCommentClick?.();
         }}
-        className={`inline-flex items-center gap-2 border border-slate-200 text-slate-600 transition-all duration-200 hover:border-forum-primary hover:text-forum-primary ${baseClass}`}
+        className={`inline-flex items-center gap-2 border border-white/70 bg-white/80 text-ink-600 transition-all duration-200 hover:border-uit-300 hover:text-uit-700 ${baseClass}`}
       >
         <FaRegComment className="h-4 w-4" />
         {post.comments}
@@ -74,7 +76,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
         type="button"
         onClick={handleBookmark}
         className={`inline-flex items-center gap-2 border transition-all duration-200 ${baseClass} ${
-          bookmarked ? 'border-forum-primary bg-forum-primary/10 text-forum-primary' : 'border-slate-200 text-slate-600 hover:border-forum-primary hover:text-forum-primary'
+          bookmarked ? 'border-uit-300 bg-uit-50 text-uit-700' : 'border-white/70 bg-white/80 text-ink-600 hover:border-uit-300 hover:text-uit-700'
         }`}
       >
         {bookmarked ? <BsBookmarkFill className="h-4 w-4" /> : <BsBookmark className="h-4 w-4" />}
@@ -83,7 +85,7 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
       <button
         type="button"
         onClick={handleShare}
-        className={`inline-flex items-center gap-2 border border-slate-200 text-slate-600 transition-all duration-200 hover:border-forum-primary hover:text-forum-primary ${baseClass}`}
+        className={`inline-flex items-center gap-2 border border-white/70 bg-white/80 text-ink-600 transition-all duration-200 hover:border-uit-300 hover:text-uit-700 ${baseClass}`}
       >
         <FiShare2 className="h-4 w-4" />
         Share
@@ -91,3 +93,26 @@ export default function PostActions({ post, compact = false, onCommentClick }: P
     </div>
   );
 }
+
+const MemoPostActionsBase = memo(PostActionsBase);
+
+type ConnectedPostActionsProps = Omit<PostActionsProps, 'liked' | 'bookmarked' | 'onLikeToggle' | 'onBookmarkToggle'>;
+
+export function PurePostActions(props: PostActionsProps) {
+  return <MemoPostActionsBase {...props} />;
+}
+
+export default function PostActions(props: ConnectedPostActionsProps) {
+  const { currentUser, toggleBookmark, togglePostLike } = useForum();
+
+  return (
+    <MemoPostActionsBase
+      {...props}
+      liked={currentUser.likedPostIds.includes(props.post.id)}
+      bookmarked={currentUser.bookmarkedPostIds.includes(props.post.id)}
+      onLikeToggle={togglePostLike}
+      onBookmarkToggle={toggleBookmark}
+    />
+  );
+}
+

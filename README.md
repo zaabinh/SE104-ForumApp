@@ -1,185 +1,259 @@
-# Student Forum System with AI – Frontend
+# SE104 Forum App
 
-## 1. Description
-The Student Forum System is a web-based platform that allows students to create posts, comment, and interact with each other.  
-The system also integrates AI features such as content suggestion, content moderation, and personalized feed.
+Last progress update: 2026-04-05
 
-This repository contains the **Frontend** of the system, built with **Next.js (ReactJS) and Tailwind CSS**.
+## Overview
 
----
+SE104 Forum App is a full-stack student forum system for UIT with:
 
-## 2. Tech Stack
-| Technology | Description |
-|------------|-------------|
-| ReactJS (Next.js) | Frontend framework |
-| Tailwind CSS | Styling |
-| FastAPI | Backend (separate service) |
-| MySQL | Database |
-| Python NLP | AI features |
-| JWT | Authentication |
+- A Next.js 15 frontend
+- A FastAPI backend
+- SQL Server via SQLAlchemy + `pyodbc`
+- JWT-based authentication with access and refresh tokens
+- Forum features for posts, comments, bookmarks, profiles, and follows
 
----
+The repository now contains both the frontend and backend in active development.
 
-## 3. Features
+## Current Progress
 
-### Authentication
-- User registration
-- User login
-- Logout
-- Protected routes (unauthenticated users cannot access Feed)
+As of 2026-04-05, the project includes:
 
-### Feed
-- View posts
-- Search posts
-- Filter by tags
-- Sort posts
-- Infinite scroll
+- Backend API with:
+  - User registration
+  - User login
+  - Refresh token flow
+  - Logout
+  - Current user endpoint
+  - Profile, bookmarks, comments, and follow APIs
+- Frontend with:
+  - Split landing page with built-in sign in / register panel
+  - Login and register flows connected to backend authentication
+  - Protected authenticated pages
+  - Main feed with search, filter, sort, infinite scroll UI, and smoother sidebar/rightbar behavior
+  - Create post, edit post, post detail, profile, settings, and dashboard pages
+  - UIT logo integrated in the topbar and browser tab metadata
+- Performance improvements:
+  - Deferred local storage persistence in the mock forum state
+  - Memoized tag rendering and layout surfaces
+  - Rightbar-specific scrollbar and smoother scrolling behavior
 
-### Post System
-- Create post
-- Edit post
-- Delete post
-- Like post
-- Bookmark post
-- Share post
-- Comment on post
-- Reply to comment
+## Repository Structure
 
-### Profile
-- View user profile
-- View user's posts
-- View bookmarked posts
-- Follow users
+```text
+backend/
+  database.py
+  init_db.py
+  main.py
+  requirements.txt
+  routes/
+  models/
+  schemas/
+  dependencies/
+  utils/
 
-### AI Features (Planned)
-- Content recommendation
-- Content moderation
-- Personalized feed
-
----
-
-## 4. Current Progress
-- Implemented Landing Page, Login, and Register pages
-- Built New Feed layout:
-  - Left Sidebar
-  - Topbar
-  - Feed (Post cards)
-  - Right Sidebar
-- Feed features:
-  - Search / Filter / Sort posts
-  - Infinite scroll
-- Post system:
-  - Create / Edit / Delete post
-- Post Detail Page:
-  - Post content
-  - Author information
-  - Related posts
-  - Interaction UI (like, comment/reply, share, save)
-- Authentication flow:
-  - Register → Login → Feed
-- Profile page implemented
-
----
-
-## 5. Frontend Setup Guide
-
-### 5.1 Requirements
-Make sure you have installed:
-- Node.js (>= 18)
-- npm
-- Git
-
-Check versions:
-```bash
-node -v
-npm -v
+frontend/
+  app/
+  components/
+  lib/
+  public/
+  package.json
+  next.config.ts
 ```
 
----
+## System Requirements
 
-### 5.2 Installation
-Clone the repository:
-```bash
-git clone <repository-url>
-cd SE104.ForumApp
+### Backend
+
+- Python 3.12+ recommended
+- Microsoft SQL Server
+- ODBC Driver 17 for SQL Server or compatible installed on Windows
+
+### Frontend
+
+- Node.js 18+ recommended
+- npm 9+ recommended
+
+## Environment Configuration
+
+### Backend environment
+
+Copy `backend/.env.example` to `backend/.env` and update values if needed:
+
+```env
+DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/StudentForum?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes&Encrypt=no&TrustServerCertificate=yes
+JWT_SECRET_KEY=replace-with-a-long-random-secret
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
-Install dependencies:
-```bash
+### Frontend environment
+
+Copy `frontend/.env.example` to `frontend/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+```
+
+## How To Run The System
+
+### 1. Start the backend
+
+From the repository root:
+
+```powershell
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Initialize database tables:
+
+```powershell
+python init_db.py
+```
+
+Optional database connectivity check:
+
+```powershell
+python test_db.py
+```
+
+Run the API server:
+
+```powershell
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Backend base URL:
+
+```text
+http://127.0.0.1:8000
+```
+
+Swagger docs:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### 2. Start the frontend
+
+Open a second terminal:
+
+```powershell
+cd frontend
 npm install
-```
-
----
-
-### 5.3 Run the project
-```bash
 npm run dev
 ```
 
-Open your browser at:
-```
-http://localhost:3000
-```
+Frontend URL:
 
----
-
-### 5.4 Build for production
-```bash
-npm run build
-npm start
+```text
+http://127.0.0.1:3000
 ```
 
----
+## Startup Order
 
-### 5.5 Troubleshooting
-If you encounter errors, try:
-```bash
-rm -rf .next
+Use this order when running locally:
+
+1. Start SQL Server
+2. Start the FastAPI backend on port `8000`
+3. Start the Next.js frontend on port `3000`
+4. Open the landing page and authenticate from there
+
+## Core Routes
+
+### Frontend routes
+
+- `/` - landing page with login/register panel
+- `/login` - login page
+- `/register` - register page
+- `/feed` - main feed
+- `/create` - create post
+- `/post/[id]` - post detail
+- `/profile/[id]` - user profile
+- `/profile/current-user` - current user redirect
+- `/settings` - settings
+- `/dashboard` - dashboard
+
+### Backend auth routes
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
+- `GET /auth/me`
+- `GET /auth/users/{user_id}`
+
+## Authentication Summary
+
+The backend uses JWT authentication with two token types:
+
+- Access token:
+  - short-lived
+  - sent as `Authorization: Bearer <token>`
+  - used for protected API access
+- Refresh token:
+  - stored in the `auth_sessions` table
+  - used to obtain a new access token
+  - invalidated on logout
+
+The frontend stores:
+
+- `access_token`
+- `refresh_token`
+- `auth_user`
+
+in browser local storage and automatically refreshes expired access tokens through the Axios interceptor in [axios.ts](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/frontend/lib/axios.ts).
+
+For the full authentication document, see [AUTHENTICATION.md](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/AUTHENTICATION.md).
+
+## Notes
+
+- The backend currently targets SQL Server, not SQLite.
+- The frontend still contains some mock forum state for post/feed interactions, while authentication is already connected to the real backend.
+- If Next.js cache issues appear, delete `frontend/.next` and restart the frontend dev server.
+
+## Common Commands
+
+### Backend
+
+```powershell
+cd backend
+.venv\Scripts\activate
+uvicorn main:app --reload
+```
+
+### Frontend
+
+```powershell
+cd frontend
 npm run dev
 ```
 
-If port 3000 is already in use:
-```bash
-npm run dev -- -p 3001
-```
+## Troubleshooting
 
----
+### Backend
 
-## 6. Project Structure
-```
-app/            # Pages (App Router)
-components/     # UI Components
-lib/            # Mock data, utilities
-public/         # Images, icons
-styles/         # Global styles
-tailwind.config.ts
-```
+- If database connection fails:
+  - verify SQL Server is running
+  - verify `DATABASE_URL`
+  - verify ODBC Driver 17 is installed
+- If JWT errors occur:
+  - verify `JWT_SECRET_KEY`
+  - verify frontend and backend are using the same backend instance
 
----
+### Frontend
 
-## 7. Main Pages
-| Page | URL |
-|------|-----|
-| Landing | / |
-| Login | /login |
-| Register | /register |
-| Feed | /feed |
-| Post Detail | /post/[id] |
-| Profile | /profile/[id] |
+- If authentication requests fail:
+  - verify `NEXT_PUBLIC_API_URL`
+  - verify backend CORS allows `http://127.0.0.1:3000` and `http://localhost:3000`
+- If the dev server serves stale output:
+  - remove `frontend/.next`
+  - restart `npm run dev`
 
----
+## Author
 
-## 8. Future Development
-In the next phase, the system will:
-- Connect to Backend API (FastAPI)
-- Implement JWT Authentication
-- Store data in MySQL
-- Integrate AI features:
-  - Content recommendation
-  - Content moderation
-  - Personalized feed
-
----
-
-## 9. Author
-Student Forum System – Software Engineering Project – SE104
+Software Engineering Project - SE104

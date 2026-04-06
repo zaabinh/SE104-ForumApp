@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { clearAuthSession, fetchCurrentUser, getStoredUser } from '@/lib/axios';
 
 export function useAuthGuard() {
   const router = useRouter();
@@ -9,21 +10,37 @@ export function useAuthGuard() {
   const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
+    let isMounted = true;
 
-    if (!savedUser) {
-      router.push('/login');
-      return;
-    }
+    const verifySession = async () => {
+      const savedUser = getStoredUser();
 
-    try {
-      const parsedUser = JSON.parse(savedUser) as { email?: string };
-      setUserEmail(parsedUser.email ?? '');
-      setIsCheckingAuth(false);
-    } catch {
-      localStorage.removeItem('user');
-      router.push('/login');
-    }
+      if (savedUser?.email && isMounted) {
+        setUserEmail(savedUser.email);
+        setIsCheckingAuth(false);
+      }
+
+      try {
+        const currentUser = await fetchCurrentUser();
+        if (!isMounted) {
+          return;
+        }
+        setUserEmail(currentUser.email);
+        setIsCheckingAuth(false);
+      } catch {
+        clearAuthSession();
+        if (isMounted) {
+          setIsCheckingAuth(false);
+          router.replace('/login');
+        }
+      }
+    };
+
+    verifySession();
+
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
 
   return { isCheckingAuth, userEmail };

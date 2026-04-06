@@ -1,19 +1,24 @@
 'use client';
 
-import Rightbar from '@/components/layout/Rightbar';
+import dynamic from 'next/dynamic';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import PostList from '@/components/post/PostList';
 import { useAuthGuard } from '@/lib/useAuthGuard';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+
+const Rightbar = dynamic(() => import('@/components/layout/Rightbar'));
 
 export default function FeedPage() {
   const { isCheckingAuth, userEmail } = useAuthGuard();
   const { isSidebarCollapsed, isMobileSidebarOpen, setIsSidebarCollapsed, setIsMobileSidebarOpen } = useResponsiveSidebar();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebouncedValue(searchQuery, 350);
+  const handleCloseMobileSidebar = useCallback(() => setIsMobileSidebarOpen(false), [setIsMobileSidebarOpen]);
+  const handleToggleSidebarCollapse = useCallback(() => setIsSidebarCollapsed((prev) => !prev), [setIsSidebarCollapsed]);
+  const handleOpenMobileSidebar = useCallback(() => setIsMobileSidebarOpen(true), [setIsMobileSidebarOpen]);
 
   if (isCheckingAuth) {
     return (
@@ -26,25 +31,25 @@ export default function FeedPage() {
     );
   }
 
-  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-20' : 'md:ml-60';
+  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
 
   return (
-    <main>
+    <main className="min-h-screen overflow-hidden">
       <Sidebar
         isCollapsed={isSidebarCollapsed}
         isMobileOpen={isMobileSidebarOpen}
-        onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+        onCloseMobile={handleCloseMobileSidebar}
+        onToggleCollapse={handleToggleSidebarCollapse}
       />
       <Topbar
         isSidebarCollapsed={isSidebarCollapsed}
-        onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+        onOpenMobileSidebar={handleOpenMobileSidebar}
         userEmail={userEmail}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <div className={`mx-auto grid max-w-[1600px] gap-6 px-4 py-6 transition-all duration-200 ${sidebarOffsetClass} xl:grid-cols-[minmax(0,1fr)_300px]`}>
-        <section>
+      <div className={`grid h-[calc(100dvh-5.25rem)] gap-6 px-4 py-6 transition-[margin] duration-300 ease-in-out ${sidebarOffsetClass} xl:grid-cols-[minmax(0,1fr)_320px]`}>
+        <section className="scroll-panel min-w-0 overflow-y-auto pr-2">
           <PostList searchQuery={debouncedSearch} />
         </section>
         <Rightbar />

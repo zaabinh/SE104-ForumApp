@@ -1,10 +1,11 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useDeferredValue, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Tag from '@/components/ui/Tag';
+import { useForum } from '@/lib/forumStore';
 import { EditorPostDraft } from '@/lib/types';
 
 type PostEditorProps = {
@@ -22,14 +23,34 @@ const emptyDraft: EditorPostDraft = {
 };
 
 export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, onDelete }: PostEditorProps) {
+  const { tags } = useForum();
   const [draft, setDraft] = useState<EditorPostDraft>(initialValue);
   const [tagValue, setTagValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const deferredTagValue = useDeferredValue(tagValue);
+
+  const popularTags = useMemo(() => tags.slice(0, 10), [tags]);
+  const recommendedTags = useMemo(() => {
+    const normalized = deferredTagValue.trim().toLowerCase();
+    const availableTags = tags.filter((tag) => !draft.tags.includes(tag));
+
+    if (!normalized) {
+      return availableTags.slice(0, 8);
+    }
+
+    return availableTags.filter((tag) => tag.includes(normalized)).slice(0, 8);
+  }, [deferredTagValue, draft.tags, tags]);
 
   const addTag = () => {
     const nextTag = tagValue.trim().toLowerCase();
     if (!nextTag || draft.tags.includes(nextTag)) return;
     setDraft((prev) => ({ ...prev, tags: [...prev.tags, nextTag] }));
+    setTagValue('');
+  };
+
+  const addSuggestedTag = (tag: string) => {
+    if (draft.tags.includes(tag)) return;
+    setDraft((prev) => ({ ...prev, tags: [...prev.tags, tag] }));
     setTagValue('');
   };
 
@@ -97,6 +118,22 @@ export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, 
               {draft.tags.map((tag) => (
                 <Tag key={tag} label={tag} onClick={() => setDraft((prev) => ({ ...prev, tags: prev.tags.filter((item) => item !== tag) }))} />
               ))}
+            </div>
+            <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Popular tags</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {popularTags.map((tag) => (
+                  <Tag key={`popular-${tag}`} label={tag} onClick={() => addSuggestedTag(tag)} />
+                ))}
+              </div>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Recommendations</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {recommendedTags.length ? (
+                  recommendedTags.map((tag) => <Tag key={`suggested-${tag}`} label={tag} onClick={() => addSuggestedTag(tag)} />)
+                ) : (
+                  <span className="text-sm text-slate-400">No matching tags yet. Press Enter to create one.</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
