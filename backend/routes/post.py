@@ -107,3 +107,15 @@ def get_post_detail(slug: str, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(post)
     return post
+
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(post_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    # Kiểm tra quyền: Chỉ chủ bài viết mới được xóa
+    if post.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this post")
+    db.delete(post)
+    db.commit()
+    return None
