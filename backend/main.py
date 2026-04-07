@@ -7,12 +7,15 @@ from routes.auth import router as auth_router
 from routes.follow import router as follow_router
 from routes.user import router as user_router
 from routes.post import router as post_router
+from routes.comment import router as comment_router
 
 app = FastAPI(
     title="Student Forum API",
     version="1.0.0",
 )
 
+app.include_router(post_router)
+app.include_router(comment_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
