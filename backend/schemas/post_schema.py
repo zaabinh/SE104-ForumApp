@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List
 from schemas.auth_schema import UserResponse
 
-# Thêm Schema cho Tag để hiển thị trong PostResponse
+#  Schema cho Tag để hiển thị trong PostResponse
 class TagResponse(BaseModel):
     id: int
     name: str
