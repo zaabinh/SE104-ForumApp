@@ -6,7 +6,7 @@ from models import AuthSession, Bookmark, Comment, Follow, Post, User
 from routes.auth import router as auth_router
 from routes.follow import router as follow_router
 from routes.user import router as user_router
-
+from routes.post import router as post_router
 
 app = FastAPI(
     title="Student Forum API",
