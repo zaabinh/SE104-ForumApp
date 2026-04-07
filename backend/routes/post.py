@@ -32,9 +32,19 @@ def create_post(payload: PostCreate, db: Session = Depends(get_db), current_user
     return new_post
 
 @router.get("/feed", response_model=List[PostResponse])
-def get_posts_feed(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    # Hiển thị bài viết mới nhất trên bảng feed
-    return db.query(Post).filter(Post.status == "active").order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
+def get_posts_feed(
+    search: Optional[str] = None, 
+    tag_name: Optional[str] = None, 
+    skip: int = 0, 
+    limit: int = 10, 
+    db: Session = Depends(get_db)
+):
+    query = db.query(Post).filter(Post.status == "active")
+    if search:
+        query = query.filter(or_(Post.title.contains(search), Post.content.contains(search)))
+    if tag_name:
+        query = query.join(Post.tags).filter(Tag.name == tag_name)
+    return query.order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
 
 @router.put("/{post_id}", response_model=PostResponse)
 def update_post(post_id: int, payload: PostUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -86,3 +96,14 @@ def share_post(post_id: int, db: Session = Depends(get_db)):
     
     share_url = f"https://yourforum.com/posts/{post.slug}"
     return {"share_url": share_url}
+    
+@router.get("/{slug}", response_model=PostResponse)
+def get_post_detail(slug: str, db: Session = Depends(get_db)):
+    post = db.query(Post).filter(Post.slug == slug).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    # Logic tăng lượt xem mỗi lần click
+    post.view_count += 1
+    db.commit()
+    db.refresh(post)
+    return post
