@@ -26,15 +26,15 @@ Xuất phát từ những thực trạng nêu trên, nhóm quyết định chọ
 
 == 1.2. Mục tiêu
 
-Đề tài hướng đến việc xây dựng một ứng dụng forum dành cho sinh viên với bốn chức năng cốt lõi sau:
+Đề tài hướng đến việc xây dựng một ứng dụng forum dành cho sinh viên với bốn nhóm chức năng cốt lõi sau:
 
-- *Hồ sơ cá nhân (Profile):* Cho phép sinh viên tạo và quản lý hồ sơ cá nhân, bao gồm các thông tin cơ bản như tên, khoa, khóa học, ảnh đại diện và tiểu sử ngắn. Hồ sơ cá nhân giúp sinh viên thể hiện bản thân trong cộng đồng, đồng thời hỗ trợ việc tìm kiếm và kết nối với các sinh viên khác.
+- *Hồ sơ cá nhân (Profile):* Cho phép sinh viên tạo và quản lý hồ sơ cá nhân, bao gồm các thông tin cơ bản như tên, ảnh đại diện và tiểu sử ngắn. Sinh viên có thể theo dõi (follow) lẫn nhau, xem lại các bài viết đã đăng, đã thích hoặc đã lưu, giúp xây dựng danh tính và kết nối trong cộng đồng.
 
-- *Newsfeed (Bảng tin):* Xây dựng hệ thống bảng tin cho phép sinh viên đăng bài viết, chia sẻ thông tin, tài liệu học tập và cập nhật các tin tức mới nhất. Bảng tin hỗ trợ các tương tác cơ bản như thích (like), bình luận (comment) và chia sẻ (share), giúp sinh viên dễ dàng theo dõi và tham gia thảo luận về các chủ đề quan tâm.
+- *Bảng tin (Newsfeed):* Xây dựng hệ thống bảng tin cho phép sinh viên đăng bài viết, chia sẻ thông tin và tài liệu học tập. Bảng tin hỗ trợ tìm kiếm, lọc theo tag, sắp xếp theo nhiều tiêu chí (mới nhất, xu hướng, nhiều tương tác nhất) và tải thêm bài tự động (infinite scroll).
 
-- *Chatting (Nhắn tin):* Cung cấp tính năng nhắn tin trực tiếp giữa các sinh viên, hỗ trợ giao tiếp nhanh chóng và tiện lợi. Chức năng này cho phép sinh viên trao đổi riêng tư về bài tập, dự án nhóm hay các vấn đề cá nhân mà không cần thông qua nền tảng bên thứ ba.
+- *Tương tác xã hội (Social Interactions):* Cung cấp các hình thức tương tác phong phú bao gồm thích (like), lưu bài (bookmark), bình luận đa cấp (nested comments), chia sẻ bài viết và báo cáo nội dung vi phạm. Hệ thống tính điểm xu hướng (trending score) dựa trên các tương tác để xếp hạng bài viết.
 
-- *Group cộng đồng (Nhóm):* Hỗ trợ tạo và quản lý các nhóm cộng đồng phục vụ cho nhiều mục đích khác nhau như câu lạc bộ, ban học tập, nhóm môn học hay nhóm theo khoa ngành. Mỗi nhóm có không gian riêng để đăng bài, thảo luận và chia sẻ tài nguyên, giúp sinh viên kết nối với những người có cùng sở thích hoặc mục tiêu học tập.
+- *Quản trị hệ thống (Administration):* Cung cấp công cụ cho quản trị viên kiểm duyệt nội dung bị báo cáo, quản lý tài khoản người dùng (khóa/mở khóa), quản lý danh mục tag và giám sát hoạt động hệ thống thông qua hệ thống thông báo.
 
 
 
@@ -43,26 +43,27 @@ Xuất phát từ những thực trạng nêu trên, nhóm quyết định chọ
 === 1.3.1. Phạm vi
 
 *Đối tượng sử dụng:*
-- Sinh viên các trường đại học, cao đẳng — là người dùng chính của hệ thống, có thể đăng bài, nhắn tin, tham gia nhóm và quản lý hồ sơ cá nhân.
+- Sinh viên các trường đại học, cao đẳng — là người dùng chính của hệ thống, có thể đăng bài, tương tác, theo dõi người dùng khác và quản lý hồ sơ cá nhân.
 - Quản trị viên (Admin) — chịu trách nhiệm quản lý nội dung, kiểm duyệt bài viết và quản lý tài khoản người dùng trên hệ thống.
 
 *Nền tảng:*
 - Ứng dụng được phát triển dưới dạng *web application*, hoạt động trên trình duyệt web (Google Chrome, Firefox, Microsoft Edge...) và hỗ trợ giao diện responsive trên các thiết bị khác nhau.
 
 *Công nghệ sử dụng:*
-- Frontend: ReactJS, CSS
-- Backend: Node.js, Python
-- Cơ sở dữ liệu: MySQL
+- Frontend: Next.js 15 (React), CSS
+- Backend: FastAPI (Python)
+- Cơ sở dữ liệu: Microsoft SQL Server
 
 *Phạm vi chức năng:*
-- Hệ thống bao gồm bốn module chính: Hồ sơ cá nhân, Bảng tin (Newsfeed), Nhắn tin (Chatting) và Nhóm cộng đồng (Group), như đã trình bày tại mục 1.2.
+- Hệ thống bao gồm bốn nhóm chức năng chính: Hồ sơ cá nhân (Profile), Bảng tin (Newsfeed), Tương tác xã hội (Social Interactions) và Quản trị hệ thống (Administration), như đã trình bày tại mục 1.2.
 
 === 1.3.2. Giới hạn của đề tài
 
 - Ứng dụng chỉ phát triển trên nền tảng web, chưa hỗ trợ ứng dụng di động native (iOS, Android).
-- Chưa tích hợp các tính năng nâng cao như gọi thoại, gọi video hay chia sẻ màn hình trong phần nhắn tin.
+- Chưa tích hợp tính năng nhắn tin trực tiếp (chat) giữa các người dùng.
+- Chưa hỗ trợ tạo và quản lý nhóm cộng đồng (group/community).
 - Hệ thống chưa được tối ưu hóa để phục vụ số lượng lớn người dùng đồng thời (high concurrency).
-
+- Chưa tích hợp trí tuệ nhân tạo (AI) trong việc gợi ý nội dung hay kiểm duyệt tự động, mặc dù cơ sở dữ liệu đã chuẩn bị sẵn cấu trúc cho tính năng này.
 - Đề tài tập trung vào việc xây dựng và hoàn thiện các chức năng cơ bản trong phạm vi đồ án môn học, chưa triển khai lên môi trường production thực tế.
 
 

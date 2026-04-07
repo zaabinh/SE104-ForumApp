@@ -3,7 +3,9 @@
  height: 297mm,
  margin: (x: 1.5cm, y: 1.5cm),
 )
-
+#set table(
+  stroke: none
+)
 #box(
   width: 100%,
   height: 100%, 
@@ -28,7 +30,8 @@
   #line(length: 20%, stroke: 1.5pt)
   #v(0.25cm)
   #figure(
-    image("/Figures/LOGO_UIT.PNG", width: 20%),
+    image("../Figures/LOGO_UIT.PNG", width: 20%),
+    numbering: none,
   )
 
   #v(0.5cm)

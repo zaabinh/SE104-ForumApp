@@ -4,9 +4,7 @@
  size: 13.5pt, 
  lang: "vi",
 )
-#set table(
-  stroke: none
-)
+
 
 // Trang bìa
 #include "Chapters/cov.typ"
