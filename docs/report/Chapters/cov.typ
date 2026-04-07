@@ -44,7 +44,7 @@
   #set text(size:14pt)
   #line(length: 60%, stroke: 1.5pt)
   #v(0.25cm)
-  *Lớp học phần*: CS231.Q21
+  *Lớp học phần*: SE104.Q28
   #v(0.25cm)
   *GVHD:*  ThS. Đỗ Văn Tiến 
   #v(1cm)
