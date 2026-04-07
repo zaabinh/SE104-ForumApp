@@ -24,3 +24,4 @@ class Comment(Base):
 
     author = relationship("User", back_populates="comments")
     post = relationship("Post", back_populates="comments")
+    replies = relationship("Comment", backref=backref('parent', remote_side=[id]), cascade="all, delete-orphan")
