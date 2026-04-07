@@ -54,3 +54,35 @@ def update_post(post_id: int, payload: PostUpdate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(post)
     return post
+
+
+from models.bookmark import Bookmark
+@router.post("/{post_id}/bookmark")
+def toggle_bookmark(post_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Kiểm tra bài viết tồn tại không
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    # Toggle logic: Nếu đã bookmark thì xóa, chưa thì thêm
+    existing = db.query(Bookmark).filter(Bookmark.user_id == current_user.id, Bookmark.post_id == post_id).first()
+    
+    if existing:
+        db.delete(existing)
+        db.commit()
+        return {"message": "Unbookmarked successfully"}
+    
+    new_bookmark = Bookmark(user_id=current_user.id, post_id=post_id)
+    db.add(new_bookmark)
+    db.commit()
+    return {"message": "Bookmarked successfully"}
+
+@router.get("/{post_id}/share")
+def share_post(post_id: int, db: Session = Depends(get_db)):
+    # Share đơn giản là trả về link bài viết dựa trên slug
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    share_url = f"https://yourforum.com/posts/{post.slug}"
+    return {"share_url": share_url}
