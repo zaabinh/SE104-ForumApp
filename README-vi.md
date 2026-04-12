@@ -1,74 +1,79 @@
-# SE104 Forum App
+# UITConnect - Đồ án SE104
 
-**Cập nhật tiến độ:** 2026-04-05
+Cập nhật lần cuối: 12-04-2026
 
-## 1. Tổng quan
+## Tổng quan
 
-SE104 Forum App là hệ thống diễn đàn sinh viên dành cho UIT được xây dựng theo mô hình full-stack, bao gồm:
+UITConnect là một ứng dụng diễn đàn sinh viên (full-stack) dành riêng cho UIT.
 
-- Frontend sử dụng **Next.js 15**
-- Backend sử dụng **FastAPI**
-- Cơ sở dữ liệu **Microsoft SQL Server** thông qua **SQLAlchemy + pyodbc**
-- Xác thực người dùng bằng **JWT (Access Token + Refresh Token)**
-- Các chức năng diễn đàn: bài viết, bình luận, bookmark, hồ sơ cá nhân, theo dõi người dùng
+- **Frontend:** Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Backend:** FastAPI, SQLAlchemy 2, JWT authentication
+- **Cơ sở dữ liệu:** Microsoft SQL Server thông qua `pyodbc`
 
-Repository hiện tại bao gồm cả **frontend** và **backend** và đang trong quá trình phát triển.
+Repository hiện tại đã bao gồm Backend API hoạt động ổn định và Frontend đã kết nối với các API xác thực và diễn đàn cho các luồng người dùng chính.
 
----
+## Trạng thái hiện tại
 
-## 2. Tiến độ hiện tại
+Các tính năng đã triển khai trong mã nguồn:
 
-Tính đến ngày 2026-04-05, hệ thống đã có:
+- **Xác thực (Authentication):**
+  - Đăng ký tài khoản
+  - Đăng nhập bằng email hoặc tên người dùng
+  - Luồng làm mới token (Refresh token)
+  - Đăng xuất
+  - Xác minh email
+  - Gửi lại mã xác minh
+  - Quên mật khẩu & Đặt lại mật khẩu
+  - Đăng nhập qua Google OAuth
+  - Hoàn thiện hồ sơ (Complete profile flow)
+- **Diễn đàn (Forum):**
+  - Tạo, sửa, xóa và xem bài viết
+  - Bảng tin (Feed) hỗ trợ tìm kiếm, gắn thẻ (tag), chế độ xem, sắp xếp và phân trang
+  - Thích (likes), dấu trang (bookmarks), chia sẻ và báo cáo (reports)
+  - Bình luận lồng nhau và báo cáo bình luận (cho người dùng đã xác thực)
+  - Quản lý thẻ (Tags)
+- **Tính năng người dùng:**
+  - Hồ sơ cá nhân hiện tại
+  - Chỉnh sửa hồ sơ cá nhân
+  - Xem hồ sơ công khai qua tên người dùng
+  - Danh sách bài viết, bình luận, dấu trang của người dùng
+  - Theo dõi và hủy theo dõi người dùng
+  - Danh sách thông báo và đánh dấu đã đọc
+- **Quản trị viên (Admin backend):**
+  - Danh sách người dùng
+  - Khóa (ban) và mở khóa người dùng
+  - Kiểm duyệt báo cáo
+  - Quản lý thẻ
 
-### Backend API
-- Đăng ký tài khoản
-- Đăng nhập
-- Refresh token
-- Đăng xuất
-- Lấy thông tin người dùng hiện tại
-- API cho:
-  - Profile
-  - Bookmark
-  - Comment
-  - Follow
+**Các trang Frontend hiện có:**
+- Landing page, Đăng nhập & Đăng ký
+- Xác minh email
+- Quên mật khẩu & Đặt lại mật khẩu
+- Google auth callback
+- Hoàn thiện hồ sơ
+- Bảng tin (Feed)
+- Tạo và Chỉnh sửa bài viết
+- Chi tiết bài viết
+- Hồ sơ cá nhân và Chỉnh sửa hồ sơ
 
-### Frontend
-- Landing page có tích hợp form **Đăng nhập / Đăng ký**
-- Luồng đăng nhập và đăng ký đã kết nối với backend
-- Các trang yêu cầu đăng nhập (Protected routes)
-- Trang **Main Feed** có:
-  - Tìm kiếm
-  - Lọc
-  - Sắp xếp
-  - Infinite scroll
-  - Sidebar và Rightbar mượt hơn
-- Các trang:
-  - Tạo bài viết
-  - Sửa bài viết
-  - Chi tiết bài viết
-  - Trang cá nhân
-  - Cài đặt
-  - Dashboard
-- Logo UIT đã tích hợp trên thanh topbar và tab trình duyệt
+**Các phần chưa hoàn thiện hoặc chủ yếu là giao diện (UI-only):**
+- `/dashboard`: Hiện là khung giao diện (wireframe), chưa kết nối hoàn toàn với bảng điều khiển admin.
+- `/settings`: Đã có trang nhưng nội dung vẫn là bản nháp (placeholder).
+- Việc gửi email thực tế đang được thay thế bằng việc in mã ra console của backend trong môi trường phát triển.
 
-### Tối ưu hiệu năng
-- Trì hoãn lưu Local Storage cho mock forum state
-- Memoization cho tag rendering và layout
-- Scrollbar riêng cho rightbar và cuộn mượt hơn
-
----
-
-## 3. Cấu trúc thư mục
+## Cấu trúc Repository
 
 ```text
 backend/
+  main.py
   database.py
   init_db.py
-  main.py
+  seed_admin.py
   requirements.txt
-  routes/
+  routers/
   models/
   schemas/
+  services/
   dependencies/
   utils/
 
@@ -79,96 +84,79 @@ frontend/
   public/
   package.json
   next.config.ts
-```
-## 4. Yêu cầu hệ thống
 
+Database/
+  StudentForum.sql
+
+docs/
+  report/
+```
+  ## Yêu cầu hệ thống
 ### Backend
-- Python 3.12+
-- Microsoft SQL Server
-- ODBC Driver 17 for SQL Server (Windows)
+- Khuyến nghị **Python 3.12**
+- **Microsoft SQL Server**
+- **ODBC Driver 17** cho SQL Server hoặc driver tương thích trên Windows
 
 ### Frontend
-- Node.js 18+
-- npm 9+
+- **Node.js 18+**
+- **npm 9+**
 
----
-
-## 5. Cấu hình môi trường
+## Thiết lập môi trường
 
 ### Backend
-
-Sao chép file:
-```
-backend/.env.example → backend/.env
-```
-
-Cấu hình:
+Sao chép `backend/.env.example` thành `backend/.env`.
 
 ```env
 DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/StudentForum?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes&Encrypt=no&TrustServerCertificate=yes
-JWT_SECRET_KEY=replace-with-a-long-random-secret
+JWT_SECRET_KEY=thay-bang-mot-chuoi-bi-mat-ngau-nhien
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 REFRESH_TOKEN_EXPIRE_DAYS=7
+FRONTEND_URL=[http://127.0.0.1:3000](http://127.0.0.1:3000)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=[http://127.0.0.1:8000/auth/google/callback](http://127.0.0.1:8000/auth/google/callback)
 ```
+## Ghi chú
+
+- `FRONTEND_URL` được sử dụng khi tạo link xác thực tài khoản và đặt lại mật khẩu.
+- Google OAuth là tùy chọn. Bạn có thể để trống các biến Google nếu không sử dụng.
 
 ### Frontend
 
-Sao chép file:
-```
-frontend/.env.example → frontend/.env.local
-```
-
-Cấu hình:
+Sao chép file [frontend/.env.example](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/frontend/.env.example) thành `frontend/.env.local`.
 
 ```env
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
----
+## Chạy project trên máy local
 
-## 6. Cách chạy hệ thống
-
-### Bước 1: Chạy Backend
+### 1. Khởi động backend
 
 ```powershell
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-Khởi tạo database:
-
-```powershell
 python init_db.py
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
+## Tài liệu API
 
-Kiểm tra kết nối database (tùy chọn):
+- Swagger UI: http://127.0.0.1:8000/docs  
+- ReDoc: http://127.0.0.1:8000/redoc  
+
+## Công cụ hỗ trợ (tùy chọn)
 
 ```powershell
 python test_db.py
-```
-
-Chạy server:
-
-```powershell
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
-```
-
-Backend URL:
-```
-http://127.0.0.1:8000
-```
-
-Swagger API Docs:
-```
-http://127.0.0.1:8000/docs
+python seed_admin.py
 ```
 
 ---
 
-### Bước 2: Chạy Frontend
+## 2. Khởi động frontend
 
 Mở terminal thứ hai:
 
@@ -178,131 +166,122 @@ npm install
 npm run dev
 ```
 
-Frontend URL:
+## Địa chỉ frontend
+
 ```
 http://127.0.0.1:3000
 ```
 
 ---
 
-## 7. Thứ tự khởi động hệ thống
-
-Khi chạy local, chạy theo thứ tự:
-
-1. Chạy SQL Server
-2. Chạy Backend (FastAPI) port `8000`
-3. Chạy Frontend (Next.js) port `3000`
-4. Mở landing page và đăng nhập từ đó
-
----
-
-## 8. Các route chính
-
-### Frontend routes
-
-| Route | Mô tả |
-|------|------|
-| `/` | Landing page + đăng nhập/đăng ký |
-| `/login` | Trang đăng nhập |
-| `/register` | Trang đăng ký |
-| `/feed` | Trang bảng tin |
-| `/create` | Tạo bài viết |
-| `/post/[id]` | Chi tiết bài viết |
-| `/profile/[id]` | Trang cá nhân |
-| `/profile/current-user` | Redirect tới user hiện tại |
-| `/settings` | Cài đặt |
-| `/dashboard` | Dashboard |
-
-### Backend auth routes
-
-| Method | Route |
-|-------|------|
-| POST | /auth/register |
-| POST | /auth/login |
-| POST | /auth/refresh |
-| POST | /auth/logout |
-| GET | /auth/me |
-| GET | /auth/users/{user_id} |
-
----
-
-## 9. Hệ thống xác thực (Authentication)
-
-Backend sử dụng JWT với 2 loại token:
-
-### Access Token
-- Thời gian sống ngắn
-- Gửi qua header:
-```
-Authorization: Bearer <token>
-```
-- Dùng để truy cập API cần đăng nhập
-
-### Refresh Token
-- Lưu trong bảng `auth_sessions`
-- Dùng để cấp access token mới
-- Bị vô hiệu hóa khi logout
-
-### Frontend lưu trong Local Storage:
-- access_token
-- refresh_token
-- auth_user
-
-Frontend tự động refresh access token thông qua Axios interceptor.
-
----
-
-## 10. Ghi chú
-
-- Backend sử dụng **SQL Server**, không dùng SQLite
-- Frontend vẫn còn một số **mock forum state**
-- Nếu Next.js bị lỗi cache:
-  - Xóa thư mục `frontend/.next`
-  - Chạy lại frontend
-
----
-
-## 11. Lệnh thường dùng
-
-### Backend
-```powershell
-cd backend
-.venv\Scripts\activate
-uvicorn main:app --reload
-```
+## Các route chính
 
 ### Frontend
-```powershell
-cd frontend
-npm run dev
-```
+
+- `/`
+- `/login`
+- `/register`
+- `/verify-email`
+- `/forgot-password`
+- `/reset-password`
+- `/complete-profile`
+- `/feed`
+- `/create`
+- `/edit/[id]`
+- `/post/[id]`
+- `/profile/[id]`
+- `/profile/edit`
+- `/dashboard`
+- `/settings`
 
 ---
-
-## 12. Xử lý lỗi thường gặp
 
 ### Backend
-Nếu không kết nối được database:
-- Kiểm tra SQL Server đã chạy chưa
-- Kiểm tra `DATABASE_URL`
-- Kiểm tra ODBC Driver 17
 
-Nếu lỗi JWT:
-- Kiểm tra `JWT_SECRET_KEY`
-- Kiểm tra frontend và backend có cùng backend URL
+#### Xác thực (Auth)
 
-### Frontend
-Nếu lỗi authentication:
-- Kiểm tra `NEXT_PUBLIC_API_URL`
-- Kiểm tra backend CORS
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/google/login`
+- `GET /auth/google/callback`
+- `POST /auth/refresh`
+- `POST /auth/logout`
+- `POST /auth/verify-email`
+- `POST /auth/resend-verification`
+- `POST /auth/forgot-password`
+- `POST /auth/reset-password`
+- `POST /auth/complete-profile`
+- `GET /auth/me`
 
-Nếu web không cập nhật:
-- Xóa `frontend/.next`
-- Chạy lại `npm run dev`
+#### Diễn đàn (Forum)
+
+- `GET /api/posts/feed`
+- `POST /api/posts/`
+- `GET /api/posts/{post_id}`
+- `PUT /api/posts/{post_id}`
+- `DELETE /api/posts/{post_id}`
+- `POST /api/posts/{post_id}/like`
+- `POST /api/posts/{post_id}/bookmark`
+- `POST /api/posts/{post_id}/share`
+- `POST /api/posts/{post_id}/report`
+- `GET /api/posts/tags`
+- `POST /api/posts/{post_id}/comments/`
+- `GET /api/posts/{post_id}/comments/`
+- `POST /api/posts/{post_id}/comments/{comment_id}/report`
+
+#### Người dùng & mạng xã hội
+
+- `GET /users/me`
+- `PUT /users/me`
+- `GET /users/{username}`
+- `GET /users/{username}/posts`
+- `GET /users/{username}/comments`
+- `GET /users/{username}/bookmarks`
+- `GET /users/me/notifications`
+- `POST /users/me/notifications/{notification_id}/read`
+- `POST /follow/{user_id}`
+- `DELETE /follow/{user_id}`
+
+#### Admin
+
+- `GET /api/admin/users`
+- `POST /api/admin/users/{user_id}/ban`
+- `POST /api/admin/users/{user_id}/unban`
+- `GET /api/admin/reports`
+- `POST /api/admin/reports/{report_id}/moderate`
+- `GET /api/admin/tags`
+- `POST /api/admin/tags`
+- `PUT /api/admin/tags/{tag_id}`
+- `DELETE /api/admin/tags/{tag_id}`
 
 ---
 
-## 13. Tác giả
+## Lưu ý
 
-Đồ án môn **Công nghệ Phần mềm – SE104**  
-Trường Đại học Công nghệ Thông tin – UIT
+- Hầu hết các endpoint `/api/posts`, comment, notification, follow và admin đều yêu cầu đăng nhập.  
+- Các thao tác với bài viết và bình luận yêu cầu tài khoản đã được xác thực.
+
+---
+
+## Ghi chú thêm
+
+- Backend tự tạo bảng khi khởi động thông qua SQLAlchemy metadata.  
+- Frontend sử dụng Axios interceptor tại `frontend/lib/axios.ts` để:
+  - Gắn access token  
+  - Tự động refresh khi gặp lỗi `401`  
+- Email xác thực và reset password hiện được in ra console backend (dev).  
+- Một số tài liệu cũ có thể không còn chính xác → ưu tiên:
+  - `README.md`
+  - Swagger
+  - Source code hiện tại  
+
+---
+
+## Tài liệu liên quan
+
+- `README-vi.md`
+- `AUTHENTICATION.md`
+- `AUTHENTICATION_vi.md`
+- `API_ENDPOINTS.md`
+- `backend/API_DOCUMENTATION.md`
+- `backend/BACKEND_SETUP.md`

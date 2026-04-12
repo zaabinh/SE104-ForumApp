@@ -53,7 +53,7 @@ ai/*.pkl
 # =========================
 # DATABASE
 # =========================
-database/*.sql
+database/StudentForum.sql
 database/*.dump
 
 # =========================
