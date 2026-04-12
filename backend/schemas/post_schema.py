@@ -13,6 +13,13 @@ class PostBase(BaseModel):
     tags: list[str] = Field(default_factory=list)
 
 
+class PostCreate(BaseModel):
+    title: str
+    content: str
+    cover_image: str | None = None
+    tags: list[str] = Field(default_factory=list)
+
+
 class PostCreate(PostBase):
     pass
 
