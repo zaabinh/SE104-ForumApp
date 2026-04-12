@@ -3,26 +3,18 @@
 import { useRouter } from 'next/navigation';
 import Avatar from '@/components/ui/Avatar';
 import FollowButton from '@/components/profile/FollowButton';
-import { useForum } from '@/lib/forumStore';
-import { Post } from '@/lib/types';
+import { UserProfile } from '@/lib/types';
 import { useToast } from '@/components/ui/Toast';
 
 type AuthorCardProps = {
-  post: Post;
+  author: UserProfile;
+  currentUserId?: string;
 };
 
-export default function AuthorCard({ post }: AuthorCardProps) {
+export default function AuthorCard({ author, currentUserId }: AuthorCardProps) {
   const router = useRouter();
-  const { currentUser, getUserById, toggleFollowUser } = useForum();
   const { pushToast } = useToast();
-  const author = getUserById(post.authorId);
-
-  if (!author) {
-    return null;
-  }
-
-  const isCurrentUser = author.id === currentUser.id;
-  const isFollowing = currentUser.followingIds.includes(author.id);
+  const isCurrentUser = author.id === currentUserId;
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-card">
@@ -49,11 +41,9 @@ export default function AuthorCard({ post }: AuthorCardProps) {
         ) : (
           <FollowButton
             userId={author.id}
-            isFollowing={isFollowing}
+            isFollowing={false}
             onToggle={(nextFollowing) => {
-              const next = toggleFollowUser(author.id);
-              const resolved = typeof nextFollowing === 'boolean' ? nextFollowing : next;
-              pushToast(resolved ? `Following ${author.name}` : `Unfollowed ${author.name}`);
+              pushToast(nextFollowing ? `Following ${author.name}` : `Unfollowed ${author.name}`);
             }}
           />
         )}

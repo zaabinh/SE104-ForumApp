@@ -14,6 +14,7 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const googleLoginUrl = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000'}/auth/google/login`;
 
   const canSubmit = useMemo(
     () =>
@@ -51,9 +52,9 @@ export default function RegisterForm() {
         password: form.password,
       });
 
-      setSuccess(response.data.message ?? 'Registration completed. Redirecting to login...');
+      setSuccess(response.data.message ?? 'Registration completed. Redirecting to verification...');
       setTimeout(() => {
-        startTransition(() => router.push('/login'));
+        startTransition(() => router.push(`/verify-email?email=${encodeURIComponent(form.email)}`));
       }, 800);
     } catch (submitError) {
       const message =
@@ -111,6 +112,10 @@ export default function RegisterForm() {
         ) : (
           'Register'
         )}
+      </Button>
+
+      <Button type="button" variant="outline" className="w-full" onClick={() => window.location.assign(googleLoginUrl)}>
+        Continue with Google
       </Button>
 
       <p className="text-sm text-slate-600">

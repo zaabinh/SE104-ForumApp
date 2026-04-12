@@ -3,22 +3,25 @@
 import { useState } from 'react';
 import Avatar from '@/components/ui/Avatar';
 import { formatRelativeTime } from '@/lib/mockData';
-import { useForum } from '@/lib/forumStore';
-import { CommentNode } from '@/lib/types';
+import { CommentNode, UserProfile } from '@/lib/types';
 import { useToast } from '@/components/ui/Toast';
 
 type CommentItemProps = {
   comment: CommentNode;
   depth?: number;
   postId: number;
+  currentUser: UserProfile | null;
+  onReply: (parentId: number, content: string) => Promise<void>;
 };
 
-export default function CommentItem({ comment, depth = 0, postId }: CommentItemProps) {
-  const { currentUser, addComment, toggleCommentLike } = useForum();
+export default function CommentItem({ comment, depth = 0, postId, currentUser, onReply }: CommentItemProps) {
   const { pushToast } = useToast();
   const [replyValue, setReplyValue] = useState('');
   const [isReplying, setIsReplying] = useState(false);
-  const liked = currentUser.likedCommentIds.includes(comment.id);
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(comment.likes);
+  void postId;
+  void currentUser;
 
   return (
     <div className={`${depth > 0 ? 'ml-5 border-l border-slate-200 pl-5' : ''}`}>
@@ -36,14 +39,15 @@ export default function CommentItem({ comment, depth = 0, postId }: CommentItemP
             <button
               type="button"
               onClick={() => {
-                const next = toggleCommentLike(comment.id);
-                pushToast(next ? 'Comment liked' : 'Comment like removed');
+                setLiked((prev) => !prev);
+                setLikes((prev) => (liked ? Math.max(0, prev - 1) : prev + 1));
+                pushToast(!liked ? 'Comment liked' : 'Comment like removed');
               }}
               className={`rounded-xl border px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
                 liked ? 'border-forum-primary bg-forum-primary/10 text-forum-primary' : 'border-slate-200 text-slate-600 hover:border-forum-primary hover:text-forum-primary'
               }`}
             >
-              Like {comment.likes}
+              Like {likes}
             </button>
             <button
               type="button"
@@ -64,9 +68,9 @@ export default function CommentItem({ comment, depth = 0, postId }: CommentItemP
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     if (!replyValue.trim()) return;
-                    addComment(postId, replyValue.trim(), comment.id);
+                    await onReply(comment.id, replyValue.trim());
                     pushToast('Reply posted');
                     setReplyValue('');
                     setIsReplying(false);
@@ -93,7 +97,7 @@ export default function CommentItem({ comment, depth = 0, postId }: CommentItemP
       {comment.replies.length ? (
         <div className="mt-3 space-y-3">
           {comment.replies.map((reply) => (
-            <CommentItem key={reply.id} comment={reply} depth={depth + 1} postId={postId} />
+            <CommentItem key={reply.id} comment={reply} depth={depth + 1} postId={postId} currentUser={currentUser} onReply={onReply} />
           ))}
         </div>
       ) : null}

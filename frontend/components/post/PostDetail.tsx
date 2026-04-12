@@ -2,25 +2,25 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import PostActions from '@/components/post/PostActions';
+import { PurePostActions } from '@/components/post/PostActions';
 import CommentSection from '@/components/post/CommentSection';
 import Avatar from '@/components/ui/Avatar';
 import { formatRelativeTime } from '@/lib/mockData';
-import { useForum } from '@/lib/forumStore';
-import { Post } from '@/lib/types';
+import { Post, UserProfile } from '@/lib/types';
 
 type PostDetailProps = {
   post: Post;
+  author: UserProfile;
+  currentUser: UserProfile | null;
+  isOwner: boolean;
+  liked: boolean;
+  bookmarked: boolean;
+  onLikeToggle: (postId: number) => boolean;
+  onBookmarkToggle: (postId: number) => boolean;
 };
 
-export default function PostDetail({ post }: PostDetailProps) {
+export default function PostDetail({ post, author, currentUser, isOwner, liked, bookmarked, onLikeToggle, onBookmarkToggle }: PostDetailProps) {
   const router = useRouter();
-  const { currentUser, getUserById } = useForum();
-  const author = getUserById(post.authorId);
-
-  if (!author) {
-    return null;
-  }
 
   return (
     <div className="mx-auto max-w-[760px] space-y-6">
@@ -56,7 +56,13 @@ export default function PostDetail({ post }: PostDetailProps) {
         </div>
 
         <div className="relative mt-6 h-80 overflow-hidden rounded-[24px] border border-slate-200">
-          <Image src={post.image} alt={post.title} fill className="object-cover" />
+          {post.image ? (
+            <Image src={post.image} alt={post.title} fill className="object-cover" />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-gradient-to-r from-slate-100 to-slate-200 text-sm font-medium text-slate-400">
+              No image
+            </div>
+          )}
         </div>
 
         <div className="mt-6 space-y-5 text-base leading-8 text-slate-700">
@@ -66,7 +72,7 @@ export default function PostDetail({ post }: PostDetailProps) {
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5">
-          {post.authorId === currentUser.id ? (
+          {isOwner ? (
             <button
               type="button"
               onClick={() => router.push(`/edit/${post.id}`)}
@@ -77,12 +83,19 @@ export default function PostDetail({ post }: PostDetailProps) {
           ) : (
             <span className="text-xs uppercase tracking-[0.24em] text-slate-400">Community discussion</span>
           )}
-          <PostActions post={post} onCommentClick={() => document.getElementById(`comments-${post.id}`)?.scrollIntoView({ behavior: 'smooth' })} />
+          <PurePostActions
+            post={post}
+            liked={liked}
+            bookmarked={bookmarked}
+            onLikeToggle={onLikeToggle}
+            onBookmarkToggle={onBookmarkToggle}
+            onCommentClick={() => document.getElementById(`comments-${post.id}`)?.scrollIntoView({ behavior: 'smooth' })}
+          />
         </div>
       </article>
 
       <div id={`comments-${post.id}`}>
-        <CommentSection postId={post.id} />
+        <CommentSection postId={post.id} currentUser={currentUser} />
       </div>
     </div>
   );

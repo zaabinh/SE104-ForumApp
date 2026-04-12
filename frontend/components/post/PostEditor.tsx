@@ -7,6 +7,9 @@ import Input from '@/components/ui/Input';
 import Tag from '@/components/ui/Tag';
 import { useForum } from '@/lib/forumStore';
 import { EditorPostDraft } from '@/lib/types';
+import {api} from '@/lib/axios';
+import axios from 'axios';
+
 
 type PostEditorProps = {
   mode: 'create' | 'edit';

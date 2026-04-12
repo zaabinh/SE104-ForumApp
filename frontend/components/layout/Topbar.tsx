@@ -48,7 +48,7 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white">
               <Image src="/images/uit.png" alt="UIT logo" width={28} height={28} className="h-7 w-7 object-contain" priority />
             </div>
-            <p className="text-lg font-semibold tracking-tight text-ink-900">UIT Nexus</p>
+            <p className="text-lg font-semibold tracking-tight text-ink-900">UITConnect</p>
           </div>
           <button
             type="button"
@@ -113,11 +113,13 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
                   type="button"
                   className="block w-full cursor-pointer select-none rounded-2xl px-3 py-2.5 text-left text-sm text-ink-700 transition-all duration-200 hover:bg-uit-50"
                   onClick={() => {
-                    if (storedUser?.username) {
-                      router.push(`/profile/${storedUser.username}`);
-                      setOpen(false);
-                    }
-                  }}
+                  if (storedUser?.username) {
+                    router.push(`/profile/${storedUser.username}`);
+                  } else {
+                    router.push('/login'); // fallback
+                  }
+                  setOpen(false);
+                }}
                 >
                   Profile
                 </button>

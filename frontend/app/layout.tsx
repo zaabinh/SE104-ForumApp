@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Roboto_Mono } from 'next/font/google';
+import PostStorageCleanup from '@/components/app/PostStorageCleanup';
 import './globals.css';
 import Providers from '@/components/ui/Providers';
 
@@ -17,7 +18,7 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'UIT Nexus',
+  title: 'UITConnect',
   description: 'Modern AI-powered technology community platform',
   icons: {
     icon: '/images/uit.png',
@@ -34,7 +35,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`light ${inter.variable} ${robotoMono.variable}`} suppressHydrationWarning>
       <body className="bg-forum-bg text-ink-900">
-        <Providers>{children}</Providers>
+        <Providers>
+          <PostStorageCleanup />
+          {children}
+        </Providers>
       </body>
     </html>
   );

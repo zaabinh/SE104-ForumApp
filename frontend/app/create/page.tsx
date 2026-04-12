@@ -6,13 +6,13 @@ import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import PostEditor from '@/components/post/PostEditor';
 import { useToast } from '@/components/ui/Toast';
-import { useForum } from '@/lib/forumStore';
+import { createPost } from '@/lib/forumApi';
 import { useAuthGuard } from '@/lib/useAuthGuard';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
 
 export default function CreatePostPage() {
   const router = useRouter();
-  const { createPost } = useForum();
+
   const { pushToast } = useToast();
   const { isCheckingAuth, userEmail } = useAuthGuard();
   const { isSidebarCollapsed, isMobileSidebarOpen, setIsSidebarCollapsed, setIsMobileSidebarOpen } = useResponsiveSidebar();
@@ -54,10 +54,19 @@ export default function CreatePostPage() {
           </div>
           <PostEditor
             mode="create"
-            onSubmit={(draft) => {
-              const nextPost = createPost(draft);
-              pushToast('Post published');
-              router.push(`/post/${nextPost.id}`);
+            onSubmit={async (draft) => {
+              try {
+                const newPost = await createPost({
+                  title: draft.title,
+                  content: draft.content,
+                  cover_image: draft.image,
+                  tags: draft.tags,
+                });
+                pushToast('Post published');
+                router.push(`/post/${newPost.id}`);
+              } catch (error) {
+                pushToast('Failed to publish post');
+              }
             }}
           />
         </div>
@@ -65,6 +74,4 @@ export default function CreatePostPage() {
     </main>
   );
 }
-
-
 

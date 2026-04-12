@@ -1,29 +1,73 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import PostEditor from '@/components/post/PostEditor';
 import Modal from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
-import { useForum } from '@/lib/forumStore';
+import { fetchCurrentUser } from '@/lib/axios';
+import { deletePost, getPost, updatePost } from '@/lib/forumApi';
+import { EditorPostDraft } from '@/lib/types';
 import { useAuthGuard } from '@/lib/useAuthGuard';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
 
 export default function EditPostPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { currentUser, deletePost, getPostById, updatePost } = useForum();
   const { pushToast } = useToast();
   const { isCheckingAuth, userEmail } = useAuthGuard();
   const { isSidebarCollapsed, isMobileSidebarOpen, setIsSidebarCollapsed, setIsMobileSidebarOpen } = useResponsiveSidebar();
   const [searchQuery, setSearchQuery] = useState('');
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [post, setPost] = useState<EditorPostDraft | null>(null);
+  const [postId, setPostId] = useState<number | null>(null);
 
-  const post = getPostById(Number(params.id));
+  useEffect(() => {
+    let isMounted = true;
 
-  if (isCheckingAuth) {
+    const loadEditor = async () => {
+      setLoading(true);
+      try {
+        const id = Number(params.id);
+        const [postData, currentUser] = await Promise.all([getPost(id), fetchCurrentUser()]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (postData.user_id !== currentUser.id) {
+          router.replace('/feed');
+          return;
+        }
+
+        setPostId(postData.id);
+        setPost({
+          title: postData.title,
+          content: postData.content,
+          tags: postData.tags,
+          image: postData.cover_image || '',
+        });
+      } catch {
+        if (isMounted) {
+          router.replace('/feed');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadEditor();
+    return () => {
+      isMounted = false;
+    };
+  }, [params.id, router]);
+
+  if (isCheckingAuth || loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100">
         <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-medium text-slate-700 shadow-card">
@@ -36,15 +80,8 @@ export default function EditPostPage() {
 
   const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
 
-  if (!post || post.authorId !== currentUser.id) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-        <div className="card-surface max-w-xl p-6">
-          <h1 className="text-2xl font-bold text-slate-900">You can only edit your own posts</h1>
-          <p className="mt-2 text-sm text-slate-600">This editor is restricted to posts created by the current mock user.</p>
-        </div>
-      </main>
-    );
+  if (!post || postId === null) {
+    return null;
   }
 
   return (
@@ -70,11 +107,20 @@ export default function EditPostPage() {
           </div>
           <PostEditor
             mode="edit"
-            initialValue={{ title: post.title, content: post.content, tags: post.tags, image: post.image }}
-            onSubmit={(draft) => {
-              updatePost(post.id, draft);
-              pushToast('Post updated');
-              router.push(`/post/${post.id}`);
+            initialValue={post}
+            onSubmit={async (draft) => {
+              try {
+                await updatePost(postId, {
+                  title: draft.title,
+                  content: draft.content,
+                  cover_image: draft.image,
+                  tags: draft.tags,
+                });
+                pushToast('Post updated');
+                router.push(`/post/${postId}`);
+              } catch (error) {
+                pushToast('Failed to update post');
+              }
             }}
             onDelete={() => setIsDeleteOpen(true)}
           />
@@ -83,13 +129,17 @@ export default function EditPostPage() {
       <Modal
         open={isDeleteOpen}
         title="Delete this post?"
-        description="This removes the post and all of its comments from the mock forum data."
+        description="This removes the post from the forum."
         confirmLabel="Delete post"
         onCancel={() => setIsDeleteOpen(false)}
-        onConfirm={() => {
-          deletePost(post.id);
-          pushToast('Post deleted');
-          router.push('/feed');
+        onConfirm={async () => {
+          try {
+            await deletePost(postId);
+            pushToast('Post deleted');
+            router.push('/feed');
+          } catch (error) {
+            pushToast('Failed to delete post');
+          }
         }}
       />
     </main>

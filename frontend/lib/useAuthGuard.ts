@@ -4,6 +4,22 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { clearAuthSession, fetchCurrentUser, getStoredUser } from '@/lib/axios';
 
+function resolveProtectedDestination(currentPath: string, user: { status: string; is_verified: boolean; profile_completed: boolean; email: string }) {
+  if (user.status === 'deleted') {
+    return '/login';
+  }
+  if (user.status === 'banned') {
+    return `/login?status=banned&email=${encodeURIComponent(user.email)}`;
+  }
+  if (!user.is_verified && !currentPath.startsWith('/verify-email')) {
+    return `/verify-email?email=${encodeURIComponent(user.email)}`;
+  }
+  if (user.is_verified && !user.profile_completed && !currentPath.startsWith('/complete-profile')) {
+    return '/complete-profile';
+  }
+  return null;
+}
+
 export function useAuthGuard() {
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -26,6 +42,11 @@ export function useAuthGuard() {
           return;
         }
         setUserEmail(currentUser.email);
+        const redirectTo = resolveProtectedDestination(window.location.pathname, currentUser);
+        if (redirectTo) {
+          router.replace(redirectTo);
+          return;
+        }
         setIsCheckingAuth(false);
       } catch {
         clearAuthSession();

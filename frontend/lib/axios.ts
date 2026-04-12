@@ -7,16 +7,16 @@ const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'auth_user';
 
-type TokenResponse = {
+export type TokenResponse = {
   access_token: string;
   refresh_token: string;
   token_type: string;
   expires_in: number;
 };
 
-type AuthUser = {
+export type AuthUser = {
   id: string;
-  username: string;
+  username: string | null;
   email: string;
   full_name: string;
   avatar_url?: string | null;
@@ -24,6 +24,8 @@ type AuthUser = {
   role: string;
   status: string;
   provider: string;
+  is_verified: boolean;
+  profile_completed: boolean;
 };
 
 export const api = axios.create({

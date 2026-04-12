@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { startTransition, useEffect, useMemo, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -9,18 +9,26 @@ import { api, fetchCurrentUser, saveAuthSession } from '@/lib/axios';
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const googleLoginUrl = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000'}/auth/google/login`;
 
   const canSubmit = useMemo(() => password.length >= 6, [identifier, password]);
 
   useEffect(() => {
     router.prefetch('/feed');
   }, [router]);
+
+  useEffect(() => {
+    if (searchParams.get('status') === 'banned') {
+      setError('Your account has been banned');
+    }
+  }, [searchParams]);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,7 +45,15 @@ export default function LoginForm() {
     try {
       const response = await api.post('/auth/login', { identifier, password });
       saveAuthSession(response.data);
-      await fetchCurrentUser();
+      const currentUser = await fetchCurrentUser();
+      if (!currentUser.is_verified) {
+        startTransition(() => router.push(`/verify-email?email=${encodeURIComponent(currentUser.email)}`));
+        return;
+      }
+      if (!currentUser.profile_completed) {
+        startTransition(() => router.push('/complete-profile'));
+        return;
+      }
       setSuccess('Welcome back. Redirecting to your feed...');
       startTransition(() => router.push('/feed'));
     } catch (submitError) {
@@ -53,6 +69,10 @@ export default function LoginForm() {
         'detail' in submitError.response.data
           ? String(submitError.response.data.detail)
           : 'Login failed. Please try again.';
+      if (message.toLowerCase().includes('verify your email')) {
+        startTransition(() => router.push(`/verify-email?email=${encodeURIComponent(identifier)}`));
+        return;
+      }
       setError(message);
     } finally {
       setLoading(false);
@@ -90,10 +110,20 @@ export default function LoginForm() {
         )}
       </Button>
 
+      <Button type="button" variant="outline" className="w-full" onClick={() => window.location.assign(googleLoginUrl)}>
+        Continue with Google
+      </Button>
+
       <p className="text-sm text-slate-600">
         Need an account?{' '}
         <Link className="text-forum-primary" href="/register">
           Register
+        </Link>
+      </p>
+      <p className="text-sm text-slate-600">
+        Forgot your password?{' '}
+        <Link className="text-forum-primary" href="/forgot-password">
+          Reset it
         </Link>
       </p>
     </form>

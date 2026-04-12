@@ -17,11 +17,11 @@ export default function AuthPanel() {
 
   return (
     <div className="w-full rounded-[32px] border border-white/85 bg-white/96 p-6 shadow-[0_24px_80px_rgba(30,64,175,0.12)] sm:p-8">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-uit-700">Welcome</p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink-900">
-            {mode === 'login' ? 'Sign in to UIT Nexus' : 'Create your account'}
+            {mode === 'login' ? 'Sign in to UITConnect' : 'Create your account'}
           </h2>
         </div>
         <div className="flex h-14 w-14 items-center justify-center rounded-[22px] border border-uit-100 bg-uit-50">

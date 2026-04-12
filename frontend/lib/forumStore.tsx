@@ -1,10 +1,8 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { mockForumSeed } from '@/lib/mockData';
 import { Comment, CommentNode, EditorPostDraft, ForumSeed, Post, UserProfile } from '@/lib/types';
-
-const STORAGE_KEY = 'forum-app-state-v1';
 
 type ForumContextValue = {
   users: UserProfile[];
@@ -61,53 +59,6 @@ function buildCommentTree(comments: Comment[], users: UserProfile[]): CommentNod
 
 export function ForumProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<ForumSeed>(() => cloneSeed(mockForumSeed));
-  const hasHydratedRef = useRef(false);
-
-  useEffect(() => {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!raw) {
-      hasHydratedRef.current = true;
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(raw) as ForumSeed;
-      setState(cloneSeed(parsed));
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
-
-    hasHydratedRef.current = true;
-  }, []);
-
-  useEffect(() => {
-    if (!hasHydratedRef.current) {
-      return;
-    }
-
-    const persistState = () => window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    const idleWindow = window as typeof window & {
-      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
-      cancelIdleCallback?: (handle: number) => void;
-    };
-    let idleId: number | undefined;
-    const timeoutId = window.setTimeout(() => {
-      if (idleWindow.requestIdleCallback) {
-        idleId = idleWindow.requestIdleCallback(persistState, { timeout: 800 });
-        return;
-      }
-
-      persistState();
-    }, 500);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-      if (idleId !== undefined) {
-        idleWindow.cancelIdleCallback?.(idleId);
-      }
-    };
-  }, [state]);
 
   const currentUser = useMemo(
     () => state.users.find((user) => user.isCurrentUser) ?? state.users[0],
