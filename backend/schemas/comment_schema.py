@@ -1,21 +1,28 @@
-from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
-from typing import Optional, List
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from schemas.auth_schema import UserResponse
+
 
 class CommentBase(BaseModel):
     content: str = Field(..., min_length=1)
 
+
 class CommentCreate(CommentBase):
-    parent_id: Optional[int] = None # Nếu có ID này thì là phản hồi (reply)
+    parent_id: int | None = None
+
 
 class CommentResponse(CommentBase):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: int
     post_id: int
     user_id: str
-    parent_id: Optional[int]
+    parent_id: int | None
     created_at: datetime
     author: UserResponse
-    replies: List['CommentResponse'] = [] # Danh sách các phản hồi con
+    replies: list["CommentResponse"] = Field(default_factory=list)
+
+
+CommentResponse.model_rebuild()

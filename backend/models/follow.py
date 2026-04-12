@@ -12,7 +12,7 @@ class Follow(Base):
 
     follower_id: Mapped[str] = mapped_column(
         UNIQUEIDENTIFIER(as_uuid=False),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="NO ACTION"),
         primary_key=True,
     )
     following_id: Mapped[str] = mapped_column(

@@ -3,9 +3,10 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import get_db
-from dependencies.auth import get_current_user
+from dependencies.auth import require_active_verified_user
 from models.follow import Follow
 from models.user import User
+from services.notification_service import create_notification
 
 
 router = APIRouter(tags=["Follows"])
@@ -19,7 +20,7 @@ class FollowResponse(BaseModel):
 @router.post("/follow/{user_id}", response_model=FollowResponse, status_code=status.HTTP_201_CREATED)
 def follow_user(
     user_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_verified_user),
     db: Session = Depends(get_db),
 ):
     if user_id == current_user.id:
@@ -39,6 +40,14 @@ def follow_user(
 
     follow = Follow(follower_id=current_user.id, following_id=user_id)
     db.add(follow)
+    create_notification(
+        db,
+        user_id=user_id,
+        actor_id=current_user.id,
+        notification_type="follow",
+        title="You have a new follower",
+        message=f"{current_user.username} started following you.",
+    )
     db.commit()
     return FollowResponse(message="Followed user successfully.", following=True)
 
@@ -46,7 +55,7 @@ def follow_user(
 @router.delete("/follow/{user_id}", response_model=FollowResponse)
 def unfollow_user(
     user_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_verified_user),
     db: Session = Depends(get_db),
 ):
     follow = (

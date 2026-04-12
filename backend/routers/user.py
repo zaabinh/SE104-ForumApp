@@ -1,20 +1,22 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from database import get_db
-from dependencies.auth import get_current_user
+from dependencies.auth import require_active_verified_user
 from models.bookmark import Bookmark
 from models.comment import Comment
 from models.follow import Follow
+from models.notification import Notification
 from models.post import Post
 from models.user import User
+from schemas.notification_schema import NotificationResponse
 
 
-router = APIRouter(tags=['Users'])
+router = APIRouter(tags=["Users"])
 
 
 class ProfileResponse(BaseModel):
@@ -64,7 +66,7 @@ class UserCommentResponse(BaseModel):
 def get_user_by_username_or_404(username: str, db: Session) -> User:
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found.')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     return user
 
 
@@ -93,8 +95,8 @@ def build_profile_response(user: User, current_user: User, db: Session) -> Profi
     )
 
 
-@router.get('/users/me', response_model=CurrentProfileResponse)
-def get_my_profile(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@router.get("/users/me", response_model=CurrentProfileResponse)
+def get_my_profile(current_user: User = Depends(require_active_verified_user), db: Session = Depends(get_db)):
     profile = build_profile_response(current_user, current_user, db)
     return CurrentProfileResponse(
         email=current_user.email,
@@ -105,10 +107,10 @@ def get_my_profile(current_user: User = Depends(get_current_user), db: Session =
     )
 
 
-@router.put('/users/me', response_model=CurrentProfileResponse)
+@router.put("/users/me", response_model=CurrentProfileResponse)
 def update_my_profile(
     payload: UpdateProfileRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_verified_user),
     db: Session = Depends(get_db),
 ):
     current_user.full_name = payload.full_name.strip()
@@ -128,43 +130,42 @@ def update_my_profile(
     )
 
 
-@router.get('/users/{username}', response_model=ProfileResponse)
+@router.get("/users/{username}", response_model=ProfileResponse)
 def get_user_profile(
     username: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_verified_user),
     db: Session = Depends(get_db),
 ):
     user = get_user_by_username_or_404(username, db)
     return build_profile_response(user, current_user, db)
 
 
-@router.get('/users/{username}/posts', response_model=list[UserPostResponse])
+@router.get("/users/{username}/posts", response_model=list[UserPostResponse])
 def get_user_posts(
     username: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_verified_user),
     db: Session = Depends(get_db),
 ):
     user = get_user_by_username_or_404(username, db)
     _ = current_user.id
-    posts = (
+    return (
         db.query(Post)
         .filter(Post.user_id == user.id)
         .order_by(Post.created_at.desc(), Post.id.desc())
         .all()
     )
-    return posts
 
 
-@router.get('/users/{username}/comments', response_model=list[UserCommentResponse])
+@router.get("/users/{username}/comments", response_model=list[UserCommentResponse])
 def get_user_comments(
     username: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_verified_user),
     db: Session = Depends(get_db),
 ):
     user = get_user_by_username_or_404(username, db)
     _ = current_user.id
     rows = (
-        db.query(Comment, Post.title.label('post_title'))
+        db.query(Comment, Post.title.label("post_title"))
         .outerjoin(Post, Post.id == Comment.post_id)
         .filter(Comment.user_id == user.id)
         .order_by(Comment.created_at.desc(), Comment.id.desc())
@@ -182,21 +183,51 @@ def get_user_comments(
     ]
 
 
-@router.get('/users/{username}/bookmarks', response_model=list[UserPostResponse])
+@router.get("/users/{username}/bookmarks", response_model=list[UserPostResponse])
 def get_user_bookmarks(
     username: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_verified_user),
     db: Session = Depends(get_db),
 ):
     user = get_user_by_username_or_404(username, db)
     if user.id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='You can only view your own bookmarks.')
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only view your own bookmarks.")
 
-    posts = (
+    return (
         db.query(Post)
         .join(Bookmark, Bookmark.post_id == Post.id)
         .filter(Bookmark.user_id == user.id)
         .order_by(Bookmark.created_at.desc(), Post.id.desc())
         .all()
     )
-    return posts
+
+
+@router.get("/users/me/notifications", response_model=list[NotificationResponse])
+def get_my_notifications(
+    unread_only: bool = Query(default=False),
+    current_user: User = Depends(require_active_verified_user),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Notification).filter(Notification.user_id == current_user.id)
+    if unread_only:
+        query = query.filter(Notification.is_read.is_(False))
+    return query.order_by(Notification.created_at.desc(), Notification.id.desc()).all()
+
+
+@router.post("/users/me/notifications/{notification_id}/read", response_model=NotificationResponse)
+def mark_notification_read(
+    notification_id: int,
+    current_user: User = Depends(require_active_verified_user),
+    db: Session = Depends(get_db),
+):
+    notification = (
+        db.query(Notification)
+        .filter(Notification.id == notification_id, Notification.user_id == current_user.id)
+        .first()
+    )
+    if not notification:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found.")
+    notification.is_read = True
+    db.commit()
+    db.refresh(notification)
+    return notification

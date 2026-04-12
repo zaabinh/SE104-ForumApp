@@ -2,6 +2,7 @@
 from database import Base, engine
 from models import AuthSession, Bookmark, Comment, Follow, Post, User
 
-# Create all tables
+# Drop existing tables and recreate (for idempotency)
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
-print("✅ Database tables created successfully!")
+print("✅ Database tables recreated successfully!")
