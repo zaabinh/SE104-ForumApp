@@ -1,0 +1,72 @@
+[
+  {
+    "title": "Kinh nghiệm thực tập sớm cho sinh viên Công nghệ Phần mềm (CNPM)",
+    "content": "Việc đi thực tập từ năm 3 giúp sinh viên nắm vững quy trình phát triển phần mềm thực tế. Bạn nên tập trung vào các kiến thức về Design Patterns và Agile. Đừng quên trau dồi kỹ năng làm việc nhóm để dễ dàng hòa nhập với môi trường doanh nghiệp.",
+    "tags": ["Thực tập", "CNPM", "Học tập"],
+    "view_count": 842,
+    "cover_image": "https://picsum.photos/800/400?random=11"
+  },
+  {
+    "title": "Lộ trình tự học An toàn thông tin (ATTT) hiệu quả tại UIT",
+    "content": "An toàn thông tin là một ngành học đòi hỏi sự kiên trì và tư duy logic cao. Sinh viên nên bắt đầu với kiến thức nền tảng về mạng máy tính và hệ điều hành. Tham gia các giải đấu CTF tại trường là cách tốt nhất để rèn luyện kỹ năng thực chiến.",
+    "tags": ["ATTT", "Bảo mật", "UIT"],
+    "view_count": 521,
+    "cover_image": "https://picsum.photos/800/400?random=22"
+  },
+  {
+    "title": "Tầm quan trọng của Toán rời rạc trong Khoa học máy tính (KHMT)",
+    "content": "Toán rời rạc cung cấp nền tảng tư duy để giải quyết các bài toán thuật toán phức tạp. Hầu hết các vấn đề trong lập trình đều có thể quy về các cấu trúc toán học cơ bản. Hiểu sâu môn học này sẽ giúp bạn tiếp cận trí tuệ nhân tạo dễ dàng hơn.",
+    "tags": ["KHMT", "Toán", "Học tập"],
+    "view_count": 125,
+    "cover_image": "https://picsum.photos/800/400?random=33"
+  },
+  {
+    "title": "Phân tích dữ liệu lớn với Hệ thống thông tin (HTTT)",
+    "content": "Ngành Hệ thống thông tin không chỉ là quản lý dữ liệu mà còn là tối ưu hóa quy trình doanh nghiệp. Sinh viên cần thành thạo SQL và các công cụ trực quan hóa dữ liệu. Đây là xu hướng nghề nghiệp rất khát nhân lực trong thời đại chuyển đổi số.",
+    "tags": ["HTTT", "Data", "Học tập"],
+    "view_count": 348,
+    "cover_image": "https://picsum.photos/800/400?random=44"
+  },
+  {
+    "title": "Ứng dụng Blockchain trong Kỹ thuật Thương mại điện tử (KTTT)",
+    "content": "Blockchain đang thay đổi cách chúng ta thực hiện các giao dịch trực tuyến an toàn. Sinh viên ngành KTTT nên tìm hiểu về Smart Contract để đón đầu công nghệ. Các dự án thực tế về ví điện tử sẽ là điểm cộng lớn trong CV của bạn.",
+    "tags": ["KTTT", "Blockchain", "Thương mại"],
+    "view_count": 712,
+    "cover_image": "https://picsum.photos/800/400?random=55"
+  },
+  {
+    "title": "Review các câu lạc bộ học thuật nổi bật tại UIT",
+    "content": "Tham gia CLB giúp bạn mở rộng mối quan hệ và học hỏi kinh nghiệm từ các anh chị khóa trên. Có rất nhiều CLB từ học thuật đến kỹ năng mềm phù hợp với mọi sinh viên. Đừng bỏ lỡ cơ hội tham gia các buổi workshop chuyên sâu hàng tháng.",
+    "tags": ["UIT", "CLB", "Kỹ năng"],
+    "view_count": 963,
+    "cover_image": "https://picsum.photos/800/400?random=66"
+  },
+  {
+    "title": "Cách cân bằng giữa việc học và làm thêm cho sinh viên IT",
+    "content": "Áp lực học tập tại UIT là không hề nhỏ, vì vậy việc quản lý thời gian là cực kỳ quan trọng. Bạn nên ưu tiên các công việc liên quan đến chuyên môn để tích lũy kinh nghiệm. Hãy xây dựng một thời biểu khoa học để đảm bảo sức khỏe và kết quả học tập.",
+    "tags": ["Kinh nghiệm", "Học tập", "Sinh viên"],
+    "view_count": 415,
+    "cover_image": "https://picsum.photos/800/400?random=77"
+  },
+  {
+    "title": "Xu hướng trí tuệ nhân tạo trong chương trình KHMT",
+    "content": "AI đang len lỏi vào mọi ngóc ngách của đời sống và là trọng tâm của ngành KHMT. Việc nắm vững đại số tuyến tính và xác suất thống kê là điều kiện bắt buộc. UIT cung cấp nhiều tài nguyên và phòng Lab hiện đại để sinh viên nghiên cứu.",
+    "tags": ["AI", "KHMT", "Nghiên cứu"],
+    "view_count": 889,
+    "cover_image": "https://picsum.photos/800/400?random=88"
+  },
+  {
+    "title": "Tại sao nên học Framework Next.js khi theo đuổi CNPM?",
+    "content": "Next.js đang trở thành tiêu chuẩn cho các ứng dụng Web hiện đại nhờ khả năng tối ưu SEO. Sinh viên CNPM nên cập nhật công nghệ này bên cạnh kiến thức React căn bản. Việc xây dựng một sản phẩm thực tế bằng Next.js sẽ giúp bạn hiểu rõ về SSR và SSG.",
+    "tags": ["CNPM", "Web", "Công nghệ"],
+    "view_count": 274,
+    "cover_image": "https://picsum.photos/800/400?random=99"
+  },
+  {
+    "title": "Thủ tục đăng ký đề tài khóa luận tốt nghiệp tại UIT",
+    "content": "Đăng ký khóa luận là bước ngoặt quan trọng để hoàn thành chặng đường đại học. Sinh viên cần tìm kiếm giảng viên hướng dẫn và lên ý tưởng đề tài từ sớm. Hãy chuẩn bị kỹ đề cương để thuyết phục hội đồng khoa học về tính khả thi của dự án.",
+    "tags": ["Tốt nghiệp", "UIT", "Học tập"],
+    "view_count": 637,
+    "cover_image": "https://picsum.photos/800/400?random=100"
+  }
+]
