@@ -68,5 +68,75 @@
     "tags": ["Tốt nghiệp", "UIT", "Học tập"],
     "view_count": 637,
     "cover_image": "https://picsum.photos/800/400?random=100"
+  },
+  {
+    "title": "Tổng hợp tài liệu ôn thi cuối kỳ môn Cấu trúc dữ liệu và Giải thuật",
+    "content": "Môn học này là nỗi ám ảnh của nhiều sinh viên nhưng lại cực kỳ quan trọng cho các kỳ phỏng vấn sau này. Bạn nên nắm chắc các thuật toán sắp xếp và duyệt cây. Đừng quên thực hành trên các nền tảng như LeetCode để rèn luyện tư duy.",
+    "tags": ["Học tập", "UIT", "Algorithm"],
+    "view_count": 752,
+    "cover_image": "https://picsum.photos/800/400?random=101"
+  },
+  {
+    "title": "Lợi ích của việc tham gia nghiên cứu khoa học tại khoa KHMT",
+    "content": "Nghiên cứu khoa học giúp bạn rèn luyện kỹ năng phân tích và giải quyết vấn đề chuyên sâu. Đây là cơ hội tốt để làm việc trực tiếp với các giảng viên giàu kinh nghiệm. Những bài báo khoa học sẽ giúp hồ sơ xin học bổng của bạn nổi bật hơn.",
+    "tags": ["Nghiên cứu", "KHMT", "Học thuật"],
+    "view_count": 215,
+    "cover_image": "https://picsum.photos/800/400?random=102"
+  },
+  {
+    "title": "Hệ thống thông tin (HTTT) và cơ hội nghề nghiệp tại các tập đoàn đa quốc gia",
+    "content": "Sinh viên HTTT có lợi thế lớn khi hiểu cả về kỹ thuật lẫn quy trình nghiệp vụ doanh nghiệp. Các vị trí như Business Analyst (BA) hay Data Engineer đang rất được săn đón. Hãy tập trung vào việc lấy các chứng chỉ quốc tế để tăng khả năng cạnh tranh.",
+    "tags": ["HTTT", "Sự nghiệp", "BA"],
+    "view_count": 589,
+    "cover_image": "https://picsum.photos/800/400?random=103"
+  },
+  {
+    "title": "Bí kíp 'sinh tồn' tại Ký túc xá khu B dành cho tân sinh viên",
+    "content": "Sống tại KTX là một trải nghiệm đáng nhớ trong đời sinh viên với nhiều kỷ niệm vui buồn. Bạn cần học cách tự lập và hòa nhập với những người bạn mới từ khắp mọi miền. Hãy chú ý giữ gìn vệ sinh chung và tuân thủ nội quy của ban quản lý.",
+    "tags": ["KTX", "Sinh viên", "Đời sống"],
+    "view_count": 912,
+    "cover_image": "https://picsum.photos/800/400?random=104"
+  },
+  {
+    "title": "Tấn công mạng và cách phòng chống trong môi trường IoT",
+    "content": "Với sự bùng nổ của thiết bị thông minh, an ninh mạng cho IoT đang trở nên cấp thiết hơn bao giờ hết. Sinh viên ngành ATTT cần nghiên cứu về các giao thức kết nối bảo mật. Việc xây dựng các mô hình Lab thực tế sẽ giúp bạn hiểu rõ các lỗ hổng thường gặp.",
+    "tags": ["ATTT", "IoT", "Bảo mật"],
+    "view_count": 423,
+    "cover_image": "https://picsum.photos/800/400?random=105"
+  },
+  {
+    "title": "Ứng dụng Machine Learning trong việc dự báo thị trường tài chính",
+    "content": "Sử dụng dữ liệu lịch sử để dự đoán xu hướng tương lai là một bài toán thú vị của ngành KTTT. Bạn có thể bắt đầu với các mô hình Regression đơn giản trước khi tiến tới Deep Learning. Tuy nhiên, hãy nhớ rằng thị trường luôn biến động và không có mô hình nào chính xác 100%.",
+    "tags": ["KTTT", "Machine Learning", "Data Science"],
+    "view_count": 678,
+    "cover_image": "https://picsum.photos/800/400?random=106"
+  },
+  {
+    "title": "Review môn học Nhập môn Công nghệ Phần mềm (NMCNPM) tại UIT",
+    "content": "Đây là môn học bản lề giúp bạn hiểu về vòng đời của một dự án phần mềm. Bạn sẽ được học cách lấy yêu cầu, thiết kế hệ thống và quản lý mã nguồn với Git. Hãy chọn nhóm thật kỹ vì đồ án môn học này chiếm tỉ trọng điểm rất lớn.",
+    "tags": ["CNPM", "UIT", "Đồ án"],
+    "view_count": 834,
+    "cover_image": "https://picsum.photos/800/400?random=107"
+  },
+  {
+    "title": "Những quán ăn 'ngon-bổ-rẻ' quanh khu vực làng đại học Thủ Đức",
+    "content": "Khám phá ẩm thực quanh trường là thú vui không thể thiếu sau những giờ học căng thẳng. Từ cơm tấm, bún bò đến các món ăn vặt đều có giá rất sinh viên. Hãy cùng bạn bè lập 'team' đi ăn để giải tỏa áp lực học kỳ nhé.",
+    "tags": ["Ẩm thực", "Sinh viên", "Thủ Đức"],
+    "view_count": 1056,
+    "cover_image": "https://picsum.photos/800/400?random=108"
+  },
+  {
+    "title": "Hướng dẫn sử dụng Docker để triển khai ứng dụng web nhanh chóng",
+    "content": "Docker giúp loại bỏ nỗi lo về sai lệch môi trường giữa máy cá nhân và máy chủ triển khai. Đây là kỹ năng không thể thiếu đối với các lập trình viên hiện đại. Hãy bắt đầu bằng việc 'containerize' các project đồ án nhỏ của bạn.",
+    "tags": ["DevOps", "Docker", "Công nghệ"],
+    "view_count": 491,
+    "cover_image": "https://picsum.photos/800/400?random=109"
+  },
+  {
+    "title": "Kỹ năng mềm: Viết CV chuẩn chỉnh để chinh phục nhà tuyển dụng IT",
+    "content": "Một chiếc CV tốt cần thể hiện rõ các dự án cá nhân và kỹ năng chuyên môn bạn sở hữu. Hãy tập trung vào những con số và kết quả cụ thể thay vì chỉ liệt kê công việc. Đừng quên tùy chỉnh CV cho phù hợp với từng vị trí ứng tuyển khác nhau.",
+    "tags": ["Kỹ năng", "Sự nghiệp", "Job"],
+    "view_count": 622,
+    "cover_image": "https://picsum.photos/800/400?random=110"
   }
 ]
