@@ -1,9 +1,10 @@
 import math
 import re
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 from sqlalchemy import case, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from models.bookmark import Bookmark
 from models.comment import Comment
@@ -132,6 +133,97 @@ def paginate_query(db: Session, query, page: int, page_size: int):
     page_size = min(max(1, page_size), 50)
     total = db.execute(select(func.count()).select_from(query.subquery())).scalar_one()
     rows = db.execute(query.offset((page - 1) * page_size).limit(page_size)).all()
+    return rows, Pagination(page=page, page_size=page_size, total=total)
+
+
+def _paginate_bounds(page: int, page_size: int) -> tuple[int, int]:
+    normalized_page = max(1, page)
+    normalized_page_size = min(max(1, page_size), 50)
+    return normalized_page, normalized_page_size
+
+
+def paginate_latest_posts_fast(
+    db: Session,
+    current_user_id: str | None,
+    search: str | None,
+    tag: str | None,
+    mode: str,
+    page: int,
+    page_size: int,
+):
+    page, page_size = _paginate_bounds(page, page_size)
+    offset = (page - 1) * page_size
+
+    post_ids_query = select(Post.id).where(Post.status == "active")
+
+    if search:
+        term = f"%{search.strip()}%"
+        post_ids_query = post_ids_query.where((Post.title.ilike(term)) | (Post.content.ilike(term)))
+
+    if tag:
+        post_ids_query = (
+            post_ids_query.join(PostTag, PostTag.post_id == Post.id)
+            .join(Tag, Tag.id == PostTag.tag_id)
+            .where(Tag.slug == slugify(tag))
+        )
+
+    if mode == "following" and current_user_id:
+        post_ids_query = post_ids_query.join(Follow, Follow.following_id == Post.user_id).where(Follow.follower_id == current_user_id)
+
+    total = db.execute(select(func.count()).select_from(post_ids_query.distinct().subquery())).scalar_one()
+    page_ids = db.execute(post_ids_query.order_by(Post.created_at.desc(), Post.id.desc()).offset(offset).limit(page_size)).scalars().all()
+
+    if not page_ids:
+        return [], Pagination(page=page, page_size=page_size, total=total)
+
+    posts = (
+        db.query(Post)
+        .options(joinedload(Post.author), joinedload(Post.tags).joinedload(PostTag.tag))
+        .filter(Post.id.in_(page_ids))
+        .all()
+    )
+    post_by_id = {post.id: post for post in posts}
+    ordered_posts = [post_by_id[post_id] for post_id in page_ids if post_id in post_by_id]
+
+    likes_map = dict(db.query(PostLike.post_id, func.count()).filter(PostLike.post_id.in_(page_ids)).group_by(PostLike.post_id).all())
+    comments_map = dict(db.query(Comment.post_id, func.count()).filter(Comment.post_id.in_(page_ids)).group_by(Comment.post_id).all())
+    views_map = dict(db.query(PostView.post_id, func.count()).filter(PostView.post_id.in_(page_ids)).group_by(PostView.post_id).all())
+    shares_map = dict(db.query(PostShare.post_id, func.count()).filter(PostShare.post_id.in_(page_ids)).group_by(PostShare.post_id).all())
+
+    liked_set: set[int] = set()
+    bookmarked_set: set[int] = set()
+    if current_user_id:
+        liked_set = set(
+            db.query(PostLike.post_id)
+            .filter(PostLike.user_id == current_user_id, PostLike.post_id.in_(page_ids))
+            .all()
+        )
+        liked_set = {post_id for (post_id,) in liked_set}
+
+        bookmarked_set = set(
+            db.query(Bookmark.post_id)
+            .filter(Bookmark.user_id == current_user_id, Bookmark.post_id.in_(page_ids))
+            .all()
+        )
+        bookmarked_set = {post_id for (post_id,) in bookmarked_set}
+
+    rows = []
+    for post in ordered_posts:
+        likes_count = int(likes_map.get(post.id, 0))
+        comments_count = int(comments_map.get(post.id, 0))
+        views_count = int(views_map.get(post.id, 0))
+        shares_count = int(shares_map.get(post.id, 0))
+        stats = SimpleNamespace(
+            likes_count=likes_count,
+            comments_count=comments_count,
+            views_count=views_count,
+            shares_count=shares_count,
+            trending_score=likes_count * 4 + comments_count * 3 + views_count,
+            is_liked=post.id in liked_set,
+            is_bookmarked=post.id in bookmarked_set,
+        )
+        rows.append((post, stats))
+
     return rows, Pagination(page=page, page_size=page_size, total=total)
 
 

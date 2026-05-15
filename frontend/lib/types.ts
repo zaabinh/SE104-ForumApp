@@ -16,6 +16,7 @@ export type UserProfile = {
   bookmarkedPostIds: number[];
   likedCommentIds: number[];
   isCurrentUser?: boolean;
+  isFollowing?: boolean;
 };
 
 export type Post = {

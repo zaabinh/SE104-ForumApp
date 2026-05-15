@@ -6,3 +6,6 @@ passlib[argon2]==1.7.4
 python-jose==3.5.0
 pydantic[email]==2.11.7
 python-dotenv==1.1.1
+pydantic
+faker
+python-slugify

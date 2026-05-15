@@ -2,7 +2,7 @@
 
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiImage, FiPlusCircle, FiZap } from 'react-icons/fi';
+import { FiImage, FiPlusCircle, FiSend, FiZap } from 'react-icons/fi';
 import FeedFilter from '@/components/feed/FeedFilter';
 import FeedSort from '@/components/feed/FeedSort';
 import FeedTabs from '@/components/feed/FeedTabs';
@@ -10,15 +10,20 @@ import PostCard from '@/components/post/PostCard';
 import Avatar from '@/components/ui/Avatar';
 import Button from '@/components/ui/Button';
 import Skeleton from '@/components/ui/Skeleton';
+import { useToast } from '@/components/ui/Toast';
 import { getStoredUser } from '@/lib/axios';
-import { getFeed } from '@/lib/forumApi';
+import { createPost, getFeed } from '@/lib/forumApi';
+import { useI18n } from '@/lib/i18n';
+import { getMyProfile } from '@/lib/profileApi';
 import { FeedMode, SortOption, Post, UserProfile } from '@/lib/types';
 
 type PostListProps = {
   searchQuery?: string;
+  initialFeedMode?: FeedMode;
 };
 
 const FALLBACK_AVATAR = '/images/uit.png';
+const INITIAL_FEED_PAGE_SIZE = 16;
 
 function mapAuthor(author: {
   id: string;
@@ -63,20 +68,26 @@ function mapPost(post: any): Post {
   };
 }
 
-export default function PostList({ searchQuery = '' }: PostListProps) {
+export default function PostList({ searchQuery = '', initialFeedMode = 'for-you' }: PostListProps) {
   const router = useRouter();
+  const { pushToast } = useToast();
+  const { t } = useI18n();
   const [posts, setPosts] = useState<Post[]>([]);
   const [usersById, setUsersById] = useState<Record<string, UserProfile>>({});
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [feedMode, setFeedMode] = useState<FeedMode>('for-you');
+  const [feedMode, setFeedMode] = useState<FeedMode>(initialFeedMode);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('latest');
   const [visibleCount, setVisibleCount] = useState(4);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [likedPostIds, setLikedPostIds] = useState<number[]>([]);
   const [bookmarkedPostIds, setBookmarkedPostIds] = useState<number[]>([]);
+  const [quickPostTitle, setQuickPostTitle] = useState('');
+  const [quickPostContent, setQuickPostContent] = useState('');
+  const [quickPostTags, setQuickPostTags] = useState('');
+  const [quickPostSubmitting, setQuickPostSubmitting] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const storedUser = useMemo(() => getStoredUser(), []);
   const currentUser = useMemo<UserProfile | null>(() => {
@@ -101,6 +112,10 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
   }, [bookmarkedPostIds, likedPostIds, storedUser]);
 
   useEffect(() => {
+    setFeedMode(initialFeedMode);
+  }, [initialFeedMode]);
+
+  useEffect(() => {
     let isMounted = true;
 
     const loadFeed = async () => {
@@ -109,7 +124,7 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
       try {
         const response = await getFeed({
           page: 1,
-          pageSize: 50,
+          pageSize: INITIAL_FEED_PAGE_SIZE,
           search: searchQuery,
           tag: activeTag,
           mode: feedMode,
@@ -180,7 +195,29 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
 
   const handleSelectTag = useCallback((tag: string) => setActiveTag(tag), []);
   const handleClearTag = useCallback(() => setActiveTag(null), []);
-  const handleFeedModeChange = useCallback((value: FeedMode) => setFeedMode(value), []);
+  const handleFeedModeChange = useCallback(
+    async (value: FeedMode) => {
+      if (value !== 'following') {
+        setFeedMode(value);
+        return;
+      }
+
+      try {
+        const myProfile = await getMyProfile();
+        if (myProfile.following_count <= 0) {
+          pushToast(t('feedFollowingEmpty'));
+          setFeedMode('for-you');
+          router.replace('/feed');
+          return;
+        }
+      } catch {
+        // Fall back to normal following mode when profile check fails.
+      }
+
+      setFeedMode('following');
+    },
+    [pushToast, router, t]
+  );
   const handleSortChange = useCallback((value: SortOption) => setSortBy(value), []);
 
   const handleToggleLike = useCallback(
@@ -229,6 +266,48 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
     [bookmarkedPostIds]
   );
 
+  const handleQuickCreatePost = useCallback(async () => {
+    const content = quickPostContent.trim();
+    if (!content || quickPostSubmitting) {
+      return;
+    }
+
+    setQuickPostSubmitting(true);
+    try {
+      const normalizedTags = Array.from(
+        new Set(
+          quickPostTags
+            .split(',')
+            .map((tag) => tag.trim().toLowerCase())
+            .filter(Boolean)
+        )
+      );
+      const fallbackTitle = content.length > 70 ? `${content.slice(0, 70)}...` : content;
+      const created = await createPost({
+        title: quickPostTitle.trim() || fallbackTitle,
+        content,
+        tags: normalizedTags,
+      });
+
+      const mapped = mapPost(created);
+      const mappedAuthor = mapAuthor(created.author);
+      setPosts((prev) => [mapped, ...prev]);
+      setUsersById((prev) => ({ ...prev, [mappedAuthor.id]: mappedAuthor }));
+      if (normalizedTags.length) {
+        setTags((prev) => Array.from(new Set([...prev, ...normalizedTags])).sort());
+      }
+      setQuickPostTitle('');
+      setQuickPostContent('');
+      setQuickPostTags('');
+      pushToast(t('feedCreateSuccess'));
+      router.replace(`/post/${created.id}`);
+    } catch {
+      pushToast(t('feedCreateError'));
+    } finally {
+      setQuickPostSubmitting(false);
+    }
+  }, [pushToast, quickPostContent, quickPostSubmitting, quickPostTags, quickPostTitle, router, t]);
+
   const visiblePosts = posts.slice(0, visibleCount);
 
   const loadMore = useCallback(() => {
@@ -274,18 +353,18 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
       <section className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="card-surface flex items-center gap-3 px-4 py-3">
-            <p className="text-sm font-semibold text-ink-800">Feed settings</p>
+            <p className="text-sm font-semibold text-ink-800">{t('feedSettings')}</p>
           </div>
           <div className="card-surface flex items-center gap-3 px-4 py-3">
-            <p className="text-sm font-semibold text-ink-800">{posts.length} posts</p>
+            <p className="text-sm font-semibold text-ink-800">{posts.length} {t('feedPostsCount')}</p>
           </div>
         </div>
         <div className="hidden items-center gap-3 xl:flex">
           <div className="card-surface flex items-center gap-3 px-4 py-3">
-            <p className="text-sm font-semibold text-ink-800">{tags.length} tags</p>
+            <p className="text-sm font-semibold text-ink-800">{tags.length} {t('feedTagsCount')}</p>
           </div>
           <div className="card-surface flex items-center gap-3 px-4 py-3">
-            <p className="text-sm font-semibold text-ink-800">{bookmarkedPostIds.length} saved</p>
+            <p className="text-sm font-semibold text-ink-800">{bookmarkedPostIds.length} {t('feedSavedCount')}</p>
           </div>
         </div>
       </section>
@@ -295,26 +374,53 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
           <Avatar src={currentUser?.avatar || FALLBACK_AVATAR} alt={currentUser?.name || 'Current user'} size={52} />
           <div className="min-w-0 flex-1">
             <div className="rounded-[26px] border border-uit-100 bg-gradient-to-r from-uit-50 via-white to-ai-cyan/10 p-4">
-              <p className="text-sm font-medium text-ink-700">Share an update, ask a question, or let AI help draft your next technical post.</p>
+              <input
+                type="text"
+                value={quickPostTitle}
+                onChange={(event) => setQuickPostTitle(event.target.value)}
+                placeholder={t('feedQuickTitlePlaceholder')}
+                className="w-full rounded-2xl border border-uit-100 bg-white/90 px-4 py-2.5 text-sm text-ink-700 outline-none transition-all duration-200 focus:border-uit-300"
+              />
+              <textarea
+                value={quickPostContent}
+                onChange={(event) => setQuickPostContent(event.target.value)}
+                placeholder={t('feedQuickContentPlaceholder')}
+                className="mt-3 min-h-[110px] w-full rounded-2xl border border-uit-100 bg-white/90 px-4 py-3 text-sm leading-7 text-ink-700 outline-none transition-all duration-200 focus:border-uit-300"
+              />
+              <input
+                type="text"
+                value={quickPostTags}
+                onChange={(event) => setQuickPostTags(event.target.value)}
+                placeholder={t('feedQuickTagsPlaceholder')}
+                className="mt-3 w-full rounded-2xl border border-uit-100 bg-white/90 px-4 py-2.5 text-sm text-ink-700 outline-none transition-all duration-200 focus:border-uit-300"
+              />
             </div>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Button className="gap-2" onClick={() => router.push('/create')}>
+              <Button
+                className="gap-2"
+                onClick={handleQuickCreatePost}
+                disabled={!quickPostContent.trim() || quickPostSubmitting}
+              >
+                <FiSend className="h-4 w-4" />
+                {quickPostSubmitting ? t('feedPublishing') : t('feedPublish')}
+              </Button>
+              <Button className="gap-2" variant="outline" onClick={() => router.push('/create')}>
                 <FiPlusCircle className="h-4 w-4" />
-                Create post
+                {t('feedOpenFullComposer')}
               </Button>
               <button
                 type="button"
                 className="inline-flex items-center gap-2 rounded-2xl border border-uit-100 bg-white/80 px-4 py-2.5 text-sm font-semibold text-ink-700 transition-all duration-200 hover:border-uit-300 hover:bg-uit-50"
               >
                 <FiImage className="h-4 w-4 text-uit-700" />
-                Add media
+                {t('feedAddMedia')}
               </button>
               <button
                 type="button"
                 className="inline-flex items-center gap-2 rounded-2xl border border-uit-100 bg-white/80 px-4 py-2.5 text-sm font-semibold text-ink-700 transition-all duration-200 hover:border-uit-300 hover:bg-uit-50"
               >
                 <FiZap className="h-4 w-4 text-uit-700" />
-                AI draft
+                {t('feedAiDraft')}
               </button>
             </div>
           </div>
@@ -341,7 +447,7 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
         </div>
       ) : searchQuery ? (
         <div className="rounded-[24px] border border-white/70 bg-white/80 px-4 py-3 text-sm text-ink-600 shadow-card">
-          Search results for <span className="font-semibold text-ink-900">"{searchQuery}"</span>
+          {t('feedSearchResults')} <span className="font-semibold text-ink-900">"{searchQuery}"</span>
         </div>
       ) : null}
 
@@ -349,8 +455,8 @@ export default function PostList({ searchQuery = '' }: PostListProps) {
 
       {!loading && !error && !posts.length ? (
         <div className="card-surface p-6 text-center">
-          <h3 className="font-semibold text-ink-900">No posts found</h3>
-          <p className="mt-2 text-sm text-ink-600">Try another keyword or clear the current tag filter.</p>
+          <h3 className="font-semibold text-ink-900">{t('feedNoPostsTitle')}</h3>
+          <p className="mt-2 text-sm text-ink-600">{t('feedNoPostsDesc')}</p>
         </div>
       ) : (
         <div className="grid gap-5 2xl:grid-cols-2">

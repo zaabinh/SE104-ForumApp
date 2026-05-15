@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n';
 
 const LoginForm = dynamic(() => import('@/components/auth/LoginForm'), {
   loading: () => <div className="min-h-[420px] animate-pulse rounded-[24px] bg-slate-100/80" />,
@@ -14,14 +15,15 @@ const RegisterForm = dynamic(() => import('@/components/auth/RegisterForm'), {
 
 export default function AuthPanel() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
+  const { t } = useI18n();
 
   return (
     <div className="w-full rounded-[32px] border border-white/85 bg-white/96 p-6 shadow-[0_24px_80px_rgba(30,64,175,0.12)] sm:p-8">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-uit-700">Welcome</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-uit-700">{t('landingAuthWelcome')}</p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink-900">
-            {mode === 'login' ? 'Sign in to UITConnect' : 'Create your account'}
+            {mode === 'login' ? t('landingAuthSignInTitle') : t('landingAuthCreateTitle')}
           </h2>
         </div>
         <div className="flex h-14 w-14 items-center justify-center rounded-[22px] border border-uit-100 bg-uit-50">
@@ -35,14 +37,14 @@ export default function AuthPanel() {
           onClick={() => setMode('login')}
           className={`rounded-[16px] px-4 py-2.5 text-sm font-semibold transition ${mode === 'login' ? 'bg-white text-uit-700 shadow-sm' : 'text-ink-500 hover:text-uit-700'}`}
         >
-          Sign in
+          {t('landingAuthSignInTab')}
         </button>
         <button
           type="button"
           onClick={() => setMode('register')}
           className={`rounded-[16px] px-4 py-2.5 text-sm font-semibold transition ${mode === 'register' ? 'bg-white text-uit-700 shadow-sm' : 'text-ink-500 hover:text-uit-700'}`}
         >
-          Register
+          {t('landingAuthRegisterTab')}
         </button>
       </div>
 

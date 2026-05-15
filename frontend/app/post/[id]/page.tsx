@@ -10,6 +10,8 @@ import PostDetail from '@/components/post/PostDetail';
 import RelatedPosts from '@/components/post/RelatedPosts';
 import { fetchCurrentUser } from '@/lib/axios';
 import { getFeed, getPost, toggleBookmark, togglePostLike } from '@/lib/forumApi';
+import { useI18n } from '@/lib/i18n';
+import { getUserProfile } from '@/lib/profileApi';
 import { useAuthGuard } from '@/lib/useAuthGuard';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
 import { Post, UserProfile } from '@/lib/types';
@@ -61,6 +63,7 @@ function mapPost(post: any): Post {
 
 export default function PostDetailPage() {
   const params = useParams<{ id: string }>();
+  const { t } = useI18n();
   const { isCheckingAuth, userEmail } = useAuthGuard();
   const { isSidebarCollapsed, isMobileSidebarOpen, setIsSidebarCollapsed, setIsMobileSidebarOpen } = useResponsiveSidebar();
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,7 +79,7 @@ export default function PostDetailPage() {
 
   useEffect(() => {
     if (!Number.isFinite(postId)) {
-      setError('Invalid post id.');
+      setError(t('postInvalidId'));
       setLoading(false);
       return;
     }
@@ -98,7 +101,21 @@ export default function PostDetailPage() {
         }
 
         setPost(mapPost(postData));
-        setAuthor(mapAuthor(postData.author));
+        const baseAuthor = mapAuthor(postData.author);
+        try {
+          const authorProfile = await getUserProfile(baseAuthor.username.replace(/^@/, ''));
+          if (isMounted) {
+            setAuthor({
+              ...baseAuthor,
+              followers: authorProfile.followers_count,
+              isFollowing: authorProfile.is_following,
+            });
+          }
+        } catch {
+          if (isMounted) {
+            setAuthor(baseAuthor);
+          }
+        }
         setLiked(postData.is_liked);
         setBookmarked(postData.is_bookmarked);
         setCurrentUser({
@@ -137,7 +154,7 @@ export default function PostDetailPage() {
           loadError.response.data !== null &&
           'detail' in loadError.response.data
             ? String(loadError.response.data.detail)
-            : 'Unable to load this post.';
+            : t('postLoadError');
         if (isMounted) {
           setError(message);
         }
@@ -152,7 +169,7 @@ export default function PostDetailPage() {
     return () => {
       isMounted = false;
     };
-  }, [postId]);
+  }, [postId, t]);
 
   const isOwner = useMemo(() => (post ? post.authorId === currentUser?.id : false), [currentUser?.id, post]);
 
@@ -187,7 +204,7 @@ export default function PostDetailPage() {
       <main className="flex min-h-screen items-center justify-center bg-slate-100">
         <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-medium text-slate-700 shadow-card">
           <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-forum-primary" />
-          Loading post...
+          {t('postLoading')}
         </div>
       </main>
     );
@@ -213,10 +230,10 @@ export default function PostDetailPage() {
         />
         <div className={`px-4 py-8 transition-all duration-200 ${sidebarOffsetClass}`}>
           <div className="card-surface mx-auto max-w-3xl p-8">
-            <h1 className="text-2xl font-bold text-slate-900">Post not found</h1>
-            <p className="mt-3 text-sm text-slate-500">{error || 'The post may have been removed or the URL is incorrect.'}</p>
+            <h1 className="text-2xl font-bold text-slate-900">{t('postNotFound')}</h1>
+            <p className="mt-3 text-sm text-slate-500">{error || t('postNotFoundDesc')}</p>
             <Link href="/feed" className="mt-5 inline-flex rounded-2xl bg-forum-primary px-4 py-2 text-sm font-semibold text-white">
-              Back to feed
+              {t('postBackToFeed')}
             </Link>
           </div>
         </div>
@@ -244,7 +261,7 @@ export default function PostDetailPage() {
         <div className="mx-auto grid max-w-[1600px] gap-6 xl:grid-cols-[minmax(0,760px)_320px] xl:justify-center">
           <div className="space-y-4 lg:pr-2">
             <Link href="/feed" className="inline-flex text-sm font-medium text-slate-500 transition-all duration-200 hover:text-forum-primary">
-              Back to feed
+              {t('postBackToFeed')}
             </Link>
             <PostDetail
               post={post}

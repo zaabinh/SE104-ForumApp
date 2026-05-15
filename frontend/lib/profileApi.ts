@@ -3,6 +3,7 @@
 import { api, fetchCurrentUser, saveStoredUser } from '@/lib/axios';
 
 export type ProfileSummary = {
+  id: string;
   username: string;
   full_name: string;
   avatar_url: string | null;

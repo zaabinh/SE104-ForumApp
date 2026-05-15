@@ -6,9 +6,11 @@ import { startTransition, useEffect, useMemo, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { api, fetchCurrentUser, saveAuthSession } from '@/lib/axios';
+import { useI18n } from '@/lib/i18n';
 
 export default function LoginForm() {
   const router = useRouter();
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -26,9 +28,9 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (searchParams.get('status') === 'banned') {
-      setError('Your account has been banned');
+      setError(t('loginBanned'));
     }
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,7 +38,7 @@ export default function LoginForm() {
     setSuccess('');
 
     if (!canSubmit) {
-      setError('Please provide a valid email and at least 6 characters password.');
+      setError(t('loginInvalidInput'));
       return;
     }
 
@@ -54,7 +56,7 @@ export default function LoginForm() {
         startTransition(() => router.push('/complete-profile'));
         return;
       }
-      setSuccess('Welcome back. Redirecting to your feed...');
+      setSuccess(t('loginWelcome'));
       startTransition(() => router.push('/feed'));
     } catch (submitError) {
       const message =
@@ -68,7 +70,7 @@ export default function LoginForm() {
         submitError.response.data !== null &&
         'detail' in submitError.response.data
           ? String(submitError.response.data.detail)
-          : 'Login failed. Please try again.';
+          : t('loginFailed');
       if (message.toLowerCase().includes('verify your email')) {
         startTransition(() => router.push(`/verify-email?email=${encodeURIComponent(identifier)}`));
         return;
@@ -81,18 +83,18 @@ export default function LoginForm() {
 
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
-      <Input id="login-identifier" label="Email or Username" type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
+      <Input id="login-identifier" label={t('loginIdentifier')} type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
       <div className="space-y-2">
         <Input
           id="login-password"
-          label="Password"
+          label={t('loginPassword')}
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
         <button type="button" className="text-xs text-forum-primary" onClick={() => setShowPassword((prev) => !prev)}>
-          {showPassword ? 'Hide password' : 'Show password'}
+          {showPassword ? t('loginHidePassword') : t('loginShowPassword')}
         </button>
       </div>
 
@@ -103,27 +105,27 @@ export default function LoginForm() {
         {loading ? (
           <span className="inline-flex items-center gap-2">
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-            Logging in...
+            {t('loginSubmitting')}
           </span>
         ) : (
-          'Login'
+          t('loginSubmit')
         )}
       </Button>
 
-      <Button type="button" variant="outline" className="w-full" onClick={() => window.location.assign(googleLoginUrl)}>
+      {/* <Button type="button" variant="outline" className="w-full" onClick={() => window.location.assign(googleLoginUrl)}>
         Continue with Google
-      </Button>
+      </Button> */}
 
-      <p className="text-sm text-slate-600">
+      {/* <p className="text-sm text-slate-600">
         Need an account?{' '}
         <Link className="text-forum-primary" href="/register">
           Register
         </Link>
-      </p>
+      </p> */}
       <p className="text-sm text-slate-600">
-        Forgot your password?{' '}
+        {t('loginForgot')}{' '}
         <Link className="text-forum-primary" href="/forgot-password">
-          Reset it
+          {t('loginReset')}
         </Link>
       </p>
     </form>

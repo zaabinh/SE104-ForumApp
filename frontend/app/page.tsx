@@ -3,8 +3,11 @@
 import Image from 'next/image';
 import AuthPanel from '@/components/landing/AuthPanel';
 import LandingCollage from '@/components/landing/LandingCollage';
+import { useI18n } from '@/lib/i18n';
 
 export default function LandingPage() {
+  const { t } = useI18n();
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       
@@ -24,7 +27,7 @@ export default function LandingPage() {
                 UITConnect
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                Campus Technology Network
+                {t('landingTagline')}
               </p>
             </div>
           </div>
@@ -43,26 +46,24 @@ export default function LandingPage() {
             <div className="pt-12 lg:pt-16">
               <div className="space-y-6">
                 <h1 className="text-7xl lg:text-8xl font-black leading-tight tracking-tight">
-                  <span className="block text-blue-900">Build</span>
+                  <span className="block text-blue-900">{t('landingHeroBuild')}</span>
 
                   <span className="block text-blue-700 text-6xl lg:text-7xl">
-                    Collaborate
+                    {t('landingHeroCollaborate')}
                   </span>
 
                   <span className="block">
                     <span className="text-slate-600 text-4xl lg:text-5xl mr-2">
-                      and
+                      {t('landingHeroAnd')}
                     </span>
                     <span className="text-blue-500 text-7xl lg:text-8xl">
-                      Launch
+                      {t('landingHeroLaunch')}
                     </span>
                   </span>
                 </h1>
 
                 <p className="text-lg text-slate-600 leading-relaxed max-w-sm">
-                  Connect with peers on internships, showcase projects,
-                  share technical insights, and build your professional
-                  network in one vibrant community.
+                  {t('landingDescription')}
                 </p>
               </div>
             </div>

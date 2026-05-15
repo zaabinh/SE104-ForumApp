@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/lib/i18n';
 import { formatRelativeTime } from '@/lib/mockData';
 import { Post, UserProfile } from '@/lib/types';
 
@@ -14,10 +15,11 @@ type RelatedPostsProps = {
 
 export default function RelatedPosts({ posts }: RelatedPostsProps) {
   const router = useRouter();
+  const { t } = useI18n();
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-card">
-      <h3 className="text-lg font-semibold text-slate-900">Related posts</h3>
+      <h3 className="text-lg font-semibold text-slate-900">{t('postRelatedTitle')}</h3>
       <div className="mt-4 space-y-3">
         {posts.map(({ post, author }) => (
           <button
@@ -31,7 +33,7 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
                 <Image src={post.image} alt={post.title} fill className="object-cover" />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gradient-to-r from-slate-100 to-slate-200 text-[11px] font-medium text-slate-400">
-                  No image
+                  {t('postNoImage')}
                 </div>
               )}
             </div>

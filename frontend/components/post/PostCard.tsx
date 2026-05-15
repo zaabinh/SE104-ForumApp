@@ -63,13 +63,13 @@ function PostCard({ post, author, activeTag, onSelectTag, liked, bookmarked, onL
           <>
             <Image src={post.image} alt={post.title} fill sizes="(max-width: 1280px) 100vw, 900px" loading="lazy" className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink-900/55 via-transparent to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl border border-white/20 bg-white/12 px-4 py-3 text-white backdrop-blur-md">
+            {/* <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl border border-white/20 bg-white/12 px-4 py-3 text-white backdrop-blur-md">
               <div>
                 <p className="text-xs uppercase tracking-[0.28em] text-white/70">AI relevance</p>
                 <p className="mt-1 text-sm font-semibold">Recommended for developers following {post.tags[0]}</p>
               </div>
               <FiZap className="h-5 w-5" />
-            </div>
+            </div> */}
           </>
         ) : (
           <div className="flex h-full items-center justify-center bg-gradient-to-r from-slate-100 to-slate-200 text-sm font-medium text-slate-400">

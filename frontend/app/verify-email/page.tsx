@@ -4,44 +4,48 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import { api, fetchCurrentUser } from '@/lib/axios';
+import { useI18n } from '@/lib/i18n';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const email = searchParams.get('email') || '';
-  const [message, setMessage] = useState('Please verify your email.');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
 
   useEffect(() => {
     if (!token) {
+      setMessage(t('verifyEmailDefault'));
       return;
     }
 
     setLoading(true);
+    setMessage(t('verifyEmailDefault'));
     api
       .post('/auth/verify-email', { token })
       .then(async (response) => {
-        setMessage(response.data.message ?? 'Email verified successfully.');
+        setMessage(response.data.message ?? t('verifyEmailSuccess'));
         setVerified(true);
         try {
-          const currentUser = await fetchCurrentUser();
-          router.replace(currentUser.profile_completed ? '/feed' : '/complete-profile');
+          await fetchCurrentUser();
         } catch {
-          // Keep verification message visible if not currently authenticated.
+          // No-op: verification link may be opened without an active session.
         }
+        router.replace('/login');
       })
       .catch(() => {
-        setMessage('Verification token is invalid or expired.');
+        setMessage(t('verifyEmailInvalid'));
       })
       .finally(() => setLoading(false));
-  }, [router, token]);
+  }, [router, t, token]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
       <section className="w-full max-w-md rounded-2xl bg-white p-6 shadow-card">
-        <h1 className="mb-2 text-2xl font-bold">Verify email</h1>
+        <h1 className="mb-2 text-2xl font-bold">{t('verifyEmailTitle')}</h1>
         <p className="mb-6 text-sm text-slate-600">{message}</p>
         {!verified ? (
           <Button
@@ -52,13 +56,13 @@ export default function VerifyEmailPage() {
               setLoading(true);
               try {
                 const response = await api.post('/auth/resend-verification', { email });
-                setMessage(response.data.message ?? 'Verification email sent.');
+                setMessage(response.data.message ?? t('verifyEmailSent'));
               } finally {
                 setLoading(false);
               }
             }}
           >
-            {loading ? 'Sending...' : 'Resend verification'}
+            {loading ? t('verifyEmailSending') : t('verifyEmailResend')}
           </Button>
         ) : null}
       </section>

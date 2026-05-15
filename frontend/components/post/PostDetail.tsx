@@ -21,6 +21,7 @@ type PostDetailProps = {
 
 export default function PostDetail({ post, author, currentUser, isOwner, liked, bookmarked, onLikeToggle, onBookmarkToggle }: PostDetailProps) {
   const router = useRouter();
+  const profileHref = `/profile/${author.username.replace(/^@/, '')}`;
 
   return (
     <div className="mx-auto max-w-[760px] space-y-6">
@@ -30,7 +31,7 @@ export default function PostDetail({ post, author, currentUser, isOwner, liked, 
           <div className="min-w-0">
             <button
               type="button"
-              onClick={() => router.push(`/profile/${author.id}`)}
+              onClick={() => router.push(profileHref)}
               className="truncate text-left text-sm font-semibold text-slate-900 transition-all duration-200 hover:text-forum-primary"
             >
               {author.name}

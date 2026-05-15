@@ -1,142 +1,442 @@
-[
-  {
-    "title": "Kinh nghiệm thực tập sớm cho sinh viên Công nghệ Phần mềm (CNPM)",
-    "content": "Việc đi thực tập từ năm 3 giúp sinh viên nắm vững quy trình phát triển phần mềm thực tế. Bạn nên tập trung vào các kiến thức về Design Patterns và Agile. Đừng quên trau dồi kỹ năng làm việc nhóm để dễ dàng hòa nhập với môi trường doanh nghiệp.",
-    "tags": ["Thực tập", "CNPM", "Học tập"],
-    "view_count": 842,
-    "cover_image": "https://picsum.photos/800/400?random=11"
-  },
-  {
-    "title": "Lộ trình tự học An toàn thông tin (ATTT) hiệu quả tại UIT",
-    "content": "An toàn thông tin là một ngành học đòi hỏi sự kiên trì và tư duy logic cao. Sinh viên nên bắt đầu với kiến thức nền tảng về mạng máy tính và hệ điều hành. Tham gia các giải đấu CTF tại trường là cách tốt nhất để rèn luyện kỹ năng thực chiến.",
-    "tags": ["ATTT", "Bảo mật", "UIT"],
-    "view_count": 521,
-    "cover_image": "https://picsum.photos/800/400?random=22"
-  },
-  {
-    "title": "Tầm quan trọng của Toán rời rạc trong Khoa học máy tính (KHMT)",
-    "content": "Toán rời rạc cung cấp nền tảng tư duy để giải quyết các bài toán thuật toán phức tạp. Hầu hết các vấn đề trong lập trình đều có thể quy về các cấu trúc toán học cơ bản. Hiểu sâu môn học này sẽ giúp bạn tiếp cận trí tuệ nhân tạo dễ dàng hơn.",
-    "tags": ["KHMT", "Toán", "Học tập"],
-    "view_count": 125,
-    "cover_image": "https://picsum.photos/800/400?random=33"
-  },
-  {
-    "title": "Phân tích dữ liệu lớn với Hệ thống thông tin (HTTT)",
-    "content": "Ngành Hệ thống thông tin không chỉ là quản lý dữ liệu mà còn là tối ưu hóa quy trình doanh nghiệp. Sinh viên cần thành thạo SQL và các công cụ trực quan hóa dữ liệu. Đây là xu hướng nghề nghiệp rất khát nhân lực trong thời đại chuyển đổi số.",
-    "tags": ["HTTT", "Data", "Học tập"],
-    "view_count": 348,
-    "cover_image": "https://picsum.photos/800/400?random=44"
-  },
-  {
-    "title": "Ứng dụng Blockchain trong Kỹ thuật Thương mại điện tử (KTTT)",
-    "content": "Blockchain đang thay đổi cách chúng ta thực hiện các giao dịch trực tuyến an toàn. Sinh viên ngành KTTT nên tìm hiểu về Smart Contract để đón đầu công nghệ. Các dự án thực tế về ví điện tử sẽ là điểm cộng lớn trong CV của bạn.",
-    "tags": ["KTTT", "Blockchain", "Thương mại"],
-    "view_count": 712,
-    "cover_image": "https://picsum.photos/800/400?random=55"
-  },
-  {
-    "title": "Review các câu lạc bộ học thuật nổi bật tại UIT",
-    "content": "Tham gia CLB giúp bạn mở rộng mối quan hệ và học hỏi kinh nghiệm từ các anh chị khóa trên. Có rất nhiều CLB từ học thuật đến kỹ năng mềm phù hợp với mọi sinh viên. Đừng bỏ lỡ cơ hội tham gia các buổi workshop chuyên sâu hàng tháng.",
-    "tags": ["UIT", "CLB", "Kỹ năng"],
-    "view_count": 963,
-    "cover_image": "https://picsum.photos/800/400?random=66"
-  },
-  {
-    "title": "Cách cân bằng giữa việc học và làm thêm cho sinh viên IT",
-    "content": "Áp lực học tập tại UIT là không hề nhỏ, vì vậy việc quản lý thời gian là cực kỳ quan trọng. Bạn nên ưu tiên các công việc liên quan đến chuyên môn để tích lũy kinh nghiệm. Hãy xây dựng một thời biểu khoa học để đảm bảo sức khỏe và kết quả học tập.",
-    "tags": ["Kinh nghiệm", "Học tập", "Sinh viên"],
-    "view_count": 415,
-    "cover_image": "https://picsum.photos/800/400?random=77"
-  },
-  {
-    "title": "Xu hướng trí tuệ nhân tạo trong chương trình KHMT",
-    "content": "AI đang len lỏi vào mọi ngóc ngách của đời sống và là trọng tâm của ngành KHMT. Việc nắm vững đại số tuyến tính và xác suất thống kê là điều kiện bắt buộc. UIT cung cấp nhiều tài nguyên và phòng Lab hiện đại để sinh viên nghiên cứu.",
-    "tags": ["AI", "KHMT", "Nghiên cứu"],
-    "view_count": 889,
-    "cover_image": "https://picsum.photos/800/400?random=88"
-  },
-  {
-    "title": "Tại sao nên học Framework Next.js khi theo đuổi CNPM?",
-    "content": "Next.js đang trở thành tiêu chuẩn cho các ứng dụng Web hiện đại nhờ khả năng tối ưu SEO. Sinh viên CNPM nên cập nhật công nghệ này bên cạnh kiến thức React căn bản. Việc xây dựng một sản phẩm thực tế bằng Next.js sẽ giúp bạn hiểu rõ về SSR và SSG.",
-    "tags": ["CNPM", "Web", "Công nghệ"],
-    "view_count": 274,
-    "cover_image": "https://picsum.photos/800/400?random=99"
-  },
-  {
-    "title": "Thủ tục đăng ký đề tài khóa luận tốt nghiệp tại UIT",
-    "content": "Đăng ký khóa luận là bước ngoặt quan trọng để hoàn thành chặng đường đại học. Sinh viên cần tìm kiếm giảng viên hướng dẫn và lên ý tưởng đề tài từ sớm. Hãy chuẩn bị kỹ đề cương để thuyết phục hội đồng khoa học về tính khả thi của dự án.",
-    "tags": ["Tốt nghiệp", "UIT", "Học tập"],
-    "view_count": 637,
-    "cover_image": "https://picsum.photos/800/400?random=100"
-  },
-  {
-    "title": "Tổng hợp tài liệu ôn thi cuối kỳ môn Cấu trúc dữ liệu và Giải thuật",
-    "content": "Môn học này là nỗi ám ảnh của nhiều sinh viên nhưng lại cực kỳ quan trọng cho các kỳ phỏng vấn sau này. Bạn nên nắm chắc các thuật toán sắp xếp và duyệt cây. Đừng quên thực hành trên các nền tảng như LeetCode để rèn luyện tư duy.",
-    "tags": ["Học tập", "UIT", "Algorithm"],
-    "view_count": 752,
-    "cover_image": "https://picsum.photos/800/400?random=101"
-  },
-  {
-    "title": "Lợi ích của việc tham gia nghiên cứu khoa học tại khoa KHMT",
-    "content": "Nghiên cứu khoa học giúp bạn rèn luyện kỹ năng phân tích và giải quyết vấn đề chuyên sâu. Đây là cơ hội tốt để làm việc trực tiếp với các giảng viên giàu kinh nghiệm. Những bài báo khoa học sẽ giúp hồ sơ xin học bổng của bạn nổi bật hơn.",
-    "tags": ["Nghiên cứu", "KHMT", "Học thuật"],
-    "view_count": 215,
-    "cover_image": "https://picsum.photos/800/400?random=102"
-  },
-  {
-    "title": "Hệ thống thông tin (HTTT) và cơ hội nghề nghiệp tại các tập đoàn đa quốc gia",
-    "content": "Sinh viên HTTT có lợi thế lớn khi hiểu cả về kỹ thuật lẫn quy trình nghiệp vụ doanh nghiệp. Các vị trí như Business Analyst (BA) hay Data Engineer đang rất được săn đón. Hãy tập trung vào việc lấy các chứng chỉ quốc tế để tăng khả năng cạnh tranh.",
-    "tags": ["HTTT", "Sự nghiệp", "BA"],
-    "view_count": 589,
-    "cover_image": "https://picsum.photos/800/400?random=103"
-  },
-  {
-    "title": "Bí kíp 'sinh tồn' tại Ký túc xá khu B dành cho tân sinh viên",
-    "content": "Sống tại KTX là một trải nghiệm đáng nhớ trong đời sinh viên với nhiều kỷ niệm vui buồn. Bạn cần học cách tự lập và hòa nhập với những người bạn mới từ khắp mọi miền. Hãy chú ý giữ gìn vệ sinh chung và tuân thủ nội quy của ban quản lý.",
-    "tags": ["KTX", "Sinh viên", "Đời sống"],
-    "view_count": 912,
-    "cover_image": "https://picsum.photos/800/400?random=104"
-  },
-  {
-    "title": "Tấn công mạng và cách phòng chống trong môi trường IoT",
-    "content": "Với sự bùng nổ của thiết bị thông minh, an ninh mạng cho IoT đang trở nên cấp thiết hơn bao giờ hết. Sinh viên ngành ATTT cần nghiên cứu về các giao thức kết nối bảo mật. Việc xây dựng các mô hình Lab thực tế sẽ giúp bạn hiểu rõ các lỗ hổng thường gặp.",
-    "tags": ["ATTT", "IoT", "Bảo mật"],
-    "view_count": 423,
-    "cover_image": "https://picsum.photos/800/400?random=105"
-  },
-  {
-    "title": "Ứng dụng Machine Learning trong việc dự báo thị trường tài chính",
-    "content": "Sử dụng dữ liệu lịch sử để dự đoán xu hướng tương lai là một bài toán thú vị của ngành KTTT. Bạn có thể bắt đầu với các mô hình Regression đơn giản trước khi tiến tới Deep Learning. Tuy nhiên, hãy nhớ rằng thị trường luôn biến động và không có mô hình nào chính xác 100%.",
-    "tags": ["KTTT", "Machine Learning", "Data Science"],
-    "view_count": 678,
-    "cover_image": "https://picsum.photos/800/400?random=106"
-  },
-  {
-    "title": "Review môn học Nhập môn Công nghệ Phần mềm (NMCNPM) tại UIT",
-    "content": "Đây là môn học bản lề giúp bạn hiểu về vòng đời của một dự án phần mềm. Bạn sẽ được học cách lấy yêu cầu, thiết kế hệ thống và quản lý mã nguồn với Git. Hãy chọn nhóm thật kỹ vì đồ án môn học này chiếm tỉ trọng điểm rất lớn.",
-    "tags": ["CNPM", "UIT", "Đồ án"],
-    "view_count": 834,
-    "cover_image": "https://picsum.photos/800/400?random=107"
-  },
-  {
-    "title": "Những quán ăn 'ngon-bổ-rẻ' quanh khu vực làng đại học Thủ Đức",
-    "content": "Khám phá ẩm thực quanh trường là thú vui không thể thiếu sau những giờ học căng thẳng. Từ cơm tấm, bún bò đến các món ăn vặt đều có giá rất sinh viên. Hãy cùng bạn bè lập 'team' đi ăn để giải tỏa áp lực học kỳ nhé.",
-    "tags": ["Ẩm thực", "Sinh viên", "Thủ Đức"],
-    "view_count": 1056,
-    "cover_image": "https://picsum.photos/800/400?random=108"
-  },
-  {
-    "title": "Hướng dẫn sử dụng Docker để triển khai ứng dụng web nhanh chóng",
-    "content": "Docker giúp loại bỏ nỗi lo về sai lệch môi trường giữa máy cá nhân và máy chủ triển khai. Đây là kỹ năng không thể thiếu đối với các lập trình viên hiện đại. Hãy bắt đầu bằng việc 'containerize' các project đồ án nhỏ của bạn.",
-    "tags": ["DevOps", "Docker", "Công nghệ"],
-    "view_count": 491,
-    "cover_image": "https://picsum.photos/800/400?random=109"
-  },
-  {
-    "title": "Kỹ năng mềm: Viết CV chuẩn chỉnh để chinh phục nhà tuyển dụng IT",
-    "content": "Một chiếc CV tốt cần thể hiện rõ các dự án cá nhân và kỹ năng chuyên môn bạn sở hữu. Hãy tập trung vào những con số và kết quả cụ thể thay vì chỉ liệt kê công việc. Đừng quên tùy chỉnh CV cho phù hợp với từng vị trí ứng tuyển khác nhau.",
-    "tags": ["Kỹ năng", "Sự nghiệp", "Job"],
-    "view_count": 622,
-    "cover_image": "https://picsum.photos/800/400?random=110"
-  }
-]
+{
+  "users": [
+    {
+      "username": "minhquan",
+      "email": "minhquan@gmail.com",
+      "full_name": "Nguyễn Minh Quân",
+      "bio": "Yêu thích backend và system design",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=minhquan"
+    },
+    {
+      "username": "giahuy",
+      "email": "giahuy@gmail.com",
+      "full_name": "Trần Gia Huy",
+      "bio": "Frontend developer mê React và UI/UX",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=giahuy"
+    },
+    {
+      "username": "khanhlinh",
+      "email": "khanhlinh@gmail.com",
+      "full_name": "Đặng Khánh Linh",
+      "bio": "Quan tâm AI và Computer Vision",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=khanhlinh"
+    },
+    {
+      "username": "quocbao",
+      "email": "quocbao@gmail.com",
+      "full_name": "Lê Quốc Bảo",
+      "bio": "Competitive Programming enjoyer",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=quocbao"
+    },
+    {
+      "username": "anhthu",
+      "email": "anhthu@gmail.com",
+      "full_name": "Mai Anh Thư",
+      "bio": "Thích mobile app và Flutter",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=anhthu"
+    },
+    {
+      "username": "thanhdat",
+      "email": "thanhdat@gmail.com",
+      "full_name": "Ngô Thành Đạt",
+      "bio": "DevOps và Docker là chân ái",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=thanhdat"
+    },
+    {
+      "username": "hoanglong",
+      "email": "hoanglong@gmail.com",
+      "full_name": "Đỗ Hoàng Long",
+      "bio": "Mê database và tối ưu query",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=hoanglong"
+    },
+    {
+      "username": "giabao",
+      "email": "giabao@gmail.com",
+      "full_name": "Huỳnh Gia Bảo",
+      "bio": "Sinh viên UIT thích làm side project",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=giabao"
+    },
+    {
+      "username": "tuanviet",
+      "email": "tuanviet@gmail.com",
+      "full_name": "Phạm Tuấn Việt",
+      "bio": "Đang học AI/ML và Deep Learning",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=tuanviet"
+    },
+    {
+      "username": "baotran",
+      "email": "baotran@gmail.com",
+      "full_name": "Võ Bảo Trân",
+      "bio": "Thích học frontend và thiết kế UI",
+      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=baotran"
+    }
+  ],
+
+  "tags": [
+    "fastapi",
+    "nextjs",
+    "react",
+    "frontend",
+    "backend",
+    "docker",
+    "mongodb",
+    "sqlserver",
+    "machinelearning",
+    "yolov8",
+    "flutter",
+    "algorithm",
+    "cp",
+    "intern",
+    "reviewmonhoc",
+    "tailieu",
+    "doan",
+    "hackathon",
+    "UIT",
+    "VNUHCM",
+    "SE104",
+    "CS221",
+    "CS114",
+    "NT208",
+    "MA003"
+  ],
+
+  "posts": [
+    {
+      "title": "Review môn SE104 sau một học kỳ",
+      "content": "SE104 khá nặng về teamwork và quản lý tiến độ. Team mình dùng GitHub Project và Discord để quản lý task. Nếu chia việc rõ từ đầu thì môn này học được rất nhiều thứ thực tế.",
+      "tags": ["SE104", "reviewmonhoc"],
+      "author": "minhquan"
+    },
+    {
+      "title": "Dockerize FastAPI + Next.js cho đồ án",
+      "content": "Mình vừa setup docker-compose cho hệ thống gồm Next.js frontend, FastAPI backend và SQL Server. Chạy local cực tiện cho teamwork.",
+      "tags": ["docker", "fastapi", "nextjs"],
+      "author": "thanhdat"
+    },
+    {
+      "title": "Roadmap học AI/ML cho sinh viên mới bắt đầu",
+      "content": "Nếu muốn theo AI/ML thì nên học Python trước, sau đó là Machine Learning cơ bản rồi mới tới Deep Learning và Computer Vision.",
+      "tags": ["machinelearning"],
+      "author": "tuanviet"
+    },
+    {
+      "title": "Kinh nghiệm pass intern backend",
+      "content": "Mình vừa pass backend intern. Chủ yếu họ hỏi API design, SQL query, JWT authentication và một ít Docker.",
+      "tags": ["backend", "intern"],
+      "author": "minhquan"
+    },
+    {
+      "title": "Có nên học Next.js trước React không?",
+      "content": "Theo mình nên học React fundamentals trước rồi mới qua Next.js để hiểu state management và component lifecycle.",
+      "tags": ["react", "nextjs"],
+      "author": "giahuy"
+    },
+    {
+      "title": "Share tài liệu CS221 có lời giải lab",
+      "content": "Mình tổng hợp toàn bộ slide, lab và đề ôn CS221. Có thêm note giải thích deadlock và synchronization.",
+      "tags": ["tailieu", "CS221"],
+      "author": "hoanglong"
+    },
+    {
+      "title": "Review Flutter sau khi làm app đặt lịch",
+      "content": "Flutter build UI rất nhanh và hot reload cực tiện. Tuy nhiên state management lúc đầu hơi rối.",
+      "tags": ["flutter"],
+      "author": "anhthu"
+    },
+    {
+      "title": "Hackathon UIT năm nay vui thật",
+      "content": "Năm nay nhiều team làm AI Agent và recommendation system. Không khí code xuyên đêm khá cháy.",
+      "tags": ["hackathon", "UIT"],
+      "author": "giabao"
+    },
+    {
+      "title": "Kinh nghiệm học Competitive Programming",
+      "content": "Nếu mới học CP thì nên bắt đầu từ brute force, binary search rồi mới tới graph và dynamic programming.",
+      "tags": ["cp", "algorithm"],
+      "author": "quocbao"
+    },
+    {
+      "title": "Mọi người dùng MongoDB hay PostgreSQL cho forum?",
+      "content": "Mình đang phân vân giữa MongoDB và PostgreSQL cho hệ thống comment lồng nhau.",
+      "tags": ["mongodb", "backend"],
+      "author": "hoanglong"
+    },
+    {
+      "title": "Review môn MA003",
+      "content": "MA003 không quá khó nếu chăm làm bài tập. Phần tích phân nhiều biến khá dễ mất điểm.",
+      "tags": ["MA003", "reviewmonhoc"],
+      "author": "baotran"
+    },
+    {
+      "title": "Tối ưu JWT authentication với refresh token",
+      "content": "Mình vừa implement access token và refresh token bằng FastAPI và Redis để tăng bảo mật.",
+      "tags": ["backend", "fastapi"],
+      "author": "minhquan"
+    },
+    {
+      "title": "Có ai học NT208 sáng thứ 2 không?",
+      "content": "Cho mình hỏi tuần này NT208 có học offline không và có đổi phòng học không?",
+      "tags": ["NT208", "UIT"],
+      "author": "giabao"
+    },
+    {
+      "title": "Frontend intern năm nay cần gì?",
+      "content": "Nhiều công ty giờ yêu cầu React, TypeScript và biết cơ bản về Next.js.",
+      "tags": ["frontend", "intern"],
+      "author": "giahuy"
+    },
+    {
+      "title": "YOLOv8 nhận diện biển báo giao thông",
+      "content": "Team mình train YOLOv8 trên dataset tự thu thập và hiện model đạt khoảng 91% mAP.",
+      "tags": ["machinelearning", "yolov8"],
+      "author": "tuanviet"
+    },
+    {
+      "title": "Có nên dùng SQL Server cho đồ án?",
+      "content": "SQL Server khá ổn cho đồ án vì dễ quản lý và support tốt với hệ sinh thái Microsoft.",
+      "tags": ["sqlserver"],
+      "author": "hoanglong"
+    },
+    {
+      "title": "Review CS114 sau khi thi final",
+      "content": "CS114 học khá nặng nhưng giúp tư duy giải thuật tốt hơn rất nhiều.",
+      "tags": ["CS114", "reviewmonhoc"],
+      "author": "quocbao"
+    },
+    {
+      "title": "Tips chia task teamwork hiệu quả",
+      "content": "Team mình dùng Trello và chia task theo sprint nên tránh được tình trạng dồn deadline.",
+      "tags": ["SE104"],
+      "author": "baotran"
+    },
+    {
+      "title": "Mình vừa deploy Next.js lên VPS",
+      "content": "Deploy bằng Docker và Nginx khá ổn. Quan trọng nhất là setup SSL và reverse proxy.",
+      "tags": ["nextjs", "docker"],
+      "author": "thanhdat"
+    },
+    {
+      "title": "Roadmap backend cho sinh viên năm 2",
+      "content": "Nên học HTTP, REST API, database và authentication trước khi đụng microservice.",
+      "tags": ["backend"],
+      "author": "minhquan"
+    },
+
+    {
+      "title": "Có ai bị ngợp khi học React không?",
+      "content": "Mình mới học React và thấy useEffect khá khó hiểu 😭",
+      "tags": ["react", "frontend"],
+      "author": "baotran"
+    },
+
+    {
+      "title": "Share source code đồ án quản lý thư viện",
+      "content": "Mình open-source đồ án quản lý thư viện dùng FastAPI và React.",
+      "tags": ["doan", "fastapi", "react"],
+      "author": "giahuy"
+    },
+
+    {
+      "title": "Kinh nghiệm làm đồ án nhóm đông người",
+      "content": "Nhóm đông thì nên có tech lead và quy định commit message rõ ràng.",
+      "tags": ["SE104", "doan"],
+      "author": "giabao"
+    },
+
+    {
+      "title": "Review Visual Studio Code sau 3 năm dùng",
+      "content": "VSCode plugin ecosystem rất mạnh, đặc biệt cho web development.",
+      "tags": ["frontend", "backend"],
+      "author": "thanhdat"
+    },
+
+    {
+      "title": "Mình vừa fail intern vì không biết SQL",
+      "content": "Đi phỏng vấn backend mà SQL yếu thật sự rất khó pass.",
+      "tags": ["backend", "intern"],
+      "author": "hoanglong"
+    },
+
+    {
+      "title": "Có nên học TypeScript sớm không?",
+      "content": "Theo mình TypeScript rất đáng học vì code maintain tốt hơn JavaScript thuần.",
+      "tags": ["frontend", "react"],
+      "author": "giahuy"
+    },
+
+    {
+      "title": "Review môn CS221 có khó không?",
+      "content": "CS221 khá nặng nhưng nếu học kỹ lab thì sẽ hiểu bài hơn rất nhiều.",
+      "tags": ["CS221", "reviewmonhoc"],
+      "author": "minhquan"
+    },
+
+    {
+      "title": "Lần đầu train model AI trên Kaggle",
+      "content": "Mình train CNN đầu tiên trên Kaggle và mất gần 5 tiếng để debug dataset 😭",
+      "tags": ["machinelearning"],
+      "author": "tuanviet"
+    },
+
+    {
+      "title": "Docker giúp teamwork dễ hơn thật",
+      "content": "Từ lúc dùng Docker thì team mình không còn cảnh code chạy máy này fail máy kia.",
+      "tags": ["docker"],
+      "author": "thanhdat"
+    },
+
+    {
+      "title": "Review Flutter sau khi publish app",
+      "content": "Flutter build cross-platform khá nhanh và UI đẹp.",
+      "tags": ["flutter"],
+      "author": "anhthu"
+    },
+
+    {
+      "title": "Có ai thức tới 3h sáng để debug không 😭",
+      "content": "Debug lỗi CORS mất nguyên một đêm mới phát hiện thiếu middleware.",
+      "tags": ["backend", "fastapi"],
+      "author": "minhquan"
+    },
+
+    {
+      "title": "Tips học giải thuật hiệu quả",
+      "content": "Nên code lại solution sau khi đọc editorial để nhớ tư duy.",
+      "tags": ["algorithm", "cp"],
+      "author": "quocbao"
+    },
+
+    {
+      "title": "Review môn NT208",
+      "content": "NT208 nhiều lý thuyết nhưng khá hữu ích nếu muốn theo network.",
+      "tags": ["NT208", "reviewmonhoc"],
+      "author": "giabao"
+    },
+
+    {
+      "title": "Có nên học DevOps khi còn sinh viên?",
+      "content": "Theo mình nên biết Docker, Linux và CI/CD cơ bản.",
+      "tags": ["docker", "backend"],
+      "author": "thanhdat"
+    },
+
+    {
+      "title": "Mình vừa build forum bằng FastAPI",
+      "content": "FastAPI type hint rất tiện và auto generate Swagger khá thích.",
+      "tags": ["fastapi", "backend"],
+      "author": "minhquan"
+    },
+
+    {
+      "title": "Review React Query",
+      "content": "React Query giúp fetch API và cache data dễ hơn nhiều.",
+      "tags": ["react", "frontend"],
+      "author": "giahuy"
+    },
+
+    {
+      "title": "Có ai dùng MongoDB Atlas cho đồ án chưa?",
+      "content": "Atlas setup khá nhanh và free tier đủ dùng cho đồ án.",
+      "tags": ["mongodb"],
+      "author": "hoanglong"
+    },
+
+    {
+      "title": "Mình vừa hoàn thành app chat realtime",
+      "content": "Dùng Socket.IO và Next.js để build realtime chat khá thú vị.",
+      "tags": ["nextjs", "frontend"],
+      "author": "giahuy"
+    },
+
+    {
+      "title": "Tips viết CV intern IT",
+      "content": "Nên đưa project thực tế và GitHub lên đầu CV.",
+      "tags": ["intern"],
+      "author": "baotran"
+    },
+
+    {
+      "title": "Review máy tính cho sinh viên IT",
+      "content": "RAM 16GB và SSD là gần như bắt buộc nếu code Docker hoặc AI.",
+      "tags": ["UIT"],
+      "author": "giabao"
+    },
+
+    {
+      "title": "Lần đầu deploy AI model bằng FastAPI",
+      "content": "Expose model qua REST API khá tiện cho frontend gọi.",
+      "tags": ["machinelearning", "fastapi"],
+      "author": "tuanviet"
+    },
+
+    {
+      "title": "Có ai dùng TailwindCSS thấy nghiện không?",
+      "content": "Lúc đầu nhìn class hơi rối nhưng dùng quen thì build UI rất nhanh.",
+      "tags": ["frontend"],
+      "author": "baotran"
+    },
+
+    {
+      "title": "Review môn CS114 thật lòng",
+      "content": "Nếu không luyện bài tập thường xuyên thì rất dễ quên tư duy.",
+      "tags": ["CS114"],
+      "author": "quocbao"
+    },
+
+    {
+      "title": "Mình vừa setup CI/CD bằng GitHub Actions",
+      "content": "Auto deploy sau mỗi lần push main branch khá tiện.",
+      "tags": ["docker", "backend"],
+      "author": "thanhdat"
+    },
+
+    {
+      "title": "Có nên học AI vì trend không?",
+      "content": "Theo mình chỉ nên theo AI nếu thật sự thích toán và research.",
+      "tags": ["machinelearning"],
+      "author": "tuanviet"
+    },
+
+    {
+      "title": "Review SQL Server cho người mới",
+      "content": "Management Studio khá dễ dùng cho sinh viên mới học database.",
+      "tags": ["sqlserver"],
+      "author": "hoanglong"
+    },
+
+    {
+      "title": "Mọi người thường học code ở đâu?",
+      "content": "Mình chủ yếu học từ YouTube, docs và làm project thực tế.",
+      "tags": ["UIT"],
+      "author": "anhthu"
+    },
+
+    {
+      "title": "Kinh nghiệm làm đồ án AI nhóm",
+      "content": "Dataset cleaning chiếm thời gian nhiều hơn train model 😭",
+      "tags": ["machinelearning", "doan"],
+      "author": "tuanviet"
+    },
+
+    {
+      "title": "Review internship frontend remote",
+      "content": "Làm remote giúp tiết kiệm thời gian nhưng cần tự giác hơn.",
+      "tags": ["frontend", "intern"],
+      "author": "giahuy"
+    },
+
+    {
+      "title": "Có ai từng merge code lỗi production chưa 😭",
+      "content": "Team mình từng quên env variable và production crash nguyên buổi tối.",
+      "tags": ["backend", "SE104"],
+      "author": "minhquan"
+    },
+
+    {
+      "title": "Tips giữ động lực học code",
+      "content": "Theo mình nên build project nhỏ để thấy progress thay vì chỉ học lý thuyết.",
+      "tags": ["UIT"],
+      "author": "giabao"
+    }
+  ]
+}

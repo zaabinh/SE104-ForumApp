@@ -6,9 +6,11 @@ import { startTransition, useEffect, useMemo, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { api } from '@/lib/axios';
+import { useI18n } from '@/lib/i18n';
 
 export default function RegisterForm() {
   const router = useRouter();
+  const { t } = useI18n();
   const [form, setForm] = useState({ username: '', email: '', fullName: '', password: '', confirmPassword: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,7 +40,7 @@ export default function RegisterForm() {
     setSuccess('');
 
     if (!canSubmit) {
-      setError('Please fill all fields correctly and ensure passwords match.');
+      setError(t('registerInvalidInput'));
       return;
     }
 
@@ -52,7 +54,7 @@ export default function RegisterForm() {
         password: form.password,
       });
 
-      setSuccess(response.data.message ?? 'Registration completed. Redirecting to verification...');
+      setSuccess(response.data.message ?? t('registerSuccess'));
       setTimeout(() => {
         startTransition(() => router.push(`/verify-email?email=${encodeURIComponent(form.email)}`));
       }, 800);
@@ -68,7 +70,7 @@ export default function RegisterForm() {
         submitError.response.data !== null &&
         'detail' in submitError.response.data
           ? String(submitError.response.data.detail)
-          : 'Registration failed. Please try again.';
+          : t('registerFailed');
       setError(message);
     } finally {
       setLoading(false);
@@ -77,12 +79,12 @@ export default function RegisterForm() {
 
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
-      <Input id="register-username" label="Username" value={form.username} onChange={(e) => updateField('username', e.target.value)} required />
-      <Input id="register-email" label="Email" type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} required />
-      <Input id="register-full-name" label="Full name" value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} required />
+      <Input id="register-username" label={t('registerUsername')} value={form.username} onChange={(e) => updateField('username', e.target.value)} required />
+      <Input id="register-email" label={t('registerEmail')} type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} required />
+      <Input id="register-full-name" label={t('registerFullName')} value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} required />
       <Input
         id="register-password"
-        label="Password"
+        label={t('registerPassword')}
         type={showPassword ? 'text' : 'password'}
         value={form.password}
         onChange={(e) => updateField('password', e.target.value)}
@@ -90,14 +92,14 @@ export default function RegisterForm() {
       />
       <Input
         id="register-confirm-password"
-        label="Confirm Password"
+        label={t('registerConfirmPassword')}
         type={showPassword ? 'text' : 'password'}
         value={form.confirmPassword}
         onChange={(e) => updateField('confirmPassword', e.target.value)}
         required
       />
       <button type="button" className="text-xs text-forum-primary" onClick={() => setShowPassword((prev) => !prev)}>
-        {showPassword ? 'Hide password' : 'Show password'}
+        {showPassword ? t('registerHidePassword') : t('registerShowPassword')}
       </button>
 
       {error ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p> : null}
@@ -107,21 +109,21 @@ export default function RegisterForm() {
         {loading ? (
           <span className="inline-flex items-center gap-2">
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-            Registering...
+            {t('registerSubmitting')}
           </span>
         ) : (
-          'Register'
+          t('registerSubmit')
         )}
       </Button>
 
-      <Button type="button" variant="outline" className="w-full" onClick={() => window.location.assign(googleLoginUrl)}>
+      {/* <Button type="button" variant="outline" className="w-full" onClick={() => window.location.assign(googleLoginUrl)}>
         Continue with Google
-      </Button>
+      </Button> */}
 
       <p className="text-sm text-slate-600">
-        Already registered?{' '}
+        {t('registerAlreadyRegistered')}{' '}
         <Link className="text-forum-primary" href="/login">
-          Login
+          {t('registerLogin')}
         </Link>
       </p>
     </form>

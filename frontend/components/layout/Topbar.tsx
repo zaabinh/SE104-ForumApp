@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FiBell, FiCommand, FiGrid, FiMenu, FiSearch } from 'react-icons/fi';
 import Avatar from '@/components/ui/Avatar';
 import { getStoredUser, logout } from '@/lib/axios';
+import { useI18n } from '@/lib/i18n';
 
 type TopbarProps = {
   isSidebarCollapsed: boolean;
@@ -18,6 +19,7 @@ type TopbarProps = {
 
 function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuery = '', onSearchChange }: TopbarProps) {
   const router = useRouter();
+  const { locale, toggleLocale, t } = useI18n();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const storedUser = useMemo(() => getStoredUser(), []);
@@ -54,7 +56,7 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
             type="button"
             onClick={onOpenMobileSidebar}
             className="flex h-10 w-10 cursor-pointer select-none items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-ink-600 transition-all duration-200 hover:border-uit-300 hover:text-uit-700 md:hidden"
-            aria-label="Open sidebar menu"
+            aria-label={t('topbarOpenSidebarMenu')}
           >
             <FiMenu className="h-5 w-5" />
           </button>
@@ -68,7 +70,7 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
                 type="search"
                 value={searchQuery}
                 onChange={(event) => onSearchChange?.(event.target.value)}
-                placeholder="Search"
+                placeholder={t('topbarSearchPlaceholder')}
                 autoComplete="off"
                 className="h-14 w-full rounded-[22px] border border-slate-200/80 bg-white pl-11 pr-20 text-sm text-ink-700 outline-none shadow-card transition-all duration-200 placeholder:text-ink-400 focus:border-uit-300"
               />
@@ -83,15 +85,24 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
         <div className="flex items-center gap-2" ref={menuRef}>
           <button
             type="button"
+            onClick={toggleLocale}
+            className="flex h-11 min-w-14 cursor-pointer select-none items-center justify-center rounded-2xl border border-slate-200/80 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-ink-600 transition-all duration-200 hover:border-uit-300 hover:text-uit-700"
+            aria-label={t('topbarToggleLang')}
+            title={t('topbarToggleLang')}
+          >
+            {locale}
+          </button>
+          <button
+            type="button"
             className="hidden h-11 w-11 cursor-pointer select-none items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-ink-600 transition-all duration-200 hover:border-uit-300 hover:text-uit-700 md:flex"
-            aria-label="Workspace apps"
+            aria-label={t('topbarWorkspaceApps')}
           >
             <FiGrid className="h-5 w-5" />
           </button>
           <button
             type="button"
             className="relative flex h-11 w-11 cursor-pointer select-none items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-ink-600 transition-all duration-200 hover:border-uit-300 hover:text-uit-700"
-            aria-label="Notifications"
+            aria-label={t('topbarNotifications')}
           >
             <FiBell className="h-5 w-5" />
             <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-ai-mint" />
@@ -102,9 +113,9 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
               className="flex cursor-pointer select-none items-center gap-3 rounded-[22px] border border-slate-200/80 bg-white px-2 py-1.5 shadow-card transition-all duration-200 hover:border-uit-300 hover:bg-white"
               onClick={() => setOpen((prev) => !prev)}
             >
-              <Avatar src={storedUser?.avatar_url} alt={storedUser?.full_name || 'User avatar'} size={36} />
+              <Avatar src={storedUser?.avatar_url} alt={storedUser?.full_name || t('topbarUserAvatar')} size={36} />
               <div className="hidden text-left lg:block">
-                <p className="max-w-36 truncate cursor-default select-none text-sm font-semibold text-ink-800">{userEmail || 'Guest'}</p>
+                <p className="max-w-36 truncate cursor-default select-none text-sm font-semibold text-ink-800">{userEmail || t('topbarGuest')}</p>
               </div>
             </button>
             {open ? (
@@ -121,7 +132,7 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
                   setOpen(false);
                 }}
                 >
-                  Profile
+                  {t('topbarProfile')}
                 </button>
                 <button
                   type="button"
@@ -131,14 +142,14 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
                     setOpen(false);
                   }}
                 >
-                  Settings
+                  {t('topbarSettings')}
                 </button>
                 <button
                   type="button"
                   className="block w-full cursor-pointer select-none rounded-2xl px-3 py-2.5 text-left text-sm text-rose-500 transition-all duration-200 hover:bg-rose-50"
                   onClick={handleLogout}
                 >
-                  Logout
+                  {t('topbarLogout')}
                 </button>
               </div>
             ) : null}

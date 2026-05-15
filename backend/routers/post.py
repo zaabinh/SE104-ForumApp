@@ -17,7 +17,7 @@ from schemas.auth_schema import MessageResponse
 from schemas.post_schema import PostCreate, PostListResponse, PostResponse, PostUpdate
 from schemas.report_schema import ReportCreate, ReportResponse
 from services.notification_service import create_notification
-from services.post_service import build_post_query, paginate_query, serialize_post, sync_post_tags
+from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags
 
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
@@ -65,9 +65,20 @@ def get_posts_feed(
     db: Session = Depends(get_db),
     current_user: User | None = Depends(require_active_verified_user),
 ):
-    query = build_post_query(current_user.id if current_user else None, search, tag, mode, sort)
-    rows, pagination = paginate_query(db, query, page, page_size)
-    items = [serialize_post(row[0], row, current_user.id if current_user else None) for row in rows]
+    current_user_id = current_user.id if current_user else None
+
+    # Fast path for the most common feed mode to reduce heavy aggregate query cost.
+    use_fast_path = sort == "latest" and mode != "trending"
+    if use_fast_path:
+        rows, pagination = paginate_latest_posts_fast(db, current_user_id, search, tag, mode, page, page_size)
+    else:
+        query = build_post_query(current_user_id, search, tag, mode, sort)
+        rows, pagination = paginate_query(db, query, page, page_size)
+
+    if use_fast_path:
+        items = [serialize_post(row[0], row[1], current_user_id) for row in rows]
+    else:
+        items = [serialize_post(row[0], row, current_user_id) for row in rows]
     return {
         "items": items,
         "meta": {

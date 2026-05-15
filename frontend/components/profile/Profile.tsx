@@ -9,6 +9,7 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileTabs, { ProfileTab } from '@/components/profile/ProfileTabs';
 import { useToast } from '@/components/ui/Toast';
 import { getStoredUser } from '@/lib/axios';
+import { useI18n } from '@/lib/i18n';
 import { getMyProfile, getUserBookmarks, getUserComments, getUserPosts, getUserProfile, ProfileComment, ProfilePost, ProfileSummary } from '@/lib/profileApi';
 import { useAuthGuard } from '@/lib/useAuthGuard';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
@@ -25,7 +26,7 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function PostList({ posts, emptyMessage }: { posts: ProfilePost[]; emptyMessage: string }) {
+function PostList({ posts, emptyMessage, viewPostLabel }: { posts: ProfilePost[]; emptyMessage: string; viewPostLabel: string }) {
   if (!posts.length) {
     return <div className="card-surface p-6 text-sm text-ink-600">{emptyMessage}</div>;
   }
@@ -40,7 +41,7 @@ function PostList({ posts, emptyMessage }: { posts: ProfilePost[]; emptyMessage:
           </div>
           <p className="mt-3 line-clamp-3 text-sm leading-7 text-ink-600">{post.content}</p>
           <Link href={`/post/${post.id}`} className="mt-4 inline-flex text-sm font-semibold text-uit-700">
-            View post
+            {viewPostLabel}
           </Link>
         </article>
       ))}
@@ -48,9 +49,9 @@ function PostList({ posts, emptyMessage }: { posts: ProfilePost[]; emptyMessage:
   );
 }
 
-function ActivityList({ comments }: { comments: ProfileComment[] }) {
+function ActivityList({ comments, emptyLabel, removedPostLabel, discussionLabel }: { comments: ProfileComment[]; emptyLabel: string; removedPostLabel: string; discussionLabel: string }) {
   if (!comments.length) {
-    return <div className="card-surface p-6 text-sm text-ink-600">No activity yet.</div>;
+    return <div className="card-surface p-6 text-sm text-ink-600">{emptyLabel}</div>;
   }
 
   return (
@@ -58,12 +59,12 @@ function ActivityList({ comments }: { comments: ProfileComment[] }) {
       {comments.map((comment) => (
         <article key={comment.id} className="dashboard-card p-5">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-semibold text-ink-900">{comment.post_title || 'Post removed'}</p>
+            <p className="text-sm font-semibold text-ink-900">{comment.post_title || removedPostLabel}</p>
             <span className="shrink-0 text-xs text-ink-500">{formatDate(comment.created_at)}</span>
           </div>
           <p className="mt-3 text-sm leading-7 text-ink-600">{comment.content}</p>
           <Link href={`/post/${comment.post_id}`} className="mt-4 inline-flex text-sm font-semibold text-uit-700">
-            Go to discussion
+            {discussionLabel}
           </Link>
         </article>
       ))}
@@ -72,6 +73,7 @@ function ActivityList({ comments }: { comments: ProfileComment[] }) {
 }
 
 function AboutPanel({ profile }: { profile: ProfileHeaderData }) {
+  const { t } = useI18n();
   return (
     <section className="dashboard-card p-6">
       <p className="eyebrow">About wireframe</p>
@@ -79,7 +81,7 @@ function AboutPanel({ profile }: { profile: ProfileHeaderData }) {
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <div className="rounded-[24px] border border-uit-100 bg-white/75 p-5">
           <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Bio</p>
-          <p className="mt-3 text-sm leading-7 text-ink-600">{profile.bio || 'This user has not added a bio yet.'}</p>
+          <p className="mt-3 text-sm leading-7 text-ink-600">{profile.bio || t('profileNoBio')}</p>
         </div>
         <div className="rounded-[24px] border border-uit-100 bg-white/75 p-5">
           <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Presence</p>
@@ -93,6 +95,7 @@ function AboutPanel({ profile }: { profile: ProfileHeaderData }) {
 export default function Profile() {
   const params = useParams<{ id: string }>();
   const { pushToast } = useToast();
+  const { t } = useI18n();
   const { isCheckingAuth, userEmail } = useAuthGuard();
   const { isSidebarCollapsed, isMobileSidebarOpen, setIsSidebarCollapsed, setIsMobileSidebarOpen } = useResponsiveSidebar();
   const [searchQuery, setSearchQuery] = useState('');
@@ -133,7 +136,7 @@ export default function Profile() {
 
         setProfile({
           ...userProfile,
-          id: userProfile.is_current_user ? myProfile.id : undefined,
+          id: userProfile.id,
         });
         setPosts(userPosts);
         setComments(userComments);
@@ -181,7 +184,7 @@ export default function Profile() {
       <main className="flex min-h-screen items-center justify-center px-4">
         <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-medium text-ink-700 shadow-card">
           <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-uit-600" />
-          Loading profile...
+          {t('profileLoading')}
         </div>
       </main>
     );
@@ -193,8 +196,8 @@ export default function Profile() {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
         <div className="card-surface max-w-xl p-6">
-          <h1 className="text-2xl font-bold text-ink-900">Profile unavailable</h1>
-          <p className="mt-3 text-sm text-ink-600">{error || 'Profile not found.'}</p>
+          <h1 className="text-2xl font-bold text-ink-900">{t('profileUnavailable')}</h1>
+          <p className="mt-3 text-sm text-ink-600">{error || t('profileNotFound')}</p>
         </div>
       </main>
     );
@@ -219,7 +222,7 @@ export default function Profile() {
         onSearchChange={setSearchQuery}
       />
       <div className={`px-4 py-6 transition-all duration-300 ${sidebarOffsetClass}`}>
-        <div className="mx-auto grid max-w-[1500px] gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="mx-auto max-w-[1100px]">
           <section className="space-y-5">
             <ProfileHeader
               user={profile}
@@ -240,34 +243,24 @@ export default function Profile() {
             />
             <ProfileTabs value={tab} onChange={setTab} />
 
-            {tab === 'posts' ? <PostList posts={posts} emptyMessage="No posts yet." /> : null}
+            {tab === 'posts' ? <PostList posts={posts} emptyMessage={t('profileNoPostsYet')} viewPostLabel={t('profileViewPost')} /> : null}
             {tab === 'about' ? <AboutPanel profile={profile} /> : null}
-            {tab === 'activity' ? <ActivityList comments={comments} /> : null}
+            {tab === 'activity' ? (
+              <ActivityList
+                comments={comments}
+                emptyLabel={t('profileNoActivity')}
+                removedPostLabel={t('profileRemovedPost')}
+                discussionLabel={t('profileGoDiscussion')}
+              />
+            ) : null}
             {tab === 'bookmarks' ? (
               isCurrentUser ? (
-                <PostList posts={bookmarks} emptyMessage="No saved posts yet." />
+                <PostList posts={bookmarks} emptyMessage={t('profileNoSavedYet')} viewPostLabel={t('profileViewPost')} />
               ) : (
-                <div className="card-surface p-6 text-sm text-ink-600">Saved posts are only visible on your own profile.</div>
+                <div className="card-surface p-6 text-sm text-ink-600">{t('profileSavedPrivate')}</div>
               )
             ) : null}
           </section>
-
-          <aside className="space-y-4 xl:sticky xl:top-24 xl:h-fit">
-            <section className="card-surface p-5">
-              <p className="eyebrow">Layout structure</p>
-              <h3 className="section-title mt-2">Profile summary rail</h3>
-              <p className="mt-3 text-sm leading-7 text-ink-600">Right rail keeps secondary profile context away from the main reading flow.</p>
-            </section>
-            <section className="card-surface p-5">
-              <p className="eyebrow">Design system</p>
-              <h3 className="section-title mt-2">Reusable profile modules</h3>
-              <div className="mt-4 space-y-3 text-sm text-ink-600">
-                <div className="rounded-[22px] border border-uit-100 bg-white/70 px-4 py-3">Cover + avatar stack</div>
-                <div className="rounded-[22px] border border-uit-100 bg-white/70 px-4 py-3">Stats cards with equal rhythm</div>
-                <div className="rounded-[22px] border border-uit-100 bg-white/70 px-4 py-3">Tabs mapped to content modules</div>
-              </div>
-            </section>
-          </aside>
         </div>
       </div>
     </main>

@@ -1,18 +1,19 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import PostList from '@/components/post/PostList';
+import { useI18n } from '@/lib/i18n';
 import { useAuthGuard } from '@/lib/useAuthGuard';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
 import { useCallback, useState } from 'react';
 
-const Rightbar = dynamic(() => import('@/components/layout/Rightbar'));
-
 export default function FeedPage() {
   const { isCheckingAuth, userEmail } = useAuthGuard();
+  const { t } = useI18n();
+  const searchParams = useSearchParams();
   const { isSidebarCollapsed, isMobileSidebarOpen, setIsSidebarCollapsed, setIsMobileSidebarOpen } = useResponsiveSidebar();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebouncedValue(searchQuery, 350);
@@ -25,13 +26,14 @@ export default function FeedPage() {
       <main className="flex min-h-screen items-center justify-center bg-slate-100">
         <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-medium text-slate-700 shadow-card">
           <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-forum-primary" />
-          Checking session...
+          {t('feedCheckingSession')}
         </div>
       </main>
     );
   }
 
   const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
+  const initialFeedMode = searchParams.get('tab') === 'following' ? 'following' : 'for-you';
 
   return (
     <main className="min-h-screen overflow-hidden">
@@ -48,11 +50,10 @@ export default function FeedPage() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <div className={`grid h-[calc(100dvh-5.25rem)] gap-6 px-4 py-6 transition-[margin] duration-300 ease-in-out ${sidebarOffsetClass} xl:grid-cols-[minmax(0,1fr)_320px]`}>
-        <section className="scroll-panel min-w-0 overflow-y-auto pr-2">
-          <PostList searchQuery={debouncedSearch} />
+      <div className={`h-[calc(100dvh-5.25rem)] min-h-0 px-4 pt-6 pb-0 transition-[margin] duration-300 ease-in-out ${sidebarOffsetClass}`}>
+        <section className="scroll-panel h-full w-full min-w-0 overflow-y-auto">
+          <PostList searchQuery={debouncedSearch} initialFeedMode={initialFeedMode} />
         </section>
-        <Rightbar />
       </div>
     </main>
   );
