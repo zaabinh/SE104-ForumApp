@@ -9,3 +9,7 @@ python-dotenv==1.1.1
 pydantic
 faker
 python-slugify
+fastapi[standard]
+passlib
+python-jose
+argon-cffi
