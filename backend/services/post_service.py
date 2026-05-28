@@ -15,6 +15,7 @@ from models.post_share import PostShare
 from models.post_tag import PostTag
 from models.post_view import PostView
 from models.tag import Tag
+from models.user import User
 
 
 def slugify(value: str) -> str:
@@ -142,6 +143,12 @@ def _paginate_bounds(page: int, page_size: int) -> tuple[int, int]:
     return normalized_page, normalized_page_size
 
 
+def _parse_interest_tags(raw_tags: str | None) -> set[str]:
+    if not raw_tags:
+        return set()
+    return {item.strip().lower() for item in raw_tags.split(",") if item.strip()}
+
+
 def paginate_latest_posts_fast(
     db: Session,
     current_user_id: str | None,
@@ -171,7 +178,44 @@ def paginate_latest_posts_fast(
         post_ids_query = post_ids_query.join(Follow, Follow.following_id == Post.user_id).where(Follow.follower_id == current_user_id)
 
     total = db.execute(select(func.count()).select_from(post_ids_query.distinct().subquery())).scalar_one()
-    page_ids = db.execute(post_ids_query.order_by(Post.created_at.desc(), Post.id.desc()).offset(offset).limit(page_size)).scalars().all()
+    if mode == "for-you" and current_user_id:
+        candidate_ids = db.execute(post_ids_query.order_by(Post.created_at.desc(), Post.id.desc()).limit(200)).scalars().all()
+        if candidate_ids:
+            user = db.query(User).filter(User.id == current_user_id).first()
+            preferred_tags = _parse_interest_tags(user.interest_tags if user else None)
+            following_ids = {
+                followed_id
+                for (followed_id,) in db.query(Follow.following_id).filter(Follow.follower_id == current_user_id).all()
+            }
+            candidate_posts = (
+                db.query(Post)
+                .options(joinedload(Post.tags).joinedload(PostTag.tag))
+                .filter(Post.id.in_(candidate_ids))
+                .all()
+            )
+            post_by_id = {post.id: post for post in candidate_posts}
+
+            likes_map = dict(db.query(PostLike.post_id, func.count()).filter(PostLike.post_id.in_(candidate_ids)).group_by(PostLike.post_id).all())
+            comments_map = dict(db.query(Comment.post_id, func.count()).filter(Comment.post_id.in_(candidate_ids)).group_by(Comment.post_id).all())
+            views_map = dict(db.query(PostView.post_id, func.count()).filter(PostView.post_id.in_(candidate_ids)).group_by(PostView.post_id).all())
+            shares_map = dict(db.query(PostShare.post_id, func.count()).filter(PostShare.post_id.in_(candidate_ids)).group_by(PostShare.post_id).all())
+
+            def score(post_id: int) -> float:
+                post = post_by_id.get(post_id)
+                if not post:
+                    return 0.0
+                post_tags = {assoc.tag.name.lower() for assoc in post.tags if assoc.tag and assoc.tag.name}
+                tag_overlap = len(preferred_tags.intersection(post_tags))
+                follow_score = 3 if post.user_id in following_ids else 0
+                popularity = float(likes_map.get(post_id, 0)) * 2.0 + float(comments_map.get(post_id, 0)) * 2.5 + float(shares_map.get(post_id, 0)) * 1.5 + float(views_map.get(post_id, 0)) * 0.2
+                return tag_overlap * 4.0 + follow_score + popularity
+
+            ranked_ids = sorted(candidate_ids, key=lambda post_id: (score(post_id), post_id), reverse=True)
+            page_ids = ranked_ids[offset: offset + page_size]
+        else:
+            page_ids = []
+    else:
+        page_ids = db.execute(post_ids_query.order_by(Post.created_at.desc(), Post.id.desc()).offset(offset).limit(page_size)).scalars().all()
 
     if not page_ids:
         return [], Pagination(page=page, page_size=page_size, total=total)

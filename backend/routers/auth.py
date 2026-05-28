@@ -47,6 +47,12 @@ router = APIRouter(tags=["Authentication"])
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
 
 
+def parse_interest_tags(raw_tags: str | None) -> list[str]:
+    if not raw_tags:
+        return []
+    return [tag for tag in [item.strip() for item in raw_tags.split(",")] if tag]
+
+
 def build_current_user_response(user: User) -> CurrentUserResponse:
     return CurrentUserResponse(
         id=user.id,
@@ -55,6 +61,10 @@ def build_current_user_response(user: User) -> CurrentUserResponse:
         full_name=user.full_name,
         avatar_url=user.avatar_url,
         bio=user.bio,
+        major=user.major,
+        academic_year=user.academic_year,
+        career_goal=user.career_goal,
+        interest_tags=parse_interest_tags(user.interest_tags),
         role=user.role,
         status=user.status,
         provider=user.provider,
@@ -327,6 +337,12 @@ def complete_profile(
     current_user.full_name = payload.full_name.strip()
     current_user.avatar_url = payload.avatar_url.strip() if payload.avatar_url else current_user.avatar_url
     current_user.bio = payload.bio.strip() if payload.bio else current_user.bio
+    current_user.major = payload.major.strip() if payload.major else current_user.major
+    current_user.academic_year = payload.academic_year.strip() if payload.academic_year else current_user.academic_year
+    current_user.career_goal = payload.career_goal.strip() if payload.career_goal else current_user.career_goal
+    current_user.interest_tags = ",".join(
+        dict.fromkeys([tag.strip().lower() for tag in payload.interest_tags if tag.strip()])
+    ) or current_user.interest_tags
     db.commit()
     db.refresh(current_user)
     return build_current_user_response(current_user)
@@ -343,4 +359,7 @@ def get_user_by_id(user_id: str, current_user: User = Depends(get_current_user),
     user = db.query(User).filter(User.id == user_id, User.status == "active").first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    return user
+    response = build_current_user_response(user)
+    payload = response.model_dump()
+    payload.pop("profile_completed", None)
+    return UserResponse(**payload)

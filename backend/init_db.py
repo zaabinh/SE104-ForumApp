@@ -1,8 +1,43 @@
-"""Initialize database tables"""
-from database import Base, engine
-from models import AuthSession, Bookmark, Comment, Follow, Post, User
+"""Initialize database tables without dropping existing data."""
 
-# Drop existing tables and recreate (for idempotency)
-Base.metadata.drop_all(bind=engine)
+from database import Base, engine
+from models import (
+    AdminAuditLog,
+    AuthSession,
+    Bookmark,
+    Comment,
+    EmailVerificationToken,
+    Follow,
+    Notification,
+    PasswordResetToken,
+    Post,
+    PostLike,
+    PostShare,
+    PostTag,
+    PostView,
+    Report,
+    Tag,
+    User,
+)
+
+_ = (
+    AdminAuditLog,
+    AuthSession,
+    Bookmark,
+    Comment,
+    EmailVerificationToken,
+    Follow,
+    Notification,
+    PasswordResetToken,
+    Post,
+    PostLike,
+    PostShare,
+    PostTag,
+    PostView,
+    Report,
+    Tag,
+    User,
+)
+
 Base.metadata.create_all(bind=engine)
-print("✅ Database tables recreated successfully!")
+print("Database tables initialized successfully.")

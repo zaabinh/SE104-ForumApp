@@ -373,7 +373,7 @@ def create_follows(cursor, user_ids):
 # MAIN
 # =========================================================
 
-def main():
+def create_data():
 
     conn = get_connection()
 
@@ -445,4 +445,4 @@ def main():
     conn.close()
 
 if __name__ == "__main__":
-    main()
+    create_data()

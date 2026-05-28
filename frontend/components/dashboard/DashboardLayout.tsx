@@ -152,11 +152,8 @@
 // * If possible, generate React + Tailwind components
 'use client';
 
-import StatsCards from './StatsCards';
-import ModernTable from './ModernTable';
 import Sidebar from '../layout/Sidebar';
 import Topbar from '../layout/Topbar';
-import Rightbar from '../layout/Rightbar';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
 import { useState } from 'react';
 
@@ -188,23 +185,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
         
         <main className="p-8 space-y-8">
-          {/* Stats Row */}
-          <div className="grid gap-6">
-            <StatsCards />
-          </div>
-          
-          {/* Content Grid */}
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              {children}
-            </div>
-            <Rightbar />
-          </div>
-          
-          {/* Recent Activity */}
-          <div className="dashboard-card p-6 lg:col-span-3">
-            <ModernTable />
-          </div>
+          <div className="space-y-8">{children}</div>
         </main>
       </div>
     </div>

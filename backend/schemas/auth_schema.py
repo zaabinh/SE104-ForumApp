@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class RegisterRequest(BaseModel):
@@ -35,6 +35,10 @@ class CompleteProfileRequest(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=255)
     avatar_url: str | None = None
     bio: str | None = None
+    major: str | None = Field(default=None, max_length=120)
+    academic_year: str | None = Field(default=None, max_length=30)
+    career_goal: str | None = Field(default=None, max_length=200)
+    interest_tags: list[str] = Field(default_factory=list, max_length=20)
 
 
 class VerifyEmailRequest(BaseModel):
@@ -73,10 +77,25 @@ class UserResponse(BaseModel):
     full_name: str
     avatar_url: str | None = None
     bio: str | None = None
+    major: str | None = None
+    academic_year: str | None = None
+    career_goal: str | None = None
+    interest_tags: list[str] = Field(default_factory=list)
     role: str
     status: str
     provider: str
     is_verified: bool
+
+    @field_validator("interest_tags", mode="before")
+    @classmethod
+    def normalize_interest_tags(cls, value):
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [item.strip() for item in value.split(",") if item.strip()]
+        if isinstance(value, list):
+            return [str(item).strip() for item in value if str(item).strip()]
+        return []
 
 
 class CurrentUserResponse(UserResponse):

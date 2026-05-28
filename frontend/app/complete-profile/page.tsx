@@ -8,7 +8,7 @@ import { api, fetchCurrentUser, getStoredUser, saveStoredUser } from '@/lib/axio
 
 export default function CompleteProfilePage() {
   const router = useRouter();
-  const [form, setForm] = useState({ username: '', fullName: '', avatarUrl: '', bio: '' });
+  const [form, setForm] = useState({ username: '', fullName: '', avatarUrl: '', bio: '', major: '', academicYear: '', careerGoal: '', interestTags: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -41,6 +41,10 @@ export default function CompleteProfilePage() {
                 full_name: form.fullName,
                 avatar_url: form.avatarUrl || null,
                 bio: form.bio || null,
+                major: form.major || null,
+                academic_year: form.academicYear || null,
+                career_goal: form.careerGoal || null,
+                interest_tags: form.interestTags.split(',').map((item) => item.trim()).filter(Boolean),
               });
               saveStoredUser(response.data);
               const currentUser = await fetchCurrentUser();
@@ -75,6 +79,10 @@ export default function CompleteProfilePage() {
               className="min-h-28 w-full rounded-xl border border-slate-300 px-3 py-2 outline-none transition focus:border-forum-primary"
             />
           </label>
+          <Input id="complete-major" label="Major" value={form.major} onChange={(e) => setForm((prev) => ({ ...prev, major: e.target.value }))} />
+          <Input id="complete-year" label="Academic year" value={form.academicYear} onChange={(e) => setForm((prev) => ({ ...prev, academicYear: e.target.value }))} />
+          <Input id="complete-goal" label="Career goal" value={form.careerGoal} onChange={(e) => setForm((prev) => ({ ...prev, careerGoal: e.target.value }))} />
+          <Input id="complete-tags" label="Interest tags (comma separated)" value={form.interestTags} onChange={(e) => setForm((prev) => ({ ...prev, interestTags: e.target.value }))} />
           {error ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p> : null}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Saving...' : 'Complete profile'}

@@ -21,7 +21,7 @@ class Post(Base):
     slug: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True)
     content: Mapped[str] = mapped_column(UnicodeText, nullable=False)
     cover_image: Mapped[str | None] = mapped_column(Text, nullable=True)
-    status: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending", server_default="pending", index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
     author = relationship("User", back_populates="posts")

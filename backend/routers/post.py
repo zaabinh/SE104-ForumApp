@@ -18,6 +18,7 @@ from schemas.post_schema import PostCreate, PostListResponse, PostResponse, Post
 from schemas.report_schema import ReportCreate, ReportResponse
 from services.notification_service import create_notification
 from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags
+from services.report_service import normalize_report_reason
 
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
@@ -37,12 +38,13 @@ def get_post_or_404(db: Session, post_id: int) -> Post:
 
 @router.post("/", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
 def create_post(payload: PostCreate, db: Session = Depends(get_db), current_user: User = Depends(require_active_verified_user)):
+    initial_status = "active" if current_user.role.lower() == "admin" else "pending"
     post = Post(
         user_id=current_user.id,
         title=payload.title.strip(),
         content=payload.content.strip(),
         cover_image=payload.cover_image,
-        status="active",
+        status=initial_status,
     )
     db.add(post)
     db.flush()
@@ -100,6 +102,8 @@ def get_tags(db: Session = Depends(get_db), current_user: User = Depends(require
 @router.get("/{post_id}", response_model=PostResponse)
 def get_post_detail(post_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_active_verified_user)):
     post = get_post_or_404(db, post_id)
+    if post.status != "active" and post.user_id != current_user.id and current_user.role.lower() != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Post is awaiting moderation.")
     db.add(PostView(post_id=post.id, user_id=current_user.id))
     db.commit()
     query = build_post_query(current_user.id, None, None, "for-you", "latest").where(Post.id == post_id)
@@ -124,6 +128,8 @@ def update_post(post_id: int, payload: PostUpdate, db: Session = Depends(get_db)
         post.cover_image = update_data["cover_image"]
     if "status" in update_data and current_user.role.lower() == "admin":
         post.status = update_data["status"]
+    elif current_user.role.lower() != "admin":
+        post.status = "pending"
     if "tags" in update_data:
         sync_post_tags(db, post, update_data["tags"])
 
@@ -207,10 +213,17 @@ def share_post(post_id: int, db: Session = Depends(get_db), current_user: User =
 @router.post("/{post_id}/report", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 def report_post(post_id: int, payload: ReportCreate, db: Session = Depends(get_db), current_user: User = Depends(require_active_verified_user)):
     _ = get_post_or_404(db, post_id)
+    duplicate = (
+        db.query(Report)
+        .filter(Report.reporter_id == current_user.id, Report.post_id == post_id, Report.comment_id.is_(None))
+        .first()
+    )
+    if duplicate:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="You already reported this post.")
     report = Report(
         reporter_id=current_user.id,
         post_id=post_id,
-        reason=payload.reason.strip(),
+        reason=normalize_report_reason(payload.reason),
         details=payload.details.strip() if payload.details else None,
     )
     db.add(report)

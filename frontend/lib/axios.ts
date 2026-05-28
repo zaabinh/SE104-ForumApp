@@ -21,6 +21,10 @@ export type AuthUser = {
   full_name: string;
   avatar_url?: string | null;
   bio?: string | null;
+  major?: string | null;
+  academic_year?: string | null;
+  career_goal?: string | null;
+  interest_tags?: string[];
   role: string;
   status: string;
   provider: string;

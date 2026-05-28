@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -6,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class ReportCreate(BaseModel):
     post_id: int | None = None
     comment_id: int | None = None
-    reason: str = Field(..., min_length=2, max_length=100)
+    reason: Literal["spam", "harassment", "hate_speech", "violence", "misinformation", "other"]
     details: str | None = Field(default=None, max_length=2000)
 
 

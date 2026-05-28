@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -25,6 +25,10 @@ class ProfileResponse(BaseModel):
     full_name: str
     avatar_url: str | None
     bio: str | None
+    major: str | None
+    academic_year: str | None
+    career_goal: str | None
+    interest_tags: list[str]
     followers_count: int
     following_count: int
     posts_count: int
@@ -43,6 +47,16 @@ class UpdateProfileRequest(BaseModel):
     full_name: str
     bio: str | None = None
     avatar_url: str | None = None
+    major: str | None = None
+    academic_year: str | None = None
+    career_goal: str | None = None
+    interest_tags: list[str] = Field(default_factory=list)
+
+
+def parse_interest_tags(raw_tags: str | None) -> list[str]:
+    if not raw_tags:
+        return []
+    return [tag for tag in [item.strip() for item in raw_tags.split(",")] if tag]
 
 
 class UserPostResponse(BaseModel):
@@ -87,6 +101,10 @@ def build_profile_response(user: User, current_user: User, db: Session) -> Profi
         full_name=user.full_name,
         avatar_url=user.avatar_url,
         bio=user.bio,
+        major=user.major,
+        academic_year=user.academic_year,
+        career_goal=user.career_goal,
+        interest_tags=parse_interest_tags(user.interest_tags),
         followers_count=followers_count,
         following_count=following_count,
         posts_count=posts_count,
@@ -116,6 +134,10 @@ def update_my_profile(
     current_user.full_name = payload.full_name.strip()
     current_user.bio = payload.bio.strip() if payload.bio else None
     current_user.avatar_url = payload.avatar_url.strip() if payload.avatar_url else None
+    current_user.major = payload.major.strip() if payload.major else None
+    current_user.academic_year = payload.academic_year.strip() if payload.academic_year else None
+    current_user.career_goal = payload.career_goal.strip() if payload.career_goal else None
+    current_user.interest_tags = ",".join(dict.fromkeys([tag.strip().lower() for tag in payload.interest_tags if tag.strip()])) or None
     db.add(current_user)
     db.commit()
     db.refresh(current_user)
@@ -147,13 +169,10 @@ def get_user_posts(
     db: Session = Depends(get_db),
 ):
     user = get_user_by_username_or_404(username, db)
-    _ = current_user.id
-    return (
-        db.query(Post)
-        .filter(Post.user_id == user.id)
-        .order_by(Post.created_at.desc(), Post.id.desc())
-        .all()
-    )
+    query = db.query(Post).filter(Post.user_id == user.id)
+    if current_user.id != user.id and current_user.role.lower() != "admin":
+        query = query.filter(Post.status == "active")
+    return query.order_by(Post.created_at.desc(), Post.id.desc()).all()
 
 
 @router.get("/users/{username}/comments", response_model=list[UserCommentResponse])

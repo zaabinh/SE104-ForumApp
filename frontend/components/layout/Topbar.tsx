@@ -23,7 +23,7 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const storedUser = useMemo(() => getStoredUser(), []);
-  const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
+  const displayEmail = storedUser?.email || userEmail;
 
   useEffect(() => {
     const closeMenu = (event: MouseEvent) => {
@@ -43,7 +43,7 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
   };
 
   return (
-    <header className={`sticky top-0 z-30 border-b border-slate-200/70 bg-white/95 px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition-[margin] duration-300 ease-in-out ${sidebarOffsetClass}`}>
+    <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/95 px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="hidden items-center gap-3 md:inline-flex">
@@ -115,7 +115,7 @@ function Topbar({ isSidebarCollapsed, onOpenMobileSidebar, userEmail, searchQuer
             >
               <Avatar src={storedUser?.avatar_url} alt={storedUser?.full_name || t('topbarUserAvatar')} size={36} />
               <div className="hidden text-left lg:block">
-                <p className="max-w-36 truncate cursor-default select-none text-sm font-semibold text-ink-800">{userEmail || t('topbarGuest')}</p>
+                <p className="max-w-36 truncate cursor-default select-none text-sm font-semibold text-ink-800">{displayEmail || t('topbarGuest')}</p>
               </div>
             </button>
             {open ? (

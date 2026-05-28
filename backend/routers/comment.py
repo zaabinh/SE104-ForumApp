@@ -10,6 +10,7 @@ from models.user import User
 from schemas.comment_schema import CommentCreate, CommentResponse
 from schemas.report_schema import ReportCreate, ReportResponse
 from services.notification_service import create_notification
+from services.report_service import normalize_report_reason
 
 
 router = APIRouter(prefix="/posts/{post_id}/comments", tags=["Comments"])
@@ -102,12 +103,19 @@ def report_comment(
     comment = db.query(Comment).filter(Comment.id == comment_id, Comment.post_id == post_id).first()
     if not comment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found.")
+    duplicate = (
+        db.query(Report)
+        .filter(Report.reporter_id == current_user.id, Report.comment_id == comment_id)
+        .first()
+    )
+    if duplicate:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="You already reported this comment.")
 
     report = Report(
         reporter_id=current_user.id,
         post_id=post_id,
         comment_id=comment_id,
-        reason=payload.reason.strip(),
+        reason=normalize_report_reason(payload.reason),
         details=payload.details.strip() if payload.details else None,
     )
     db.add(report)

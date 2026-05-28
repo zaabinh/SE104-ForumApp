@@ -29,7 +29,7 @@ class PostUpdate(BaseModel):
     content: str | None = None
     cover_image: str | None = None
     tags: list[str] | None = None
-    status: str | None = None
+    status: str | None = Field(default=None, pattern="^(pending|active|rejected)$")
 
 
 class PostResponse(PostBase):

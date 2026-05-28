@@ -1,3 +1,4 @@
+from models.admin_audit_log import AdminAuditLog
 from models.auth_session import AuthSession
 from models.bookmark import Bookmark
 from models.comment import Comment
@@ -16,6 +17,7 @@ from models.user import User
 
 __all__ = [
     "User",
+    "AdminAuditLog",
     "AuthSession",
     "Post",
     "Comment",

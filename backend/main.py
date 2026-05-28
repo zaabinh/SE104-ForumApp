@@ -1,5 +1,6 @@
 """Production-ready Student Forum Backend."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from contextlib import asynccontextmanager
 
 from database import Base, engine
 from models import (
+    AdminAuditLog,
     AuthSession,
     Bookmark,
     Comment,
@@ -33,13 +35,15 @@ from routers import admin, auth, comment, follow, post, user
 # Create all tables
 Base.metadata.create_all(bind=engine)
 
-# CORS configuration
-origins = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-]
+def _parse_cors_origins() -> list[str]:
+    raw = os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173",
+    )
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+origins = _parse_cors_origins()
 
 # Lifespan context
 @asynccontextmanager

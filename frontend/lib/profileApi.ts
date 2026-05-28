@@ -8,6 +8,10 @@ export type ProfileSummary = {
   full_name: string;
   avatar_url: string | null;
   bio: string | null;
+  major?: string | null;
+  academic_year?: string | null;
+  career_goal?: string | null;
+  interest_tags?: string[];
   followers_count: number;
   following_count: number;
   posts_count: number;
@@ -43,6 +47,10 @@ export type UpdateProfilePayload = {
   full_name: string;
   bio: string;
   avatar_url: string;
+  major?: string;
+  academic_year?: string;
+  career_goal?: string;
+  interest_tags?: string[];
 };
 
 export async function getMyProfile() {
