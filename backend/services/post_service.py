@@ -2,6 +2,7 @@ import math
 import re
 from dataclasses import dataclass
 from types import SimpleNamespace
+from datetime import datetime
 
 from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session, joinedload
@@ -67,14 +68,16 @@ class Pagination:
     @property
     def total_pages(self) -> int:
         return max(1, math.ceil(self.total / self.page_size)) if self.page_size else 1
-
-
+    
+hours_old = 12
 def build_post_query(current_user_id: str | None, search: str | None, tag: str | None, mode: str, sort: str):
     likes_count = func.count(func.distinct(PostLike.user_id)).label("likes_count")
     comments_count = func.count(func.distinct(Comment.id)).label("comments_count")
     views_count = func.count(func.distinct(PostView.id)).label("views_count")
     shares_count = func.count(func.distinct(PostShare.id)).label("shares_count")
-    trending_score = (likes_count * 4 + comments_count * 3 + views_count).label("trending_score")
+    
+    time_decay = math.exp(-hours_old / 24)
+    trending_score = ((likes_count * 4 + comments_count * 3 + views_count)*time_decay).label("trending_score")
     is_liked = func.max(case((PostLike.user_id == current_user_id, 1), else_=0)).label("is_liked")
     is_bookmarked = func.max(case((Bookmark.user_id == current_user_id, 1), else_=0)).label("is_bookmarked")
 

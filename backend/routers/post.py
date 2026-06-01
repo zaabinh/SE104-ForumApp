@@ -16,9 +16,12 @@ from models.user import User
 from schemas.auth_schema import MessageResponse
 from schemas.post_schema import PostCreate, PostListResponse, PostResponse, PostUpdate
 from schemas.report_schema import ReportCreate, ReportResponse
+from schemas.trending_schema import TrendingPostListResponse, TrendingPostResponse, TrendingTagListResponse, SimilarPostListResponse, SimilarPostResponse
 from services.notification_service import create_notification
 from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags
 from services.report_service import normalize_report_reason
+from services.trending_service import get_trending_posts, get_trending_tags, get_similar_posts
+from datetime import datetime
 
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
@@ -230,3 +233,158 @@ def report_post(post_id: int, payload: ReportCreate, db: Session = Depends(get_d
     db.commit()
     db.refresh(report)
     return report
+
+
+@router.get("/trending/suggestions", response_model=TrendingPostListResponse)
+def get_trending_suggestions(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=50),
+    hours: int = Query(default=24, ge=1, le=168),
+    tag: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(require_active_verified_user),
+):
+    """
+    Lấy danh sách bài viết gợi ý theo xu hướng.
+
+    - **page**: Trang hiện tại (mặc định 1)
+    - **page_size**: Số bài mỗi trang (mặc định 10, tối đa 50)
+    - **hours**: Lấy bài viết trong bao nhiêu giờ qua (mặc định 24, tối đa 168)
+    - **tag**: Lọc theo tag cụ thể (nếu có)
+
+    Ví dụ:
+    - GET /posts/trending/suggestions → Top 10 trending posts 24h
+    - GET /posts/trending/suggestions?hours=7&page_size=20 → Top 20 trending posts 7 ngày
+    - GET /posts/trending/suggestions?tag=python → Trending posts về Python
+    """
+    current_user_id = current_user.id if current_user else None
+
+    posts_with_scores, pagination = get_trending_posts(
+        db=db,
+        current_user_id=current_user_id,
+        page=page,
+        page_size=page_size,
+        hours=hours,
+        tag_filter=tag,
+        user_personalize=True
+    )
+
+    items = []
+    for idx, post_data in enumerate(posts_with_scores, start=1):
+        post = post_data["post"]
+
+        # Tạo stats object
+        stats = type("Stats", (), {
+            "likes_count": post_data["likes"],
+            "comments_count": post_data["comments"],
+            "views_count": post_data["views"],
+            "shares_count": post_data["shares"],
+            "trending_score": int(post_data["score"]),
+            "is_liked": post_data["is_liked"],
+            "is_bookmarked": post_data["is_bookmarked"]
+        })()
+
+        # Serialize post
+        post_response = serialize_post(post, stats, current_user_id)
+
+        # Tạo trending response
+        trending_response = TrendingPostResponse(
+            post=post_response,
+            trend_rank=(page - 1) * page_size + idx,
+            hot_score=post_data["score"],
+            trending_reason=post_data["reason"]
+        )
+        items.append(trending_response)
+
+    return {
+        "items": items,
+        "meta": {
+            "page": pagination.page,
+            "page_size": pagination.page_size,
+            "total": pagination.total,
+            "total_pages": pagination.total_pages,
+        },
+    }
+
+
+@router.get("/trending/tags", response_model=TrendingTagListResponse)
+def get_trending_tags_endpoint(
+    limit: int = Query(default=10, ge=1, le=50),
+    hours: int = Query(default=24, ge=1, le=168),
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(require_active_verified_user),
+):
+    """
+    Lấy danh sách tag đang xu hướng.
+
+    - **limit**: Số tag trả về (mặc định 10, tối đa 50)
+    - **hours**: Xem xét bài viết trong bao nhiêu giờ qua (mặc định 24)
+
+    Ví dụ:
+    - GET /posts/trending/tags → Top 10 trending tags
+    - GET /posts/trending/tags?limit=20&hours=7 → Top 20 tags trong 7 ngày
+    """
+    _ = current_user  # Đảm bảo user đã xác thực
+
+    trending_tags = get_trending_tags(db, limit=limit, hours=hours)
+
+    return {
+        "items": trending_tags,
+        "updated_at": datetime.utcnow().isoformat()
+    }
+
+
+@router.get("/{post_id}/similar", response_model=SimilarPostListResponse)
+def get_similar_posts_endpoint(
+    post_id: int,
+    limit: int = Query(default=5, ge=1, le=20),
+    min_similarity: float = Query(default=0.1, ge=0.0, le=1.0),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_active_verified_user),
+):
+    """
+    Lấy danh sách bài viết tương tự dựa trên nội dung (Content-Based Filtering).
+
+    Thuật toán:
+    - So sánh tiêu đề, nội dung, và tags
+    - Sử dụng TF (Term Frequency) và Cosine Similarity
+    - Weighted: title(20%) + content(40%) + tags(40%)
+
+    Parameters:
+    - **post_id**: ID bài viết tham chiếu (bắt buộc)
+    - **limit**: Số bài tương tự trả về (mặc định 5, tối đa 20)
+    - **min_similarity**: Điểm tương đồng tối thiểu (mặc định 0.1, từ 0 tới 1)
+
+    Ví dụ:
+    - GET /posts/1/similar → 5 bài tương tự bài #1
+    - GET /posts/1/similar?limit=10&min_similarity=0.2 → 10 bài có tương đồng ≥ 0.2
+    """
+    similar_posts_data = get_similar_posts(
+        db=db,
+        post_id=post_id,
+        current_user_id=current_user.id,
+        limit=limit,
+        min_similarity=min_similarity
+    )
+
+    items = []
+    for item in similar_posts_data:
+        post = item["post"]
+        post_response = serialize_post(post, item["stats"], current_user.id)
+
+        similar_response = SimilarPostResponse(
+            post=post_response,
+            similarity_score=round(item["similarity"], 3),
+            similarity_reason=item["reason"]
+        )
+        items.append(similar_response)
+
+    return {
+        "items": items,
+        "meta": {
+            "page": 1,
+            "page_size": len(items),
+            "total": len(items),
+            "total_pages": 1,
+        },
+    }

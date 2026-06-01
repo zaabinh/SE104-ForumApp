@@ -55,6 +55,22 @@ export type FeedResponse = {
   };
 };
 
+export type SimilarPost = {
+  post: ApiPost;
+  similarity_score: number;
+  similarity_reason: string;
+};
+
+export type SimilarPostsResponse = {
+  items: SimilarPost[];
+  meta: {
+    page: number;
+    page_size: number;
+    total: number;
+    total_pages: number;
+  };
+};
+
 export async function getFeed(params: {
   page?: number;
   pageSize?: number;
@@ -136,5 +152,18 @@ export async function createComment(postId: number, payload: { content: string; 
 
 export async function getTags() {
   const response = await api.get<Array<{ id: number; name: string; slug: string }>>('/api/posts/tags');
+  return response.data;
+}
+
+export async function getSimilarPosts(postId: number, params?: {
+  limit?: number;
+  min_similarity?: number;
+}) {
+  const response = await api.get<SimilarPostsResponse>(`/api/posts/${postId}/similar`, {
+    params: {
+      limit: params?.limit ?? 5,
+      min_similarity: params?.min_similarity ?? 0.1,
+    },
+  });
   return response.data;
 }

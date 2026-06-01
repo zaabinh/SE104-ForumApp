@@ -9,7 +9,7 @@ import AuthorCard from '@/components/post/AuthorCard';
 import PostDetail from '@/components/post/PostDetail';
 import RelatedPosts from '@/components/post/RelatedPosts';
 import { fetchCurrentUser } from '@/lib/axios';
-import { getFeed, getPost, toggleBookmark, togglePostLike } from '@/lib/forumApi';
+import { getFeed, getPost, toggleBookmark, togglePostLike, getSimilarPosts } from '@/lib/forumApi';
 import { useI18n } from '@/lib/i18n';
 import { getUserProfile } from '@/lib/profileApi';
 import { useAuthGuard } from '@/lib/useAuthGuard';
@@ -90,9 +90,8 @@ export default function PostDetailPage() {
       setLoading(true);
       setError('');
       try {
-        const [postData, feedData, currentUserData] = await Promise.all([
+        const [postData, currentUserData] = await Promise.all([
           getPost(postId),
-          getFeed({ page: 1, pageSize: 8 }),
           fetchCurrentUser(),
         ]);
 
@@ -133,15 +132,43 @@ export default function PostDetailPage() {
           likedCommentIds: [],
           isCurrentUser: true,
         });
-        setRelatedPosts(
-          feedData.items
-            .filter((item) => item.id !== postId)
-            .slice(0, 4)
-            .map((item) => ({
-              post: mapPost(item),
-              author: mapAuthor(item.author),
-            }))
-        );
+
+        // Lấy bài viết tương tự
+        try {
+          const similarPostsData = await getSimilarPosts(postId, { limit: 5, min_similarity: 0.1 });
+          if (isMounted && similarPostsData.items) {
+            setRelatedPosts(
+              similarPostsData.items.map((item) => ({
+                post: mapPost(item.post),
+                author: mapAuthor(item.post.author),
+                similarity_score: item.similarity_score,
+                similarity_reason: item.similarity_reason,
+              }))
+            );
+          }
+        } catch (similarError) {
+          // Nếu API gợi ý thất bại, dùng fallback là getFeed
+          console.warn('Failed to fetch similar posts, using fallback:', similarError);
+          try {
+            const feedData = await getFeed({ page: 1, pageSize: 5 });
+            if (isMounted && feedData.items) {
+              setRelatedPosts(
+                feedData.items
+                  .filter((item) => item.id !== postId)
+                  .slice(0, 5)
+                  .map((item) => ({
+                    post: mapPost(item),
+                    author: mapAuthor(item.author),
+                  }))
+              );
+            }
+          } catch {
+            // Nếu cả 2 đều fail, không hiển thị gợi ý
+            if (isMounted) {
+              setRelatedPosts([]);
+            }
+          }
+        }
       } catch (loadError) {
         const message =
           typeof loadError === 'object' &&

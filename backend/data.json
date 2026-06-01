@@ -105,7 +105,7 @@
       "title": "Review môn SE104 sau một học kỳ",
       "content": "SE104 khá nặng về teamwork và quản lý tiến độ. Team mình dùng GitHub Project và Discord để quản lý task. Nếu chia việc rõ từ đầu thì môn này học được rất nhiều thứ thực tế.",
       "tags": ["SE104", "reviewmonhoc"],
-      "author": "minhquan"
+      "author": "minhquandeptrai"
     },
     {
       "title": "Dockerize FastAPI + Next.js cho đồ án",
@@ -123,7 +123,7 @@
       "title": "Kinh nghiệm pass intern backend",
       "content": "Mình vừa pass backend intern. Chủ yếu họ hỏi API design, SQL query, JWT authentication và một ít Docker.",
       "tags": ["backend", "intern"],
-      "author": "minhquan"
+      "author": "minhquandeptrai"
     },
     {
       "title": "Có nên học Next.js trước React không?",
@@ -171,7 +171,7 @@
       "title": "Tối ưu JWT authentication với refresh token",
       "content": "Mình vừa implement access token và refresh token bằng FastAPI và Redis để tăng bảo mật.",
       "tags": ["backend", "fastapi"],
-      "author": "minhquan"
+      "author": "minhquandeptrai"
     },
     {
       "title": "Có ai học NT208 sáng thứ 2 không?",
@@ -219,7 +219,7 @@
       "title": "Roadmap backend cho sinh viên năm 2",
       "content": "Nên học HTTP, REST API, database và authentication trước khi đụng microservice.",
       "tags": ["backend"],
-      "author": "minhquan"
+      "author": "minhquandeptrai"
     },
 
     {
@@ -268,7 +268,7 @@
       "title": "Review môn CS221 có khó không?",
       "content": "CS221 khá nặng nhưng nếu học kỹ lab thì sẽ hiểu bài hơn rất nhiều.",
       "tags": ["CS221", "reviewmonhoc"],
-      "author": "minhquan"
+      "author": "minhquandeptrai"
     },
 
     {
@@ -296,7 +296,7 @@
       "title": "Có ai thức tới 3h sáng để debug không 😭",
       "content": "Debug lỗi CORS mất nguyên một đêm mới phát hiện thiếu middleware.",
       "tags": ["backend", "fastapi"],
-      "author": "minhquan"
+      "author": "minhquandeptrai"
     },
 
     {
@@ -324,7 +324,7 @@
       "title": "Mình vừa build forum bằng FastAPI",
       "content": "FastAPI type hint rất tiện và auto generate Swagger khá thích.",
       "tags": ["fastapi", "backend"],
-      "author": "minhquan"
+      "author": "minhquandeptrai"
     },
 
     {
@@ -429,7 +429,7 @@
       "title": "Có ai từng merge code lỗi production chưa 😭",
       "content": "Team mình từng quên env variable và production crash nguyên buổi tối.",
       "tags": ["backend", "SE104"],
-      "author": "minhquan"
+      "author": "minhquandeptrai"
     },
 
     {

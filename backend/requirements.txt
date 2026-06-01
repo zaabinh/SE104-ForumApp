@@ -14,3 +14,4 @@ fastapi[standard]
 passlib
 python-jose
 argon-cffi
+slugify
