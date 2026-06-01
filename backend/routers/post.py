@@ -24,12 +24,17 @@ from schemas.trending_schema import (
     SimilarPostResponse,
     CollaborativePostListResponse,
     CollaborativePostResponse,
+    ProfileBasedPostListResponse,
+    ProfileBasedPostResponse,
+    UserProfileSummary,
+    ProfileAnalysisResponse,
 )
 from services.notification_service import create_notification
 from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags
 from services.report_service import normalize_report_reason
 from services.trending_service import get_trending_posts, get_trending_tags, get_similar_posts
 from services.collaborative_filtering_service import get_collaborative_recommendations
+from services.profile_analysis_service import get_profile_based_recommendations, get_user_profile_summary
 from datetime import datetime
 
 
@@ -463,3 +468,152 @@ def get_collaborative_recommendations_endpoint(
             "total_pages": pagination.total_pages,
         },
     }
+
+
+@router.get("/recommendations/profile", response_model=ProfileBasedPostListResponse)
+def get_profile_recommendations_endpoint(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=50),
+    min_score: float = Query(default=0.1, ge=0.0, le=1.0),
+    days_back: int = Query(default=30, ge=1, le=365),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_active_verified_user),
+):
+    """
+    Lấy gợi ý bài viết dựa trên thông tin Profile của user.
+
+    Phân tích dựa trên:
+    1. Interest tags (30%)
+    2. Keywords từ major, career goal, bio (40%)
+    3. Hành vi (like/comment history) (30%)
+
+    Parameters:
+    - **page**: Trang hiện tại (mặc định 1)
+    - **page_size**: Bài mỗi trang (mặc định 10, tối đa 50)
+    - **min_score**: Điểm liên quan tối thiểu (mặc định 0.1, từ 0 tới 1)
+    - **days_back**: Bài viết trong bao nhiêu ngày (mặc định 30, tối đa 365)
+
+    Ví dụ:
+    - GET /posts/recommendations/profile → Gợi ý mặc định
+    - GET /posts/recommendations/profile?page_size=20 → 20 bài
+    - GET /posts/recommendations/profile?min_score=0.3&days_back=7 → Chỉ bài liên quan cao trong 7 ngày
+    """
+    profile_posts, pagination = get_profile_based_recommendations(
+        db=db,
+        user_id=current_user.id,
+        page=page,
+        page_size=page_size,
+        min_score=min_score,
+        days_back=days_back
+    )
+
+    items = []
+    for item in profile_posts:
+        post = item["post"]
+        post_response = serialize_post(post, item["stats"], current_user.id)
+
+        profile_response = ProfileBasedPostResponse(
+            post=post_response,
+            profile_score=round(item["profile_score"], 3),
+            recommendation_reason=item["reason"]
+        )
+        items.append(profile_response)
+
+    return {
+        "items": items,
+        "meta": {
+            "page": pagination.page,
+            "page_size": pagination.page_size,
+            "total": pagination.total,
+            "total_pages": pagination.total_pages,
+        },
+    }
+
+
+@router.get("/profile/summary", response_model=UserProfileSummary)
+def get_profile_summary_endpoint(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_active_verified_user),
+):
+    """
+    Lấy tóm tắt profile của user hiện tại.
+
+    Trả về:
+    - Interest tags
+    - Major (chuyên ngành)
+    - Academic year (năm học)
+    - Career goal (mục tiêu sự nghiệp)
+    - Profile strength (độ đầy đủ: 0-1)
+    - Recommendations count (số bài có thể gợi ý)
+
+    Ví dụ:
+    - GET /posts/profile/summary → Tóm tắt profile
+    """
+    profile_summary = get_user_profile_summary(db, current_user.id)
+
+    if not profile_summary:
+        profile_summary = {
+            "interest_tags": [],
+            "major": "",
+            "academic_year": "",
+            "career_goal": "",
+            "profile_strength": 0.0,
+            "recommendations_count": 0,
+            "profile_completeness": {}
+        }
+
+    return profile_summary
+
+
+@router.get("/profile/analysis", response_model=ProfileAnalysisResponse)
+def get_profile_analysis_endpoint(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_active_verified_user),
+):
+    """
+    Phân tích chi tiết profile của user và đưa ra message gợi ý.
+
+    Phân tích bao gồm:
+    - Độ đầy đủ thông tin profile
+    - Các lĩnh vực quan tâm
+    - Mục tiêu sự nghiệp
+    - Khuyến nghị về cải thiện profile
+
+    Ví dụ:
+    - GET /posts/profile/analysis → Phân tích profile
+    """
+    profile_summary = get_user_profile_summary(db, current_user.id)
+
+    if not profile_summary:
+        profile_summary = {
+            "interest_tags": [],
+            "major": "",
+            "academic_year": "",
+            "career_goal": "",
+            "profile_strength": 0.0,
+            "recommendations_count": 0,
+            "profile_completeness": {}
+        }
+
+    # Tạo message khuyến nghị
+    completeness = profile_summary.get("profile_completeness", {})
+    missing_fields = []
+
+    if not completeness.get("has_interest_tags"):
+        missing_fields.append("sở thích")
+    if not completeness.get("has_major"):
+        missing_fields.append("chuyên ngành")
+    if not completeness.get("has_career_goal"):
+        missing_fields.append("mục tiêu sự nghiệp")
+
+    if missing_fields:
+        recommendation_message = f"Hoàn thành profile bằng cách cập nhật: {', '.join(missing_fields)} để nhận được gợi ý chính xác hơn."
+    else:
+        recommendation_message = "Profile của bạn đầy đủ! Chúng tôi sẽ gợi ý những bài viết phù hợp nhất."
+
+    return ProfileAnalysisResponse(
+        user_id=current_user.id,
+        profile_summary=UserProfileSummary(**profile_summary),
+        recommendation_message=recommendation_message
+    )
+

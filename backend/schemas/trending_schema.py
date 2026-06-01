@@ -67,3 +67,35 @@ class UserSimilarityInfo(BaseModel):
     common_tags: list[str] = Field(default_factory=list)
     common_liked_posts: int = Field(default=0)
 
+
+class ProfileBasedPostResponse(BaseModel):
+    """Bài viết từ Profile-Based Filtering"""
+    post: PostResponse
+    profile_score: float = Field(..., description="Điểm liên quan profile (0-1)")
+    recommendation_reason: str = Field(..., description="Lý do gợi ý")
+
+
+class ProfileBasedPostListResponse(BaseModel):
+    """Danh sách bài viết từ Profile-Based Filtering"""
+    items: list[ProfileBasedPostResponse]
+    meta: PaginationMeta
+
+
+class UserProfileSummary(BaseModel):
+    """Tóm tắt profile của user"""
+    interest_tags: list[str] = Field(default_factory=list)
+    major: str = ""
+    academic_year: str = ""
+    career_goal: str = ""
+    profile_strength: float = Field(..., description="Độ đầy đủ profile (0-1)")
+    recommendations_count: int = Field(default=0)
+    profile_completeness: dict = Field(default_factory=dict)
+
+
+class ProfileAnalysisResponse(BaseModel):
+    """Kết quả phân tích profile chi tiết"""
+    user_id: str
+    profile_summary: UserProfileSummary
+    recommendation_message: str = "Gợi ý dựa trên thông tin profile của bạn"
+
+

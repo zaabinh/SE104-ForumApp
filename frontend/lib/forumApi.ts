@@ -88,6 +88,38 @@ export type CollaborativePostsResponse = {
   };
 };
 
+export type ProfileBasedPost = {
+  post: ApiPost;
+  profile_score: number;
+  recommendation_reason: string;
+};
+
+export type ProfileBasedPostsResponse = {
+  items: ProfileBasedPost[];
+  meta: {
+    page: number;
+    page_size: number;
+    total: number;
+    total_pages: number;
+  };
+};
+
+export type UserProfileSummary = {
+  interest_tags: string[];
+  major: string;
+  academic_year: string;
+  career_goal: string;
+  profile_strength: number;
+  recommendations_count: number;
+  profile_completeness: Record<string, boolean>;
+};
+
+export type ProfileAnalysis = {
+  user_id: string;
+  profile_summary: UserProfileSummary;
+  recommendation_message: string;
+};
+
 export async function getFeed(params: {
   page?: number;
   pageSize?: number;
@@ -199,5 +231,32 @@ export async function getCollaborativeRecommendations(params?: {
       days_back: params?.daysBack ?? 30,
     },
   });
+  return response.data;
+}
+
+export async function getProfileBasedRecommendations(params?: {
+  page?: number;
+  pageSize?: number;
+  min_score?: number;
+  daysBack?: number;
+}) {
+  const response = await api.get<ProfileBasedPostsResponse>('/api/posts/recommendations/profile', {
+    params: {
+      page: params?.page ?? 1,
+      page_size: params?.pageSize ?? 10,
+      min_score: params?.min_score ?? 0.1,
+      days_back: params?.daysBack ?? 30,
+    },
+  });
+  return response.data;
+}
+
+export async function getUserProfileSummary() {
+  const response = await api.get<UserProfileSummary>('/api/posts/profile/summary');
+  return response.data;
+}
+
+export async function getProfileAnalysis() {
+  const response = await api.get<ProfileAnalysis>('/api/posts/profile/analysis');
   return response.data;
 }
