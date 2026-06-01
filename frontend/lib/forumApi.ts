@@ -71,6 +71,23 @@ export type SimilarPostsResponse = {
   };
 };
 
+export type CollaborativePost = {
+  post: ApiPost;
+  cf_score: number;
+  cf_reason: string;
+  similar_user_count: number;
+};
+
+export type CollaborativePostsResponse = {
+  items: CollaborativePost[];
+  meta: {
+    page: number;
+    page_size: number;
+    total: number;
+    total_pages: number;
+  };
+};
+
 export async function getFeed(params: {
   page?: number;
   pageSize?: number;
@@ -163,6 +180,23 @@ export async function getSimilarPosts(postId: number, params?: {
     params: {
       limit: params?.limit ?? 5,
       min_similarity: params?.min_similarity ?? 0.1,
+    },
+  });
+  return response.data;
+}
+
+export async function getCollaborativeRecommendations(params?: {
+  page?: number;
+  pageSize?: number;
+  min_similarity?: number;
+  daysBack?: number;
+}) {
+  const response = await api.get<CollaborativePostsResponse>('/api/posts/recommendations/collaborative', {
+    params: {
+      page: params?.page ?? 1,
+      page_size: params?.pageSize ?? 10,
+      min_similarity: params?.min_similarity ?? 0.2,
+      days_back: params?.daysBack ?? 30,
     },
   });
   return response.data;

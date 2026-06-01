@@ -41,3 +41,29 @@ class SimilarPostListResponse(BaseModel):
     """Danh sách bài viết tương tự"""
     items: list[SimilarPostResponse]
     meta: PaginationMeta
+
+
+class CollaborativePostResponse(BaseModel):
+    """Bài viết từ Collaborative Filtering"""
+    post: PostResponse
+    cf_score: float = Field(..., description="Điểm collaborative filtering")
+    cf_reason: str = Field(..., description="Lý do gợi ý")
+    similar_user_count: int = Field(default=0, description="Số user tương tự yêu thích bài này")
+
+
+class CollaborativePostListResponse(BaseModel):
+    """Danh sách bài viết từ Collaborative Filtering"""
+    items: list[CollaborativePostResponse]
+    meta: PaginationMeta
+
+
+class UserSimilarityInfo(BaseModel):
+    """Thông tin user tương tự"""
+    user_id: str
+    username: str
+    full_name: str
+    avatar_url: str | None
+    similarity_score: float = Field(..., description="Điểm tương đồng (0-1)")
+    common_tags: list[str] = Field(default_factory=list)
+    common_liked_posts: int = Field(default=0)
+

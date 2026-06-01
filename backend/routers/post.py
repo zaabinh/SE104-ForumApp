@@ -16,11 +16,20 @@ from models.user import User
 from schemas.auth_schema import MessageResponse
 from schemas.post_schema import PostCreate, PostListResponse, PostResponse, PostUpdate
 from schemas.report_schema import ReportCreate, ReportResponse
-from schemas.trending_schema import TrendingPostListResponse, TrendingPostResponse, TrendingTagListResponse, SimilarPostListResponse, SimilarPostResponse
+from schemas.trending_schema import (
+    TrendingPostListResponse,
+    TrendingPostResponse,
+    TrendingTagListResponse,
+    SimilarPostListResponse,
+    SimilarPostResponse,
+    CollaborativePostListResponse,
+    CollaborativePostResponse,
+)
 from services.notification_service import create_notification
 from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags
 from services.report_service import normalize_report_reason
 from services.trending_service import get_trending_posts, get_trending_tags, get_similar_posts
+from services.collaborative_filtering_service import get_collaborative_recommendations
 from datetime import datetime
 
 
@@ -386,5 +395,71 @@ def get_similar_posts_endpoint(
             "page_size": len(items),
             "total": len(items),
             "total_pages": 1,
+        },
+    }
+
+
+@router.get("/recommendations/collaborative", response_model=CollaborativePostListResponse)
+def get_collaborative_recommendations_endpoint(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=50),
+    min_similarity: float = Query(default=0.2, ge=0.0, le=1.0),
+    days_back: int = Query(default=30, ge=1, le=365),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_active_verified_user),
+):
+    """
+    Lấy gợi ý bài viết dựa trên Collaborative Filtering (User-Based).
+
+    Thuật toán:
+    1. Tìm những user có sở thích giống bạn dựa trên:
+       - Interest tags (30%)
+       - Bài viết yêu thích (35%)
+       - Những user đang theo dõi (25%)
+       - Bài viết đã comment (10%)
+
+    2. Lấy những bài mà những user này yêu thích
+    3. Gợi ý những bài bạn chưa thích/xem
+
+    Parameters:
+    - **page**: Trang hiện tại (mặc định 1)
+    - **page_size**: Bài mỗi trang (mặc định 10, tối đa 50)
+    - **min_similarity**: Điểm tương đồng tối thiểu (mặc định 0.2, từ 0 tới 1)
+    - **days_back**: Xem xét bài viết trong bao nhiêu ngày (mặc định 30, tối đa 365)
+
+    Ví dụ:
+    - GET /posts/recommendations/collaborative → Top 10 gợi ý
+    - GET /posts/recommendations/collaborative?page_size=20&days_back=7 → 20 bài trong 7 ngày
+    - GET /posts/recommendations/collaborative?min_similarity=0.3 → Chỉ những user rất tương tự
+    """
+    collab_posts, pagination = get_collaborative_recommendations(
+        db=db,
+        user_id=current_user.id,
+        page=page,
+        page_size=page_size,
+        min_similarity=min_similarity,
+        days_back=days_back
+    )
+
+    items = []
+    for item in collab_posts:
+        post = item["post"]
+        post_response = serialize_post(post, item["stats"], current_user.id)
+
+        collab_response = CollaborativePostResponse(
+            post=post_response,
+            cf_score=round(item["cf_score"], 3),
+            cf_reason=item["reason"],
+            similar_user_count=0  # TODO: Thêm vào service
+        )
+        items.append(collab_response)
+
+    return {
+        "items": items,
+        "meta": {
+            "page": pagination.page,
+            "page_size": pagination.page_size,
+            "total": pagination.total,
+            "total_pages": pagination.total_pages,
         },
     }
