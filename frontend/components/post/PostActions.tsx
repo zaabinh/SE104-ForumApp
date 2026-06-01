@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+import { useRouter } from 'next/navigation';
 import { BiUpvote } from 'react-icons/bi';
 import { BsBookmark, BsBookmarkFill } from 'react-icons/bs';
 import { FaRegComment } from 'react-icons/fa';
@@ -20,6 +21,7 @@ type PostActionsProps = {
 };
 
 function PostActionsBase({ post, compact = false, onCommentClick, liked, bookmarked, onLikeToggle, onBookmarkToggle }: PostActionsProps) {
+  const router = useRouter();
   const { pushToast } = useToast();
   const baseClass = compact ? 'rounded-2xl px-3 py-2 text-sm' : 'rounded-2xl px-4 py-2.5 text-sm';
 
@@ -37,16 +39,8 @@ function PostActionsBase({ post, compact = false, onCommentClick, liked, bookmar
 
   const handleShare = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    const sharePath = `/post/${post.id}`;
-
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(`${window.location.origin}${sharePath}`);
-      }
-      pushToast('Share link copied');
-    } catch {
-      pushToast('Share link ready');
-    }
+    router.push(`/post/${post.id}/share`);
+    pushToast('Open share composer');
   };
 
   return (

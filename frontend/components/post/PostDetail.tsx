@@ -56,15 +56,11 @@ export default function PostDetail({ post, author, currentUser, isOwner, liked, 
           ))}
         </div>
 
-        <div className="relative mt-6 h-80 overflow-hidden rounded-[24px] border border-slate-200">
-          {post.image ? (
+        {post.image ? (
+          <div className="relative mt-6 h-80 overflow-hidden rounded-[24px] border border-slate-200">
             <Image src={post.image} alt={post.title} fill className="object-cover" />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-gradient-to-r from-slate-100 to-slate-200 text-sm font-medium text-slate-400">
-              No image
-            </div>
-          )}
-        </div>
+          </div>
+        ) : null}
 
         <div className="mt-6 space-y-5 text-base leading-8 text-slate-700">
           {post.content.split('\n\n').map((paragraph) => (

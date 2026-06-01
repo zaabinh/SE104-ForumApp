@@ -1,448 +1,234 @@
-import uuid
 import json
-import random
-from datetime import datetime, timedelta
-import os
+from pathlib import Path
 
-import pyodbc
-from slugify import slugify
+from sqlalchemy.orm import Session
 
-# =========================================================
-# CONFIG
-# =========================================================
+from database import SessionLocal
+from models.bookmark import Bookmark
+from models.comment import Comment
+from models.post import Post
+from models.post_like import PostLike
+from models.post_share import PostShare
+from models.post_tag import PostTag
+from models.post_view import PostView
+from models.tag import Tag
+from models.user import User
+from utils.hash import hash_password
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "DRIVER={ODBC Driver 17 for SQL Server};"
-    "SERVER=localhost\\SQLEXPRESS;"
-    "DATABASE=StudentForum;"
-    "Trusted_Connection=yes;"
-    "Encrypt=no;"
-    "TrustServerCertificate=yes;"
-)
 
-# =========================================================
-# LOAD DATA
-# =========================================================
+def _norm(value: str | None) -> str:
+    return (value or "").strip()
 
-with open("data.json", "r", encoding="utf-8") as f:
-    DATA = json.load(f)
 
-USERS = DATA["users"]
-TAGS = DATA["tags"]
-POSTS = DATA["posts"]
+def _lower(value: str | None) -> str:
+    return _norm(value).lower()
 
-PASSWORD_HASH = "hashed_password_demo"
 
-# =========================================================
-# DB
-# =========================================================
+def _to_interest_tags(value) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        parts = [item.strip().lower() for item in value.split(",") if item.strip()]
+        return ",".join(dict.fromkeys(parts)) or None
+    if isinstance(value, list):
+        parts = [str(item).strip().lower() for item in value if str(item).strip()]
+        return ",".join(dict.fromkeys(parts)) or None
+    return None
 
-def get_connection():
-    return pyodbc.connect(DATABASE_URL)
 
-# =========================================================
-# CREATE TAGS
-# =========================================================
+def _read_data_file() -> dict:
+    data_path = Path(__file__).resolve().parent / "data.json"
+    if not data_path.exists():
+        raise FileNotFoundError(f"data.json not found: {data_path}")
+    with data_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
-def create_tags(cursor):
 
-    tag_map = {}
+def _seed_users(db: Session, users_data: list[dict]) -> dict[str, User]:
+    by_key: dict[str, User] = {}
+    for row in users_data:
+        username = _lower(row.get("username"))
+        email = _lower(row.get("email"))
+        if not email:
+            continue
 
-    for tag in TAGS:
-
-        slug = slugify(tag)
-
-        cursor.execute("""
-            IF NOT EXISTS (
-                SELECT 1 FROM tags WHERE slug = ?
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raw_password = _norm(row.get("password")) or "12345678"
+            user = User(
+                username=username or None,
+                email=email,
+                password_hash=hash_password(raw_password),
+                full_name=_norm(row.get("full_name")) or username or email.split("@", 1)[0],
+                avatar_url=row.get("avatar_url"),
+                bio=row.get("bio"),
+                major=row.get("major"),
+                academic_year=row.get("academic_year"),
+                career_goal=row.get("career_goal"),
+                interest_tags=_to_interest_tags(row.get("interest_tags")),
+                role=_lower(row.get("role")) or "student",
+                status=_lower(row.get("status")) or "active",
+                provider=_lower(row.get("provider")) or "local",
+                is_verified=bool(row.get("is_verified", True)),
             )
-            BEGIN
-                INSERT INTO tags(name, slug)
-                VALUES (?, ?)
-            END
-        """, slug, tag, slug)
+            db.add(user)
+            db.flush()
 
-    cursor.execute("""
-        SELECT id, name
-        FROM tags
-    """)
+        if username:
+            by_key[username] = user
+        by_key[email] = user
+    return by_key
 
-    rows = cursor.fetchall()
 
-    for row in rows:
-        tag_map[row.name] = row.id
+def _seed_tags(db: Session, tags_data: list) -> dict[str, Tag]:
+    by_slug: dict[str, Tag] = {}
+    for row in tags_data:
+        if isinstance(row, str):
+            name = _lower(row)
+            slug = name.replace(" ", "-")
+        else:
+            name = _lower(row.get("name"))
+            slug = _lower(row.get("slug")) or name.replace(" ", "-")
+        if not name or not slug:
+            continue
+        tag = db.query(Tag).filter(Tag.slug == slug).first()
+        if not tag:
+            tag = Tag(name=name, slug=slug)
+            db.add(tag)
+            db.flush()
+        by_slug[slug] = tag
+    return by_slug
 
-    return tag_map
 
-# =========================================================
-# CREATE USERS
-# =========================================================
+def _seed_posts(db: Session, posts_data: list[dict], users: dict[str, User], tags: dict[str, Tag]) -> dict[str, Post]:
+    by_key: dict[str, Post] = {}
+    for row in posts_data:
+        post_key = _norm(row.get("key")) or _norm(row.get("slug")) or str(row.get("id") or "")
+        author_ref = _lower(row.get("author")) or _lower(row.get("username")) or _lower(row.get("email"))
+        author = users.get(author_ref)
+        if not author:
+            continue
 
-def create_users(cursor):
+        title = _norm(row.get("title"))
+        slug = _lower(row.get("slug")) or title.lower().replace(" ", "-")
+        if not title or not slug:
+            continue
 
-    user_map = {}
-
-    for user in USERS:
-
-        user_id = str(uuid.uuid4())
-
-        cursor.execute("""
-            INSERT INTO users (
-                id,
-                username,
-                email,
-                password_hash,
-                full_name,
-                avatar_url,
-                bio,
-                role,
-                status,
-                provider,
-                is_verified,
-                created_at
+        post = db.query(Post).filter(Post.slug == slug).first()
+        if not post:
+            post = Post(
+                user_id=author.id,
+                title=title,
+                slug=slug,
+                content=_norm(row.get("content")),
+                cover_image=row.get("cover_image"),
+                status=_lower(row.get("status")) or "active",
+                share_caption=row.get("share_caption"),
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        user_id,
-        user["username"],
-        user["email"],
-        PASSWORD_HASH,
-        user["full_name"],
-        user["avatar_url"],
-        user["bio"],
-        "Student",
-        "active",
-        "local",
-        1,
-        datetime.now() - timedelta(days=random.randint(1, 300))
-        )
+            # Optional original post link for share posts
+            original_ref = _norm(row.get("original_post_key")) or _norm(row.get("original_post_slug"))
+            if original_ref:
+                original = by_key.get(original_ref) or db.query(Post).filter(Post.slug == original_ref).first()
+                if original:
+                    post.original_post_id = original.id
+            db.add(post)
+            db.flush()
 
-        user_map[user["username"]] = user_id
-
-    return user_map
-
-# =========================================================
-# CREATE POSTS
-# =========================================================
-
-def create_posts(cursor, user_map, tag_map):
-
-    post_ids = []
-
-    for post in POSTS:
-
-        user_id = user_map[post["author"]]
-
-        slug = (
-            slugify(post["title"])
-            + "-"
-            + str(random.randint(1000, 9999))
-        )
-
-        cover_image = random.choice([
-            "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80"
-        ])
-
-        created_at = datetime.now() - timedelta(
-            days=random.randint(0, 120),
-            hours=random.randint(0, 23)
-        )
-
-        cursor.execute("""
-            INSERT INTO posts (
-                user_id,
-                title,
-                slug,
-                content,
-                cover_image,
-                status,
-                created_at
-            )
-            OUTPUT INSERTED.id
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        user_id,
-        post["title"],
-        slug,
-        post["content"],
-        cover_image,
-        "active",
-        created_at
-        )
-
-        post_id = cursor.fetchone()[0]
-
-        post_ids.append(post_id)
-
-        # =====================================================
-        # TAGS
-        # =====================================================
-
-        for tag_name in post["tags"]:
-
-            if tag_name not in tag_map:
+        for raw_tag in row.get("tags", []) or []:
+            slug_tag = _lower(raw_tag).replace(" ", "-")
+            tag = tags.get(slug_tag)
+            if not tag:
                 continue
+            exists = db.query(PostTag).filter(PostTag.post_id == post.id, PostTag.tag_id == tag.id).first()
+            if not exists:
+                db.add(PostTag(post_id=post.id, tag_id=tag.id))
 
-            tag_id = tag_map[tag_name]
+        if post_key:
+            by_key[post_key] = post
+        by_key[slug] = post
+        by_key[str(post.id)] = post
+    return by_key
 
-            cursor.execute("""
-                INSERT INTO post_tags (
-                    post_id,
-                    tag_id
-                )
-                VALUES (?, ?)
-            """,
-            post_id,
-            tag_id
-            )
 
-    return post_ids
-
-# =========================================================
-# COMMENTS
-# =========================================================
-
-COMMENT_CONTENTS = [
-    "Bài viết hữu ích thật",
-    "Cảm ơn bạn đã chia sẻ",
-    "Mình cũng đang học phần này 😭",
-    "Cho mình xin thêm tài liệu với",
-    "Docker đúng là cứu team project",
-    "Mình từng gặp lỗi giống vậy",
-    "React Query dùng thích thật",
-    "FastAPI generate Swagger quá tiện",
-    "Team mình cũng đang làm đề tài tương tự",
-    "Hay quá, học được thêm nhiều thứ"
-]
-
-def create_comments(cursor, user_ids, post_ids):
-
-    for post_id in post_ids:
-
-        comments_count = random.randint(2, 10)
-
-        for _ in range(comments_count):
-
-            user_id = random.choice(user_ids)
-
-            content = random.choice(COMMENT_CONTENTS)
-
-            created_at = datetime.now() - timedelta(
-                days=random.randint(0, 30)
-            )
-
-            cursor.execute("""
-                INSERT INTO comments (
-                    post_id,
-                    user_id,
-                    parent_id,
-                    content,
-                    created_at
-                )
-                VALUES (?, ?, ?, ?, ?)
-            """,
-            post_id,
-            user_id,
-            None,
-            content,
-            created_at
-            )
-
-# =========================================================
-# LIKES
-# =========================================================
-
-def create_likes(cursor, user_ids, post_ids):
-
-    for post_id in post_ids:
-
-        liked_users = random.sample(
-            user_ids,
-            random.randint(1, len(user_ids))
+def _seed_comments(db: Session, comments_data: list[dict], users: dict[str, User], posts: dict[str, Post]) -> None:
+    for row in comments_data:
+        author_ref = _lower(row.get("author")) or _lower(row.get("username")) or _lower(row.get("email"))
+        post_ref = _norm(row.get("post_key")) or _norm(row.get("post_slug")) or str(row.get("post_id") or "")
+        author = users.get(author_ref)
+        post = posts.get(post_ref)
+        content = _norm(row.get("content"))
+        if not author or not post or not content:
+            continue
+        exists = (
+            db.query(Comment)
+            .filter(Comment.post_id == post.id, Comment.user_id == author.id, Comment.content == content)
+            .first()
         )
+        if not exists:
+            db.add(Comment(post_id=post.id, user_id=author.id, content=content, parent_id=None))
 
-        for user_id in liked_users:
 
-            cursor.execute("""
-                INSERT INTO post_likes (
-                    user_id,
-                    post_id,
-                    created_at
-                )
-                VALUES (?, ?, ?)
-            """,
-            user_id,
-            post_id,
-            datetime.now()
-            )
+def _seed_relations(db: Session, data: dict, users: dict[str, User], posts: dict[str, Post]) -> None:
+    def resolve_user(ref):
+        return users.get(_lower(ref))
 
-# =========================================================
-# BOOKMARKS
-# =========================================================
+    def resolve_post(ref):
+        return posts.get(_norm(str(ref)))
 
-def create_bookmarks(cursor, user_ids, post_ids):
+    for row in data.get("likes", []) or []:
+        user = resolve_user(row.get("user"))
+        post = resolve_post(row.get("post"))
+        if not user or not post:
+            continue
+        exists = db.query(PostLike).filter(PostLike.user_id == user.id, PostLike.post_id == post.id).first()
+        if not exists:
+            db.add(PostLike(user_id=user.id, post_id=post.id))
 
-    for post_id in post_ids:
+    for row in data.get("bookmarks", []) or []:
+        user = resolve_user(row.get("user"))
+        post = resolve_post(row.get("post"))
+        if not user or not post:
+            continue
+        exists = db.query(Bookmark).filter(Bookmark.user_id == user.id, Bookmark.post_id == post.id).first()
+        if not exists:
+            db.add(Bookmark(user_id=user.id, post_id=post.id))
 
-        bookmarked_users = random.sample(
-            user_ids,
-            random.randint(0, len(user_ids) // 2)
-        )
+    for row in data.get("views", []) or []:
+        user = resolve_user(row.get("user"))
+        post = resolve_post(row.get("post"))
+        if not user or not post:
+            continue
+        exists = db.query(PostView).filter(PostView.user_id == user.id, PostView.post_id == post.id).first()
+        if not exists:
+            db.add(PostView(user_id=user.id, post_id=post.id))
 
-        for user_id in bookmarked_users:
+    for row in data.get("shares", []) or []:
+        user = resolve_user(row.get("user"))
+        post = resolve_post(row.get("post"))
+        if not user or not post:
+            continue
+        exists = db.query(PostShare).filter(PostShare.user_id == user.id, PostShare.post_id == post.id).first()
+        if not exists:
+            db.add(PostShare(user_id=user.id, post_id=post.id))
 
-            cursor.execute("""
-                INSERT INTO bookmarks (
-                    user_id,
-                    post_id,
-                    created_at
-                )
-                VALUES (?, ?, ?)
-            """,
-            user_id,
-            post_id,
-            datetime.now()
-            )
 
-# =========================================================
-# VIEWS
-# =========================================================
+def create_data() -> None:
+    data = _read_data_file()
+    db: Session = SessionLocal()
+    try:
+        users = _seed_users(db, data.get("users", []) or [])
+        tags = _seed_tags(db, data.get("tags", []) or [])
+        posts = _seed_posts(db, data.get("posts", []) or [], users, tags)
+        _seed_comments(db, data.get("comments", []) or [], users, posts)
+        _seed_relations(db, data, users, posts)
+        db.commit()
+        print("Seeded data from data.json successfully.")
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
-def create_views(cursor, user_ids, post_ids):
-
-    for post_id in post_ids:
-
-        views_count = random.randint(20, 200)
-
-        for _ in range(views_count):
-
-            user_id = random.choice(user_ids)
-
-            cursor.execute("""
-                INSERT INTO post_views (
-                    post_id,
-                    user_id,
-                    created_at
-                )
-                VALUES (?, ?, ?)
-            """,
-            post_id,
-            user_id,
-            datetime.now()
-            )
-
-# =========================================================
-# FOLLOWS
-# =========================================================
-
-def create_follows(cursor, user_ids):
-
-    for follower_id in user_ids:
-
-        following = random.sample(
-            user_ids,
-            random.randint(1, 4)
-        )
-
-        for following_id in following:
-
-            if follower_id == following_id:
-                continue
-
-            try:
-                cursor.execute("""
-                    INSERT INTO follows (
-                        follower_id,
-                        following_id,
-                        created_at
-                    )
-                    VALUES (?, ?, ?)
-                """,
-                follower_id,
-                following_id,
-                datetime.now()
-                )
-            except:
-                pass
-
-# =========================================================
-# MAIN
-# =========================================================
-
-def create_data():
-
-    conn = get_connection()
-
-    cursor = conn.cursor()
-
-    print("================================")
-    print("START SEEDING DATABASE")
-    print("================================")
-
-    print("Creating tags...")
-    tag_map = create_tags(cursor)
-
-    print("Creating users...")
-    user_map = create_users(cursor)
-
-    print("Creating posts...")
-    post_ids = create_posts(
-        cursor,
-        user_map,
-        tag_map
-    )
-
-    user_ids = list(user_map.values())
-
-    print("Creating comments...")
-    create_comments(
-        cursor,
-        user_ids,
-        post_ids
-    )
-
-    print("Creating likes...")
-    create_likes(
-        cursor,
-        user_ids,
-        post_ids
-    )
-
-    print("Creating bookmarks...")
-    create_bookmarks(
-        cursor,
-        user_ids,
-        post_ids
-    )
-
-    print("Creating views...")
-    create_views(
-        cursor,
-        user_ids,
-        post_ids
-    )
-
-    print("Creating follows...")
-    create_follows(
-        cursor,
-        user_ids
-    )
-
-    conn.commit()
-
-    print("================================")
-    print("SEED COMPLETED SUCCESSFULLY")
-    print("================================")
-    print(f"Users : {len(USERS)}")
-    print(f"Posts : {len(post_ids)}")
-    print("================================")
-
-    cursor.close()
-    conn.close()
 
 if __name__ == "__main__":
     create_data()

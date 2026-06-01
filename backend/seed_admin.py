@@ -11,38 +11,40 @@ from utils.hash import hash_password
 load_dotenv()
 
 
-def create_admin():
+def create_admin() -> User:
     db: Session = SessionLocal()
-    admin_email = os.getenv("SEED_ADMIN_EMAIL")
-    admin_username = os.getenv("SEED_ADMIN_USERNAME")
-    admin_password = os.getenv("SEED_ADMIN_PASSWORD")
-    admin_full_name = os.getenv("SEED_ADMIN_FULL_NAME", "Administrator")
-
-    if not admin_email or not admin_username or not admin_password:
-        raise RuntimeError("Missing SEED_ADMIN_EMAIL/SEED_ADMIN_USERNAME/SEED_ADMIN_PASSWORD in environment.")
+    admin_email = os.getenv("SEED_ADMIN_EMAIL", "admin@studentforum.dev").strip().lower()
+    admin_username = os.getenv("SEED_ADMIN_USERNAME", "admin").strip().lower()
+    admin_password = os.getenv("SEED_ADMIN_PASSWORD", "admin12345")
+    admin_full_name = os.getenv("SEED_ADMIN_FULL_NAME", "Administrator").strip()
 
     try:
-        existing_admin = db.query(User).filter(User.role == "Admin").first()
+        existing_admin = db.query(User).filter(User.role.ilike("admin")).first()
         if existing_admin:
-            print("Admin already exists")
-            return
+            return existing_admin
 
         admin = User(
-            email=admin_email.strip().lower(),
-            username=admin_username.strip().lower(),
-            full_name=admin_full_name.strip(),
+            email=admin_email,
+            username=admin_username,
+            full_name=admin_full_name,
             password_hash=hash_password(admin_password),
-            role="Admin",
+            major="Computer Science",
+            academic_year="K18",
+            career_goal="Platform Admin",
+            interest_tags="moderation,platform,operations",
+            role="admin",
             status="active",
-            is_verified=True,
             provider="local",
+            is_verified=True,
         )
         db.add(admin)
         db.commit()
-        print("Admin created successfully")
+        db.refresh(admin)
+        return admin
     finally:
         db.close()
 
 
 if __name__ == "__main__":
-    create_admin()
+    account = create_admin()
+    print(f"Admin ready: {account.email}")

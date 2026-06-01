@@ -138,6 +138,10 @@ def ban_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    if user.id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin cannot ban themselves.")
+    if (user.role or "").lower() == "admin":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin accounts cannot be banned.")
     user.status = "banned"
     add_admin_audit_log(db, current_user.id, "ban_user", "user", user_id, reason)
     create_notification(

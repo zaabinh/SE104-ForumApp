@@ -48,3 +48,34 @@ BEGIN
     CREATE INDEX IX_admin_audit_logs_created_at ON admin_audit_logs(created_at);
 END
 GO
+
+IF COL_LENGTH('posts', 'original_post_id') IS NULL
+    ALTER TABLE posts ADD original_post_id INT NULL;
+GO
+
+IF COL_LENGTH('posts', 'share_caption') IS NULL
+    ALTER TABLE posts ADD share_caption NVARCHAR(MAX) NULL;
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_posts_original_post_id'
+)
+AND COL_LENGTH('posts', 'original_post_id') IS NOT NULL
+BEGIN
+    ALTER TABLE posts
+    ADD CONSTRAINT FK_posts_original_post_id
+    FOREIGN KEY (original_post_id) REFERENCES posts(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'IX_posts_original_post_id'
+      AND object_id = OBJECT_ID('posts')
+)
+AND COL_LENGTH('posts', 'original_post_id') IS NOT NULL
+BEGIN
+    CREATE INDEX IX_posts_original_post_id ON posts(original_post_id);
+END
+GO

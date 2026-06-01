@@ -124,6 +124,16 @@ export async function sharePost(postId: number) {
   return response.data;
 }
 
+export async function sharePostWithEdit(
+  postId: number,
+  payload: {
+    caption?: string;
+  }
+) {
+  const response = await api.post<{ message: string }>(`/api/posts/${postId}/share`, payload);
+  return response.data;
+}
+
 export async function getComments(postId: number) {
   const response = await api.get<ApiComment[]>(`/api/posts/${postId}/comments/`);
   return response.data;

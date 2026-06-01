@@ -5,54 +5,37 @@ from models.user import User
 from utils.hash import hash_password
 
 
-def create_demo_user():
-
+def create_demo_user() -> User:
     db: Session = SessionLocal()
-
     try:
-
-        existing_user = db.query(User).filter(
-            User.email == "mail@gmail.com"
-        ).first()
-
-        if existing_user:
-            print("✅ User already exists")
-            return
+        email = "demo@studentforum.dev"
+        user = db.query(User).filter(User.email == email).first()
+        if user:
+            return user
 
         user = User(
-            email="mail@gmail.com",
-            username="username",
+            username="demo_user",
+            email=email,
+            password_hash=hash_password("demo1234"),
             full_name="Demo User",
-            bio="Demo account for testing",
-            avatar_url="https://api.dicebear.com/7.x/notionists/png?seed=username",
-            password_hash=hash_password("abc@123"),
+            bio="Demo account for local development.",
+            major="Computer Science",
+            academic_year="K18",
+            career_goal="Backend Engineer",
+            interest_tags="python,fastapi,sql",
             role="Student",
             status="active",
             provider="local",
-            is_verified=True
+            is_verified=True,
         )
-
         db.add(user)
         db.commit()
-
-        print("================================")
-        print("🚀 DEMO USER CREATED")
-        print("================================")
-        print("Email    : mail@gmail.com")
-        print("Username : username")
-        print("Password : abc@123")
-        print("================================")
-
-    except Exception as e:
-
-        db.rollback()
-
-        print("❌ ERROR")
-        print(e)
-
+        db.refresh(user)
+        return user
     finally:
         db.close()
 
 
 if __name__ == "__main__":
-    create_demo_user()
+    created = create_demo_user()
+    print(f"Demo user ready: {created.email}")

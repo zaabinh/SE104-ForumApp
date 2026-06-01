@@ -52,7 +52,7 @@ function mapPost(post: any): Post {
     content: post.content,
     excerpt: `${post.content.slice(0, 120)}${post.content.length > 120 ? '...' : ''}`,
     tags: post.tags || [],
-    image: post.cover_image || FALLBACK_AVATAR,
+    image: post.cover_image ?? '',
     createdAt: post.created_at,
     likes: post.likes_count || 0,
     comments: post.comments_count || 0,
@@ -265,6 +265,11 @@ export default function PostDetailPage() {
             <Link href="/feed" className="inline-flex text-sm font-medium text-slate-500 transition-all duration-200 hover:text-forum-primary">
               {t('postBackToFeed')}
             </Link>
+            {isPendingOwnerView ? (
+              <div className="card-surface rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-800">
+                Bài viết của bạn đang chờ duyệt. Bài chỉ hiển thị công khai sau khi admin phê duyệt.
+              </div>
+            ) : null}
             <PostDetail
               post={post}
               author={author}
@@ -275,11 +280,6 @@ export default function PostDetailPage() {
               onLikeToggle={handleToggleLike}
               onBookmarkToggle={handleToggleBookmark}
             />
-            {isPendingOwnerView ? (
-              <div className="card-surface rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-                Bài viết của bạn đang chờ duyệt. Bài chỉ hiển thị công khai sau khi admin phê duyệt.
-              </div>
-            ) : null}
           </div>
           <aside className="hidden h-fit space-y-4 xl:sticky xl:top-24 xl:block">
             <AuthorCard author={author} currentUserId={currentUser?.id} />

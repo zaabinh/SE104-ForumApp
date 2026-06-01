@@ -15,7 +15,7 @@ from models.report import Report
 from models.tag import Tag
 from models.user import User
 from schemas.auth_schema import MessageResponse
-from schemas.post_schema import PostCreate, PostListResponse, PostResponse, PostUpdate
+from schemas.post_schema import PostCreate, PostListResponse, PostResponse, PostUpdate, SharePostRequest
 from schemas.report_schema import ReportCreate, ReportResponse
 from services.notification_service import create_notification
 from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags, slugify
@@ -242,9 +242,37 @@ def toggle_bookmark(post_id: int, db: Session = Depends(get_db), current_user: U
 
 
 @router.post("/{post_id}/share", response_model=MessageResponse)
-def share_post(post_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_active_verified_user)):
+def share_post(
+    post_id: int,
+    payload: SharePostRequest | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_active_verified_user),
+):
     post = get_post_or_404(db, post_id)
     db.add(PostShare(post_id=post.id, user_id=current_user.id))
+
+    initial_status = "active" if current_user.role.lower() == "admin" else "pending"
+    share_caption = payload.caption.strip() if payload and payload.caption else None
+    shared_title = f"Shared: {post.title}"
+    attribution = f"Shared from @{post.author.username or post.author.id} • Original post #{post.id}"
+    shared_content = (
+        f"{share_caption}\n\n{attribution}\n\n{post.content}" if share_caption else f"{attribution}\n\n{post.content}"
+    )
+    shared_post = Post(
+        user_id=current_user.id,
+        title=shared_title,
+        slug=slugify(f"share-{post.id}-{current_user.id}-{shared_title}")[:255],
+        content=shared_content,
+        cover_image=post.cover_image,
+        status=initial_status,
+        original_post_id=post.id,
+        share_caption=share_caption,
+    )
+    db.add(shared_post)
+    db.flush()
+    sync_post_tags(db, shared_post, [association.tag.name for association in post.tags if association.tag])
+    db.commit()
+
     if post.user_id != current_user.id:
         create_notification(
             db,
@@ -255,8 +283,9 @@ def share_post(post_id: int, db: Session = Depends(get_db), current_user: User =
             message=f"{current_user.username} shared your post.",
             post_id=post.id,
         )
-    db.commit()
-    return MessageResponse(message=f"/post/{post.id}")
+        db.commit()
+
+    return MessageResponse(message=f"/post/{shared_post.id}")
 
 
 @router.post("/{post_id}/report", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)

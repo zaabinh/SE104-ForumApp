@@ -103,6 +103,8 @@ def build_post_query(current_user_id: str | None, search: str | None, tag: str |
             Post.content,
             Post.cover_image,
             Post.status,
+            Post.original_post_id,
+            Post.share_caption,
             Post.created_at,
         )
     )
@@ -272,13 +274,21 @@ def paginate_latest_posts_fast(
 
 
 def serialize_post(post: Post, stats_row, current_user_id: str | None) -> dict:
+    cover_image = post.cover_image
+    if isinstance(cover_image, str):
+        normalized_cover = cover_image.strip().lower()
+        if not normalized_cover or normalized_cover.endswith("/images/uit.png"):
+            cover_image = None
+
     return {
         "id": post.id,
         "user_id": post.user_id,
         "title": post.title,
         "content": post.content,
-        "cover_image": post.cover_image,
+        "cover_image": cover_image,
         "status": post.status,
+        "original_post_id": post.original_post_id,
+        "share_caption": post.share_caption,
         "tags": [association.tag.name for association in post.tags],
         "created_at": post.created_at,
         "author": post.author,
