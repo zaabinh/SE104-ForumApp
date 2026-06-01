@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from database import get_db
@@ -17,11 +18,44 @@ from schemas.auth_schema import MessageResponse
 from schemas.post_schema import PostCreate, PostListResponse, PostResponse, PostUpdate
 from schemas.report_schema import ReportCreate, ReportResponse
 from services.notification_service import create_notification
-from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags
+from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags, slugify
 from services.report_service import normalize_report_reason
 
 
+
 router = APIRouter(prefix="/posts", tags=["Posts"])
+
+
+def build_stats_for_post(db: Session, post_id: int, current_user_id: str):
+    likes_count = db.query(func.count(PostLike.user_id)).filter(PostLike.post_id == post_id).scalar() or 0
+    comments_count = db.query(func.count(Comment.id)).filter(Comment.post_id == post_id).scalar() or 0
+    views_count = db.query(func.count(PostView.id)).filter(PostView.post_id == post_id).scalar() or 0
+    shares_count = db.query(func.count(PostShare.id)).filter(PostShare.post_id == post_id).scalar() or 0
+    is_liked = (
+        db.query(PostLike)
+        .filter(PostLike.post_id == post_id, PostLike.user_id == current_user_id)
+        .first()
+        is not None
+    )
+    is_bookmarked = (
+        db.query(Bookmark)
+        .filter(Bookmark.post_id == post_id, Bookmark.user_id == current_user_id)
+        .first()
+        is not None
+    )
+    return type(
+        "Stats",
+        (),
+        {
+            "likes_count": likes_count,
+            "comments_count": comments_count,
+            "views_count": views_count,
+            "shares_count": shares_count,
+            "trending_score": likes_count * 4 + comments_count * 3 + views_count,
+            "is_liked": is_liked,
+            "is_bookmarked": is_bookmarked,
+        },
+    )()
 
 
 def get_post_or_404(db: Session, post_id: int) -> Post:
@@ -39,9 +73,13 @@ def get_post_or_404(db: Session, post_id: int) -> Post:
 @router.post("/", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
 def create_post(payload: PostCreate, db: Session = Depends(get_db), current_user: User = Depends(require_active_verified_user)):
     initial_status = "active" if current_user.role.lower() == "admin" else "pending"
+    title = payload.title.strip()
+    post_slug = slugify(title)
+
     post = Post(
         user_id=current_user.id,
-        title=payload.title.strip(),
+        title=title,
+        slug=post_slug,
         content=payload.content.strip(),
         cover_image=payload.cover_image,
         status=initial_status,
@@ -106,6 +144,10 @@ def get_post_detail(post_id: int, db: Session = Depends(get_db), current_user: U
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Post is awaiting moderation.")
     db.add(PostView(post_id=post.id, user_id=current_user.id))
     db.commit()
+    if post.status != "active":
+        stats = build_stats_for_post(db, post.id, current_user.id)
+        return serialize_post(post, stats, current_user.id)
+
     query = build_post_query(current_user.id, None, None, "for-you", "latest").where(Post.id == post_id)
     row = db.execute(query).first()
     if not row:
@@ -121,7 +163,9 @@ def update_post(post_id: int, payload: PostUpdate, db: Session = Depends(get_db)
 
     update_data = payload.model_dump(exclude_unset=True)
     if "title" in update_data and update_data["title"]:
-        post.title = update_data["title"].strip()
+        new_title = update_data["title"].strip()
+        post.title = new_title
+        post.slug = slugify(new_title)
     if "content" in update_data and update_data["content"] is not None:
         post.content = update_data["content"].strip()
     if "cover_image" in update_data:
@@ -134,6 +178,11 @@ def update_post(post_id: int, payload: PostUpdate, db: Session = Depends(get_db)
         sync_post_tags(db, post, update_data["tags"])
 
     db.commit()
+    if post.status != "active":
+        post = get_post_or_404(db, post_id)
+        stats = build_stats_for_post(db, post.id, current_user.id)
+        return serialize_post(post, stats, current_user.id)
+
     query = build_post_query(current_user.id, None, None, "for-you", "latest").where(Post.id == post_id)
     row = db.execute(query).first()
     return serialize_post(row[0], row, current_user.id)

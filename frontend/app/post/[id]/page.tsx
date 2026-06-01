@@ -47,6 +47,7 @@ function mapPost(post: any): Post {
   return {
     id: post.id,
     authorId: post.user_id,
+    status: post.status,
     title: post.title,
     content: post.content,
     excerpt: `${post.content.slice(0, 120)}${post.content.length > 120 ? '...' : ''}`,
@@ -172,6 +173,7 @@ export default function PostDetailPage() {
   }, [postId, t]);
 
   const isOwner = useMemo(() => (post ? post.authorId === currentUser?.id : false), [currentUser?.id, post]);
+  const isPendingOwnerView = Boolean(post && post.status === 'pending' && isOwner);
 
   const handleToggleLike = useCallback(
     (id: number) => {
@@ -273,6 +275,11 @@ export default function PostDetailPage() {
               onLikeToggle={handleToggleLike}
               onBookmarkToggle={handleToggleBookmark}
             />
+            {isPendingOwnerView ? (
+              <div className="card-surface rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+                Bài viết của bạn đang chờ duyệt. Bài chỉ hiển thị công khai sau khi admin phê duyệt.
+              </div>
+            ) : null}
           </div>
           <aside className="hidden h-fit space-y-4 xl:sticky xl:top-24 xl:block">
             <AuthorCard author={author} currentUserId={currentUser?.id} />
