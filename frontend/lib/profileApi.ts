@@ -32,6 +32,7 @@ export type ProfilePost = {
   title: string;
   content: string;
   cover_image: string | null;
+  status?: 'pending' | 'active' | 'rejected' | string | null;
   created_at: string;
 };
 

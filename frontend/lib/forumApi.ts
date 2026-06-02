@@ -21,6 +21,7 @@ export type ApiPost = {
   content: string;
   cover_image: string | null;
   status: string | null;
+  requested_new_tags?: string[];
   tags: string[];
   created_at: string;
   updated_at?: string | null;
@@ -186,6 +187,16 @@ export async function toggleBookmark(postId: number) {
 
 export async function sharePost(postId: number) {
   const response = await api.post<{ message: string }>(`/api/posts/${postId}/share`);
+  return response.data;
+}
+
+export async function sharePostWithEdit(
+  postId: number,
+  payload: {
+    caption?: string;
+  }
+) {
+  const response = await api.post<{ message: string }>(`/api/posts/${postId}/share`, payload);
   return response.data;
 }
 

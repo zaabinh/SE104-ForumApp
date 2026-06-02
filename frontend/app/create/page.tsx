@@ -62,7 +62,7 @@ export default function CreatePostPage() {
                   cover_image: draft.image,
                   tags: draft.tags,
                 });
-                pushToast('Post published');
+                pushToast(newPost.status === 'pending' ? 'Post submitted for moderation' : 'Post published');
                 router.push(`/post/${newPost.id}`);
               } catch (error) {
                 pushToast('Failed to publish post');
@@ -74,4 +74,3 @@ export default function CreatePostPage() {
     </main>
   );
 }
-

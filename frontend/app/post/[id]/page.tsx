@@ -47,11 +47,12 @@ function mapPost(post: any): Post {
   return {
     id: post.id,
     authorId: post.user_id,
+    status: post.status,
     title: post.title,
     content: post.content,
     excerpt: `${post.content.slice(0, 120)}${post.content.length > 120 ? '...' : ''}`,
     tags: post.tags || [],
-    image: post.cover_image || FALLBACK_AVATAR,
+    image: post.cover_image ?? '',
     createdAt: post.created_at,
     likes: post.likes_count || 0,
     comments: post.comments_count || 0,
@@ -199,6 +200,7 @@ export default function PostDetailPage() {
   }, [postId, t]);
 
   const isOwner = useMemo(() => (post ? post.authorId === currentUser?.id : false), [currentUser?.id, post]);
+  const isPendingOwnerView = Boolean(post && post.status === 'pending' && isOwner);
 
   const handleToggleLike = useCallback(
     (id: number) => {
@@ -290,6 +292,11 @@ export default function PostDetailPage() {
             <Link href="/feed" className="inline-flex text-sm font-medium text-slate-500 transition-all duration-200 hover:text-forum-primary">
               {t('postBackToFeed')}
             </Link>
+            {isPendingOwnerView ? (
+              <div className="card-surface rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-800">
+                Bài viết của bạn đang chờ duyệt. Bài chỉ hiển thị công khai sau khi admin phê duyệt.
+              </div>
+            ) : null}
             <PostDetail
               post={post}
               author={author}

@@ -43,6 +43,10 @@ export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, 
 
     return availableTags.filter((tag) => tag.includes(normalized)).slice(0, 8);
   }, [deferredTagValue, draft.tags, tags]);
+  const titleError =
+    draft.title.trim().length > 0 && draft.title.trim().length < 5
+      ? 'Title must be at least 5 characters.'
+      : '';
 
   const addTag = () => {
     const nextTag = tagValue.trim().toLowerCase();
@@ -62,6 +66,7 @@ export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, 
       <section className="card-surface p-6">
         <div className="space-y-5">
           <Input id="post-title" label="Title" value={draft.title} onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))} placeholder="Write a strong headline" />
+          {titleError ? <p className="text-xs font-medium text-rose-600">{titleError}</p> : null}
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Content</span>
             <textarea
@@ -134,7 +139,7 @@ export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, 
                 {recommendedTags.length ? (
                   recommendedTags.map((tag) => <Tag key={`suggested-${tag}`} label={tag} onClick={() => addSuggestedTag(tag)} />)
                 ) : (
-                  <span className="text-sm text-slate-400">No matching tags yet. Press Enter to create one.</span>
+                  <span className="text-sm text-slate-400">No matching tags yet. Press Enter to propose a new tag (admin approval required).</span>
                 )}
               </div>
             </div>
@@ -149,7 +154,7 @@ export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, 
           <Button
             type="button"
             onClick={() => onSubmit(draft)}
-            disabled={!draft.title.trim() || !draft.content.trim()}
+            disabled={!draft.title.trim() || draft.title.trim().length < 5 || !draft.content.trim()}
           >
             {mode === 'create' ? 'Publish post' : 'Save changes'}
           </Button>

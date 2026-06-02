@@ -4,6 +4,11 @@ IF COL_LENGTH('users', 'major') IS NULL
     ALTER TABLE users ADD major NVARCHAR(120) NULL;
 GO
 
+-- Ensure Vietnamese text fields use Unicode storage
+IF COL_LENGTH('users', 'bio') IS NOT NULL
+    ALTER TABLE users ALTER COLUMN bio NVARCHAR(MAX) NULL;
+GO
+
 IF COL_LENGTH('users', 'academic_year') IS NULL
     ALTER TABLE users ADD academic_year VARCHAR(30) NULL;
 GO
@@ -46,5 +51,40 @@ BEGIN
     CREATE INDEX IX_admin_audit_logs_action_type ON admin_audit_logs(action_type);
     CREATE INDEX IX_admin_audit_logs_target_type ON admin_audit_logs(target_type);
     CREATE INDEX IX_admin_audit_logs_created_at ON admin_audit_logs(created_at);
+END
+GO
+
+IF COL_LENGTH('posts', 'original_post_id') IS NULL
+    ALTER TABLE posts ADD original_post_id INT NULL;
+GO
+
+IF COL_LENGTH('posts', 'share_caption') IS NULL
+    ALTER TABLE posts ADD share_caption NVARCHAR(MAX) NULL;
+GO
+
+IF COL_LENGTH('posts', 'requested_new_tags') IS NULL
+    ALTER TABLE posts ADD requested_new_tags NVARCHAR(MAX) NULL;
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_posts_original_post_id'
+)
+AND COL_LENGTH('posts', 'original_post_id') IS NOT NULL
+BEGIN
+    ALTER TABLE posts
+    ADD CONSTRAINT FK_posts_original_post_id
+    FOREIGN KEY (original_post_id) REFERENCES posts(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'IX_posts_original_post_id'
+      AND object_id = OBJECT_ID('posts')
+)
+AND COL_LENGTH('posts', 'original_post_id') IS NOT NULL
+BEGIN
+    CREATE INDEX IX_posts_original_post_id ON posts(original_post_id);
 END
 GO

@@ -22,6 +22,7 @@ export type UserProfile = {
 export type Post = {
   id: number;
   authorId: string;
+  status?: 'pending' | 'active' | 'rejected' | string;
   title: string;
   content: string;
   excerpt: string;

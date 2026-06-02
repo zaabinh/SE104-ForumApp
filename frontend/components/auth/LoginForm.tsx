@@ -2,80 +2,58 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { startTransition, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { api, fetchCurrentUser, saveAuthSession } from '@/lib/axios';
-import { useI18n } from '@/lib/i18n';
+import { api, fetchCurrentUser, saveAuthSession, saveStoredUser } from '@/lib/axios';
 
 export default function LoginForm() {
   const router = useRouter();
-  const { t } = useI18n();
   const searchParams = useSearchParams();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
-  const googleLoginUrl = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000'}/auth/google/login`;
 
-  const canSubmit = useMemo(() => password.length >= 6, [identifier, password]);
+  const bannedMessage = useMemo(
+    () => (searchParams.get('status') === 'banned' ? 'Your account has been banned.' : ''),
+    [searchParams]
+  );
 
-  useEffect(() => {
-    router.prefetch('/feed');
-  }, [router]);
-
-  useEffect(() => {
-    if (searchParams.get('status') === 'banned') {
-      setError(t('loginBanned'));
-    }
-  }, [searchParams, t]);
-
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError('');
-    setSuccess('');
-
-    if (!canSubmit) {
-      setError(t('loginInvalidInput'));
-      return;
-    }
-
     setLoading(true);
-
     try {
-      const response = await api.post('/auth/login', { identifier, password });
-      saveAuthSession(response.data);
+      const tokenResponse = await api.post('/auth/login', {
+        identifier: identifier.trim(),
+        password,
+      });
+      saveAuthSession(tokenResponse.data);
       const currentUser = await fetchCurrentUser();
-      if (!currentUser.is_verified) {
-        startTransition(() => router.push(`/verify-email?email=${encodeURIComponent(currentUser.email)}`));
-        return;
-      }
+      saveStoredUser(currentUser);
+      const skipKey = `profile_details_skipped:${currentUser.id || currentUser.email}`;
+      const hasExtendedProfile = Boolean(
+        (currentUser.major && currentUser.major.trim()) ||
+          (currentUser.academic_year && currentUser.academic_year.trim()) ||
+          (currentUser.career_goal && currentUser.career_goal.trim())
+      );
       if (!currentUser.profile_completed) {
-        startTransition(() => router.push('/complete-profile'));
+        router.replace('/complete-profile');
         return;
       }
-      setSuccess(t('loginWelcome'));
-      startTransition(() => router.push('/feed'));
-    } catch (submitError) {
-      const message =
-        typeof submitError === 'object' &&
-        submitError !== null &&
-        'response' in submitError &&
-        typeof submitError.response === 'object' &&
-        submitError.response !== null &&
-        'data' in submitError.response &&
-        typeof submitError.response.data === 'object' &&
-        submitError.response.data !== null &&
-        'detail' in submitError.response.data
-          ? String(submitError.response.data.detail)
-          : t('loginFailed');
-      if (message.toLowerCase().includes('verify your email')) {
-        startTransition(() => router.push(`/verify-email?email=${encodeURIComponent(identifier)}`));
+      if (!hasExtendedProfile && typeof window !== 'undefined' && localStorage.getItem(skipKey) !== '1') {
+        router.replace('/complete-profile?prompt=details');
         return;
       }
-      setError(message);
+      if (!currentUser.is_verified) {
+        router.replace(`/verify-email?email=${encodeURIComponent(currentUser.email)}`);
+        return;
+      }
+      router.replace('/feed');
+    } catch (submitError: any) {
+      setError(submitError?.response?.data?.detail || 'Unable to login.');
     } finally {
       setLoading(false);
     }
@@ -83,49 +61,44 @@ export default function LoginForm() {
 
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
-      <Input id="login-identifier" label={t('loginIdentifier')} type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
-      <div className="space-y-2">
-        <Input
-          id="login-password"
-          label={t('loginPassword')}
-          type={showPassword ? 'text' : 'password'}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="button" className="text-xs text-forum-primary" onClick={() => setShowPassword((prev) => !prev)}>
-          {showPassword ? t('loginHidePassword') : t('loginShowPassword')}
-        </button>
-      </div>
-
-      {error ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p> : null}
-      {success ? <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p> : null}
-
+      <h1 className="text-2xl font-bold text-slate-900">Đăng nhập</h1>
+      <Input
+        id="login-identifier"
+        label="Email hoặc tên đăng nhập"
+        value={identifier}
+        onChange={(e) => setIdentifier(e.target.value)}
+        required
+      />
+      <Input
+        id="login-password"
+        label="Mật khẩu"
+        type={showPassword ? 'text' : 'password'}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword((prev) => !prev)}
+        className="text-sm font-medium text-forum-primary"
+      >
+        {showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+      </button>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? (
-          <span className="inline-flex items-center gap-2">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-            {t('loginSubmitting')}
-          </span>
-        ) : (
-          t('loginSubmit')
-        )}
+        {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
       </Button>
-
-      {/* <Button type="button" variant="outline" className="w-full" onClick={() => window.location.assign(googleLoginUrl)}>
-        Continue with Google
-      </Button> */}
-
-      {/* <p className="text-sm text-slate-600">
-        Need an account?{' '}
-        <Link className="text-forum-primary" href="/register">
-          Register
-        </Link>
-      </p> */}
+      {bannedMessage ? <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-600">{bannedMessage}</p> : null}
+      {error ? <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</p> : null}
       <p className="text-sm text-slate-600">
-        {t('loginForgot')}{' '}
-        <Link className="text-forum-primary" href="/forgot-password">
-          {t('loginReset')}
+        Quên mật khẩu?{' '}
+        <Link href="/forgot-password" className="font-semibold text-forum-primary">
+          Đặt lại
+        </Link>
+      </p>
+      <p className="text-sm text-slate-600">
+        Chưa có tài khoản?{' '}
+        <Link href="/register" className="font-semibold text-forum-primary">
+          Đăng ký
         </Link>
       </p>
     </form>

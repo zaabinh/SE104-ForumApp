@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import ProfileHeader from '@/components/profile/ProfileHeader';
@@ -36,7 +36,15 @@ function PostList({ posts, emptyMessage, viewPostLabel }: { posts: ProfilePost[]
       {posts.map((post) => (
         <article key={post.id} className="dashboard-card p-5">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold text-ink-900">{post.title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-ink-900">{post.title}</h3>
+              {post.status === 'pending' ? (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Pending</span>
+              ) : null}
+              {post.status === 'rejected' ? (
+                <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">Rejected</span>
+              ) : null}
+            </div>
             <span className="shrink-0 text-xs text-ink-500">{formatDate(post.created_at)}</span>
           </div>
           <p className="mt-3 line-clamp-3 text-sm leading-7 text-ink-600">{post.content}</p>
@@ -76,16 +84,38 @@ function AboutPanel({ profile }: { profile: ProfileHeaderData }) {
   const { t } = useI18n();
   return (
     <section className="dashboard-card p-6">
-      <p className="eyebrow">About wireframe</p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-ink-900">Professional snapshot</h2>
+      <p className="eyebrow">About</p>
+      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-ink-900">Profile details</h2>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <div className="rounded-[24px] border border-uit-100 bg-white/75 p-5">
           <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Bio</p>
           <p className="mt-3 text-sm leading-7 text-ink-600">{profile.bio || t('profileNoBio')}</p>
         </div>
         <div className="rounded-[24px] border border-uit-100 bg-white/75 p-5">
-          <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Presence</p>
-          <p className="mt-3 text-sm leading-7 text-ink-600">Followers, posts, and saved discussions are surfaced in a clean LinkedIn-like summary block.</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Major</p>
+          <p className="mt-3 text-sm leading-7 text-ink-600">{profile.major || 'Not set'}</p>
+        </div>
+        <div className="rounded-[24px] border border-uit-100 bg-white/75 p-5">
+          <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Academic year</p>
+          <p className="mt-3 text-sm leading-7 text-ink-600">{profile.academic_year || 'Not set'}</p>
+        </div>
+        <div className="rounded-[24px] border border-uit-100 bg-white/75 p-5">
+          <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Career goal</p>
+          <p className="mt-3 text-sm leading-7 text-ink-600">{profile.career_goal || 'Not set'}</p>
+        </div>
+        <div className="rounded-[24px] border border-uit-100 bg-white/75 p-5 md:col-span-2">
+          <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Interest tags</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {profile.interest_tags?.length ? (
+              profile.interest_tags.map((tag) => (
+                <span key={tag} className="rounded-full border border-uit-100 bg-white px-2.5 py-1 text-xs font-medium text-uit-700">
+                  #{tag}
+                </span>
+              ))
+            ) : (
+              <p className="text-sm text-ink-600">Not set</p>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -93,7 +123,7 @@ function AboutPanel({ profile }: { profile: ProfileHeaderData }) {
 }
 
 export default function Profile() {
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ id?: string; username?: string }>();
   const { pushToast } = useToast();
   const { t } = useI18n();
   const { isCheckingAuth, userEmail } = useAuthGuard();
@@ -110,7 +140,7 @@ export default function Profile() {
   const handleToggleSidebarCollapse = useCallback(() => setIsSidebarCollapsed((prev) => !prev), [setIsSidebarCollapsed]);
   const handleOpenMobileSidebar = useCallback(() => setIsMobileSidebarOpen(true), [setIsMobileSidebarOpen]);
 
-  const username = useMemo(() => params.id, [params.id]);
+  const username = params.username || params.id || '';
 
   useEffect(() => {
     if (!username) {

@@ -185,6 +185,7 @@ export default function DashboardPage() {
               <tr>
                 <th className="py-2">Post ID</th>
                 <th>Title</th>
+                <th>New tags</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -194,6 +195,15 @@ export default function DashboardPage() {
                 <tr key={post.id} className="border-t border-slate-100">
                   <td className="py-2">#{post.id}</td>
                   <td>{post.title}</td>
+                  <td>
+                    {post.requested_new_tags?.length ? (
+                      <span className="rounded-lg bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
+                        {post.requested_new_tags.join(', ')}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-400">-</span>
+                    )}
+                  </td>
                   <td>{post.status}</td>
                   <td className="space-x-2">
                     <button onClick={async () => { await approvePost(post.id); await loadData(); }} className="rounded-lg bg-emerald-600 px-2 py-1 text-xs text-white">Approve</button>

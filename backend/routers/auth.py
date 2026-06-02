@@ -44,7 +44,9 @@ from utils.jwt import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, create_r
 
 
 router = APIRouter(tags=["Authentication"])
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+if not FRONTEND_URL:
+    raise RuntimeError("Missing FRONTEND_URL in environment.")
 
 
 def parse_interest_tags(raw_tags: str | None) -> list[str]:

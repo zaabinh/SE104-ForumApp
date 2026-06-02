@@ -1,18 +1,21 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { fetchCurrentUser, saveAuthSession } from '@/lib/axios';
+import { saveAuthSession, saveStoredUser } from '@/lib/axios';
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const accessToken = searchParams.get('access_token');
     const refreshToken = searchParams.get('refresh_token');
-    const next = searchParams.get('next') || '/feed';
-    const email = searchParams.get('email');
+    const nextPath = searchParams.get('next') || '/feed';
+    const email = searchParams.get('email') || '';
+    const verified = searchParams.get('verified') === 'true';
+    const profileCompleted = searchParams.get('profile_completed') === 'true';
 
     if (!accessToken || !refreshToken) {
       router.replace('/login');
@@ -26,25 +29,47 @@ export default function AuthCallbackPage() {
       expires_in: 3600,
     });
 
-    fetchCurrentUser()
-      .then(() => {
-        if (next.startsWith('/verify-email') && email) {
-          router.replace(`/verify-email?email=${encodeURIComponent(email)}`);
-          return;
-        }
-        router.replace(next);
-      })
-      .catch(() => {
-        router.replace('/login');
-      });
+    // Store minimal state immediately. App can refresh full user profile via /auth/me later.
+    saveStoredUser({
+      id: '',
+      username: null,
+      email,
+      full_name: email || 'User',
+      avatar_url: null,
+      bio: null,
+      major: null,
+      academic_year: null,
+      career_goal: null,
+      interest_tags: [],
+      role: 'Student',
+      status: 'active',
+      provider: 'google',
+      is_verified: verified,
+      profile_completed: profileCompleted,
+    });
+
+    router.replace(nextPath);
   }, [router, searchParams]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100">
-      <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-medium text-slate-700 shadow-card">
-        <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-forum-primary" />
-        Completing sign in...
+      <div className="rounded-2xl bg-white px-6 py-4 text-sm text-slate-700 shadow-card">
+        Completing sign-in...
       </div>
     </main>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-slate-100">
+          <div className="rounded-2xl bg-white px-6 py-4 text-sm text-slate-700 shadow-card">Loading...</div>
+        </main>
+      }
+    >
+      <AuthCallbackContent />
+    </Suspense>
   );
 }

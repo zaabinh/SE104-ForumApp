@@ -66,6 +66,7 @@ class UserPostResponse(BaseModel):
     title: str
     content: str
     cover_image: str | None
+    status: str | None
     created_at: datetime
 
 
@@ -172,7 +173,26 @@ def get_user_posts(
     query = db.query(Post).filter(Post.user_id == user.id)
     if current_user.id != user.id and current_user.role.lower() != "admin":
         query = query.filter(Post.status == "active")
-    return query.order_by(Post.created_at.desc(), Post.id.desc()).all()
+    posts = query.order_by(Post.created_at.desc(), Post.id.desc()).all()
+    items: list[UserPostResponse] = []
+    for post in posts:
+        display_title = post.title
+        normalized_status = (post.status or "").lower()
+        if normalized_status == "pending":
+            display_title = f"[Chờ duyệt] {display_title}"
+        elif normalized_status == "rejected":
+            display_title = f"[Từ chối] {display_title}"
+        items.append(
+            UserPostResponse(
+                id=post.id,
+                title=display_title,
+                content=post.content,
+                cover_image=post.cover_image,
+                status=post.status,
+                created_at=post.created_at,
+            )
+        )
+    return items
 
 
 @router.get("/users/{username}/comments", response_model=list[UserCommentResponse])
