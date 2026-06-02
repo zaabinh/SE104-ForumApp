@@ -1,442 +1,598 @@
 {
-  "users": [
-    {
-      "username": "minhquandeptrai",
-      "email": "minhquan@gmail.com",
-      "full_name": "Nguyễn Minh Quân",
-      "bio": "Yêu thích backend và system design",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=minhquan"
-    },
-    {
-      "username": "giahuy",
-      "email": "giahuy@gmail.com",
-      "full_name": "Trần Gia Huy",
-      "bio": "Frontend developer mê React và UI/UX",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=giahuy"
-    },
-    {
-      "username": "khanhlinh",
-      "email": "khanhlinh@gmail.com",
-      "full_name": "Đặng Khánh Linh",
-      "bio": "Quan tâm AI và Computer Vision",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=khanhlinh"
-    },
-    {
-      "username": "quocbao",
-      "email": "quocbao@gmail.com",
-      "full_name": "Lê Quốc Bảo",
-      "bio": "Competitive Programming enjoyer",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=quocbao"
-    },
-    {
-      "username": "anhthu",
-      "email": "anhthu@gmail.com",
-      "full_name": "Mai Anh Thư",
-      "bio": "Thích mobile app và Flutter",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=anhthu"
-    },
-    {
-      "username": "thanhdat",
-      "email": "thanhdat@gmail.com",
-      "full_name": "Ngô Thành Đạt",
-      "bio": "DevOps và Docker là chân ái",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=thanhdat"
-    },
-    {
-      "username": "hoanglong",
-      "email": "hoanglong@gmail.com",
-      "full_name": "Đỗ Hoàng Long",
-      "bio": "Mê database và tối ưu query",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=hoanglong"
-    },
-    {
-      "username": "giabao",
-      "email": "giabao@gmail.com",
-      "full_name": "Huỳnh Gia Bảo",
-      "bio": "Sinh viên UIT thích làm side project",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=giabao"
-    },
-    {
-      "username": "tuanviet",
-      "email": "tuanviet@gmail.com",
-      "full_name": "Phạm Tuấn Việt",
-      "bio": "Đang học AI/ML và Deep Learning",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=tuanviet"
-    },
-    {
-      "username": "baotran",
-      "email": "baotran@gmail.com",
-      "full_name": "Võ Bảo Trân",
-      "bio": "Thích học frontend và thiết kế UI",
-      "avatar_url": "https://api.dicebear.com/7.x/notionists/png?seed=baotran"
-    }
-  ],
-
-  "tags": [
-    "fastapi",
-    "nextjs",
-    "react",
-    "frontend",
-    "backend",
-    "docker",
-    "mongodb",
-    "sqlserver",
-    "machinelearning",
-    "yolov8",
-    "flutter",
-    "algorithm",
-    "cp",
-    "intern",
-    "reviewmonhoc",
-    "tailieu",
-    "doan",
-    "hackathon",
-    "UIT",
-    "VNUHCM",
-    "SE104",
-    "CS221",
-    "CS114",
-    "NT208",
-    "MA003"
-  ],
-
-  "posts": [
-    {
-      "title": "Review môn SE104 sau một học kỳ",
-      "content": "SE104 khá nặng về teamwork và quản lý tiến độ. Team mình dùng GitHub Project và Discord để quản lý task. Nếu chia việc rõ từ đầu thì môn này học được rất nhiều thứ thực tế.",
-      "tags": ["SE104", "reviewmonhoc"],
-      "author": "minhquandeptrai"
-    },
-    {
-      "title": "Dockerize FastAPI + Next.js cho đồ án",
-      "content": "Mình vừa setup docker-compose cho hệ thống gồm Next.js frontend, FastAPI backend và SQL Server. Chạy local cực tiện cho teamwork.",
-      "tags": ["docker", "fastapi", "nextjs"],
-      "author": "thanhdat"
-    },
-    {
-      "title": "Roadmap học AI/ML cho sinh viên mới bắt đầu",
-      "content": "Nếu muốn theo AI/ML thì nên học Python trước, sau đó là Machine Learning cơ bản rồi mới tới Deep Learning và Computer Vision.",
-      "tags": ["machinelearning"],
-      "author": "tuanviet"
-    },
-    {
-      "title": "Kinh nghiệm pass intern backend",
-      "content": "Mình vừa pass backend intern. Chủ yếu họ hỏi API design, SQL query, JWT authentication và một ít Docker.",
-      "tags": ["backend", "intern"],
-      "author": "minhquandeptrai"
-    },
-    {
-      "title": "Có nên học Next.js trước React không?",
-      "content": "Theo mình nên học React fundamentals trước rồi mới qua Next.js để hiểu state management và component lifecycle.",
-      "tags": ["react", "nextjs"],
-      "author": "giahuy"
-    },
-    {
-      "title": "Share tài liệu CS221 có lời giải lab",
-      "content": "Mình tổng hợp toàn bộ slide, lab và đề ôn CS221. Có thêm note giải thích deadlock và synchronization.",
-      "tags": ["tailieu", "CS221"],
-      "author": "hoanglong"
-    },
-    {
-      "title": "Review Flutter sau khi làm app đặt lịch",
-      "content": "Flutter build UI rất nhanh và hot reload cực tiện. Tuy nhiên state management lúc đầu hơi rối.",
-      "tags": ["flutter"],
-      "author": "anhthu"
-    },
-    {
-      "title": "Hackathon UIT năm nay vui thật",
-      "content": "Năm nay nhiều team làm AI Agent và recommendation system. Không khí code xuyên đêm khá cháy.",
-      "tags": ["hackathon", "UIT"],
-      "author": "giabao"
-    },
-    {
-      "title": "Kinh nghiệm học Competitive Programming",
-      "content": "Nếu mới học CP thì nên bắt đầu từ brute force, binary search rồi mới tới graph và dynamic programming.",
-      "tags": ["cp", "algorithm"],
-      "author": "quocbao"
-    },
-    {
-      "title": "Mọi người dùng MongoDB hay PostgreSQL cho forum?",
-      "content": "Mình đang phân vân giữa MongoDB và PostgreSQL cho hệ thống comment lồng nhau.",
-      "tags": ["mongodb", "backend"],
-      "author": "hoanglong"
-    },
-    {
-      "title": "Review môn MA003",
-      "content": "MA003 không quá khó nếu chăm làm bài tập. Phần tích phân nhiều biến khá dễ mất điểm.",
-      "tags": ["MA003", "reviewmonhoc"],
-      "author": "baotran"
-    },
-    {
-      "title": "Tối ưu JWT authentication với refresh token",
-      "content": "Mình vừa implement access token và refresh token bằng FastAPI và Redis để tăng bảo mật.",
-      "tags": ["backend", "fastapi"],
-      "author": "minhquandeptrai"
-    },
-    {
-      "title": "Có ai học NT208 sáng thứ 2 không?",
-      "content": "Cho mình hỏi tuần này NT208 có học offline không và có đổi phòng học không?",
-      "tags": ["NT208", "UIT"],
-      "author": "giabao"
-    },
-    {
-      "title": "Frontend intern năm nay cần gì?",
-      "content": "Nhiều công ty giờ yêu cầu React, TypeScript và biết cơ bản về Next.js.",
-      "tags": ["frontend", "intern"],
-      "author": "giahuy"
-    },
-    {
-      "title": "YOLOv8 nhận diện biển báo giao thông",
-      "content": "Team mình train YOLOv8 trên dataset tự thu thập và hiện model đạt khoảng 91% mAP.",
-      "tags": ["machinelearning", "yolov8"],
-      "author": "tuanviet"
-    },
-    {
-      "title": "Có nên dùng SQL Server cho đồ án?",
-      "content": "SQL Server khá ổn cho đồ án vì dễ quản lý và support tốt với hệ sinh thái Microsoft.",
-      "tags": ["sqlserver"],
-      "author": "hoanglong"
-    },
-    {
-      "title": "Review CS114 sau khi thi final",
-      "content": "CS114 học khá nặng nhưng giúp tư duy giải thuật tốt hơn rất nhiều.",
-      "tags": ["CS114", "reviewmonhoc"],
-      "author": "quocbao"
-    },
-    {
-      "title": "Tips chia task teamwork hiệu quả",
-      "content": "Team mình dùng Trello và chia task theo sprint nên tránh được tình trạng dồn deadline.",
-      "tags": ["SE104"],
-      "author": "baotran"
-    },
-    {
-      "title": "Mình vừa deploy Next.js lên VPS",
-      "content": "Deploy bằng Docker và Nginx khá ổn. Quan trọng nhất là setup SSL và reverse proxy.",
-      "tags": ["nextjs", "docker"],
-      "author": "thanhdat"
-    },
-    {
-      "title": "Roadmap backend cho sinh viên năm 2",
-      "content": "Nên học HTTP, REST API, database và authentication trước khi đụng microservice.",
-      "tags": ["backend"],
-      "author": "minhquandeptrai"
-    },
-
-    {
-      "title": "Có ai bị ngợp khi học React không?",
-      "content": "Mình mới học React và thấy useEffect khá khó hiểu 😭",
-      "tags": ["react", "frontend"],
-      "author": "baotran"
-    },
-
-    {
-      "title": "Share source code đồ án quản lý thư viện",
-      "content": "Mình open-source đồ án quản lý thư viện dùng FastAPI và React.",
-      "tags": ["doan", "fastapi", "react"],
-      "author": "giahuy"
-    },
-
-    {
-      "title": "Kinh nghiệm làm đồ án nhóm đông người",
-      "content": "Nhóm đông thì nên có tech lead và quy định commit message rõ ràng.",
-      "tags": ["SE104", "doan"],
-      "author": "giabao"
-    },
-
-    {
-      "title": "Review Visual Studio Code sau 3 năm dùng",
-      "content": "VSCode plugin ecosystem rất mạnh, đặc biệt cho web development.",
-      "tags": ["frontend", "backend"],
-      "author": "thanhdat"
-    },
-
-    {
-      "title": "Mình vừa fail intern vì không biết SQL",
-      "content": "Đi phỏng vấn backend mà SQL yếu thật sự rất khó pass.",
-      "tags": ["backend", "intern"],
-      "author": "hoanglong"
-    },
-
-    {
-      "title": "Có nên học TypeScript sớm không?",
-      "content": "Theo mình TypeScript rất đáng học vì code maintain tốt hơn JavaScript thuần.",
-      "tags": ["frontend", "react"],
-      "author": "giahuy"
-    },
-
-    {
-      "title": "Review môn CS221 có khó không?",
-      "content": "CS221 khá nặng nhưng nếu học kỹ lab thì sẽ hiểu bài hơn rất nhiều.",
-      "tags": ["CS221", "reviewmonhoc"],
-      "author": "minhquandeptrai"
-    },
-
-    {
-      "title": "Lần đầu train model AI trên Kaggle",
-      "content": "Mình train CNN đầu tiên trên Kaggle và mất gần 5 tiếng để debug dataset 😭",
-      "tags": ["machinelearning"],
-      "author": "tuanviet"
-    },
-
-    {
-      "title": "Docker giúp teamwork dễ hơn thật",
-      "content": "Từ lúc dùng Docker thì team mình không còn cảnh code chạy máy này fail máy kia.",
-      "tags": ["docker"],
-      "author": "thanhdat"
-    },
-
-    {
-      "title": "Review Flutter sau khi publish app",
-      "content": "Flutter build cross-platform khá nhanh và UI đẹp.",
-      "tags": ["flutter"],
-      "author": "anhthu"
-    },
-
-    {
-      "title": "Có ai thức tới 3h sáng để debug không 😭",
-      "content": "Debug lỗi CORS mất nguyên một đêm mới phát hiện thiếu middleware.",
-      "tags": ["backend", "fastapi"],
-      "author": "minhquandeptrai"
-    },
-
-    {
-      "title": "Tips học giải thuật hiệu quả",
-      "content": "Nên code lại solution sau khi đọc editorial để nhớ tư duy.",
-      "tags": ["algorithm", "cp"],
-      "author": "quocbao"
-    },
-
-    {
-      "title": "Review môn NT208",
-      "content": "NT208 nhiều lý thuyết nhưng khá hữu ích nếu muốn theo network.",
-      "tags": ["NT208", "reviewmonhoc"],
-      "author": "giabao"
-    },
-
-    {
-      "title": "Có nên học DevOps khi còn sinh viên?",
-      "content": "Theo mình nên biết Docker, Linux và CI/CD cơ bản.",
-      "tags": ["docker", "backend"],
-      "author": "thanhdat"
-    },
-
-    {
-      "title": "Mình vừa build forum bằng FastAPI",
-      "content": "FastAPI type hint rất tiện và auto generate Swagger khá thích.",
-      "tags": ["fastapi", "backend"],
-      "author": "minhquandeptrai"
-    },
-
-    {
-      "title": "Review React Query",
-      "content": "React Query giúp fetch API và cache data dễ hơn nhiều.",
-      "tags": ["react", "frontend"],
-      "author": "giahuy"
-    },
-
-    {
-      "title": "Có ai dùng MongoDB Atlas cho đồ án chưa?",
-      "content": "Atlas setup khá nhanh và free tier đủ dùng cho đồ án.",
-      "tags": ["mongodb"],
-      "author": "hoanglong"
-    },
-
-    {
-      "title": "Mình vừa hoàn thành app chat realtime",
-      "content": "Dùng Socket.IO và Next.js để build realtime chat khá thú vị.",
-      "tags": ["nextjs", "frontend"],
-      "author": "giahuy"
-    },
-
-    {
-      "title": "Tips viết CV intern IT",
-      "content": "Nên đưa project thực tế và GitHub lên đầu CV.",
-      "tags": ["intern"],
-      "author": "baotran"
-    },
-
-    {
-      "title": "Review máy tính cho sinh viên IT",
-      "content": "RAM 16GB và SSD là gần như bắt buộc nếu code Docker hoặc AI.",
-      "tags": ["UIT"],
-      "author": "giabao"
-    },
-
-    {
-      "title": "Lần đầu deploy AI model bằng FastAPI",
-      "content": "Expose model qua REST API khá tiện cho frontend gọi.",
-      "tags": ["machinelearning", "fastapi"],
-      "author": "tuanviet"
-    },
-
-    {
-      "title": "Có ai dùng TailwindCSS thấy nghiện không?",
-      "content": "Lúc đầu nhìn class hơi rối nhưng dùng quen thì build UI rất nhanh.",
-      "tags": ["frontend"],
-      "author": "baotran"
-    },
-
-    {
-      "title": "Review môn CS114 thật lòng",
-      "content": "Nếu không luyện bài tập thường xuyên thì rất dễ quên tư duy.",
-      "tags": ["CS114"],
-      "author": "quocbao"
-    },
-
-    {
-      "title": "Mình vừa setup CI/CD bằng GitHub Actions",
-      "content": "Auto deploy sau mỗi lần push main branch khá tiện.",
-      "tags": ["docker", "backend"],
-      "author": "thanhdat"
-    },
-
-    {
-      "title": "Có nên học AI vì trend không?",
-      "content": "Theo mình chỉ nên theo AI nếu thật sự thích toán và research.",
-      "tags": ["machinelearning"],
-      "author": "tuanviet"
-    },
-
-    {
-      "title": "Review SQL Server cho người mới",
-      "content": "Management Studio khá dễ dùng cho sinh viên mới học database.",
-      "tags": ["sqlserver"],
-      "author": "hoanglong"
-    },
-
-    {
-      "title": "Mọi người thường học code ở đâu?",
-      "content": "Mình chủ yếu học từ YouTube, docs và làm project thực tế.",
-      "tags": ["UIT"],
-      "author": "anhthu"
-    },
-
-    {
-      "title": "Kinh nghiệm làm đồ án AI nhóm",
-      "content": "Dataset cleaning chiếm thời gian nhiều hơn train model 😭",
-      "tags": ["machinelearning", "doan"],
-      "author": "tuanviet"
-    },
-
-    {
-      "title": "Review internship frontend remote",
-      "content": "Làm remote giúp tiết kiệm thời gian nhưng cần tự giác hơn.",
-      "tags": ["frontend", "intern"],
-      "author": "giahuy"
-    },
-
-    {
-      "title": "Có ai từng merge code lỗi production chưa 😭",
-      "content": "Team mình từng quên env variable và production crash nguyên buổi tối.",
-      "tags": ["backend", "SE104"],
-      "author": "minhquandeptrai"
-    },
-
-    {
-      "title": "Tips giữ động lực học code",
-      "content": "Theo mình nên build project nhỏ để thấy progress thay vì chỉ học lý thuyết.",
-      "tags": ["UIT"],
-      "author": "giabao"
-    }
-  ]
+    "users":  [
+                  {
+                      "username":  "minhquandeptrai",
+                      "email":  "minhquan@gmail.com",
+                      "full_name":  "Nguyễn Minh Quân",
+                      "bio":  "Yêu thích backend và system design",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=minhquan"
+                  },
+                  {
+                      "username":  "giahuy",
+                      "email":  "giahuy@gmail.com",
+                      "full_name":  "Trần Gia Huy",
+                      "bio":  "Frontend developer mê React và UI/UX",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=giahuy"
+                  },
+                  {
+                      "username":  "khanhlinh",
+                      "email":  "khanhlinh@gmail.com",
+                      "full_name":  "Đặng Khánh Linh",
+                      "bio":  "Quan tâm AI và Computer Vision",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=khanhlinh"
+                  },
+                  {
+                      "username":  "quocbao",
+                      "email":  "quocbao@gmail.com",
+                      "full_name":  "Lê Quốc Bảo",
+                      "bio":  "Competitive Programming enjoyer",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=quocbao"
+                  },
+                  {
+                      "username":  "anhthu",
+                      "email":  "anhthu@gmail.com",
+                      "full_name":  "Mai Anh Thư",
+                      "bio":  "Thích mobile app và Flutter",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=anhthu"
+                  },
+                  {
+                      "username":  "thanhdat",
+                      "email":  "thanhdat@gmail.com",
+                      "full_name":  "Ngô Thành Đạt",
+                      "bio":  "DevOps và Docker là chân ái",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=thanhdat"
+                  },
+                  {
+                      "username":  "hoanglong",
+                      "email":  "hoanglong@gmail.com",
+                      "full_name":  "Đỗ Hoàng Long",
+                      "bio":  "Mê database và tối ưu query",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=hoanglong"
+                  },
+                  {
+                      "username":  "giabao",
+                      "email":  "giabao@gmail.com",
+                      "full_name":  "Huỳnh Gia Bảo",
+                      "bio":  "Sinh viên UIT thích làm side project",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=giabao"
+                  },
+                  {
+                      "username":  "tuanviet",
+                      "email":  "tuanviet@gmail.com",
+                      "full_name":  "Phạm Tuấn Việt",
+                      "bio":  "Đang học AI/ML và Deep Learning",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=tuanviet"
+                  },
+                  {
+                      "username":  "baotran",
+                      "email":  "baotran@gmail.com",
+                      "full_name":  "Võ Bảo Trân",
+                      "bio":  "Thích học frontend và thiết kế UI",
+                      "avatar_url":  "https://api.dicebear.com/7.x/notionists/png?seed=baotran"
+                  }
+              ],
+    "tags":  [
+                 "fastapi",
+                 "nextjs",
+                 "react",
+                 "frontend",
+                 "backend",
+                 "docker",
+                 "mongodb",
+                 "sqlserver",
+                 "machinelearning",
+                 "yolov8",
+                 "flutter",
+                 "algorithm",
+                 "cp",
+                 "intern",
+                 "reviewmonhoc",
+                 "tailieu",
+                 "doan",
+                 "hackathon",
+                 "UIT",
+                 "VNUHCM",
+                 "SE104",
+                 "CS221",
+                 "CS114",
+                 "NT208",
+                 "MA003"
+             ],
+    "posts":  [
+                  {
+                      "title":  "Review môn SE104 sau một học kỳ",
+                      "content":  "SE104 khá nặng về teamwork và quản lý tiến độ. Team mình dùng GitHub Project và Discord để quản lý task. Nếu chia việc rõ từ đầu thì môn này học được rất nhiều thứ thực tế.",
+                      "tags":  [
+                                   "SE104",
+                                   "reviewmonhoc"
+                               ],
+                      "author":  "minhquandeptrai",
+                      "created_at":  "2026-05-19T07:54:35"
+                  },
+                  {
+                      "title":  "Dockerize FastAPI + Next.js cho đồ án",
+                      "content":  "Mình vừa setup docker-compose cho hệ thống gồm Next.js frontend, FastAPI backend và SQL Server. Chạy local cực tiện cho teamwork.",
+                      "tags":  [
+                                   "docker",
+                                   "fastapi",
+                                   "nextjs"
+                               ],
+                      "author":  "thanhdat",
+                      "created_at":  "2026-04-16T18:49:28"
+                  },
+                  {
+                      "title":  "Roadmap học AI/ML cho sinh viên mới bắt đầu",
+                      "content":  "Nếu muốn theo AI/ML thì nên học Python trước, sau đó là Machine Learning cơ bản rồi mới tới Deep Learning và Computer Vision.",
+                      "tags":  [
+                                   "machinelearning"
+                               ],
+                      "author":  "tuanviet",
+                      "created_at":  "2026-04-24T02:24:39"
+                  },
+                  {
+                      "title":  "Kinh nghiệm pass intern backend",
+                      "content":  "Mình vừa pass backend intern. Chủ yếu họ hỏi API design, SQL query, JWT authentication và một ít Docker.",
+                      "tags":  [
+                                   "backend",
+                                   "intern"
+                               ],
+                      "author":  "minhquandeptrai",
+                      "created_at":  "2026-05-18T21:19:05"
+                  },
+                  {
+                      "title":  "Có nên học Next.js trước React không?",
+                      "content":  "Theo mình nên học React fundamentals trước rồi mới qua Next.js để hiểu state management và component lifecycle.",
+                      "tags":  [
+                                   "react",
+                                   "nextjs"
+                               ],
+                      "author":  "giahuy",
+                      "created_at":  "2026-05-29T05:15:32"
+                  },
+                  {
+                      "title":  "Share tài liệu CS221 có lời giải lab",
+                      "content":  "Mình tổng hợp toàn bộ slide, lab và đề ôn CS221. Có thêm note giải thích deadlock và synchronization.",
+                      "tags":  [
+                                   "tailieu",
+                                   "CS221"
+                               ],
+                      "author":  "hoanglong",
+                      "created_at":  "2026-05-02T21:22:36"
+                  },
+                  {
+                      "title":  "Review Flutter sau khi làm app đặt lịch",
+                      "content":  "Flutter build UI rất nhanh và hot reload cực tiện. Tuy nhiên state management lúc đầu hơi rối.",
+                      "tags":  [
+                                   "flutter"
+                               ],
+                      "author":  "anhthu",
+                      "created_at":  "2026-05-21T05:59:56"
+                  },
+                  {
+                      "title":  "Hackathon UIT năm nay vui thật",
+                      "content":  "Năm nay nhiều team làm AI Agent và recommendation system. Không khí code xuyên đêm khá cháy.",
+                      "tags":  [
+                                   "hackathon",
+                                   "UIT"
+                               ],
+                      "author":  "giabao",
+                      "created_at":  "2026-05-14T00:25:46"
+                  },
+                  {
+                      "title":  "Kinh nghiệm học Competitive Programming",
+                      "content":  "Nếu mới học CP thì nên bắt đầu từ brute force, binary search rồi mới tới graph và dynamic programming.",
+                      "tags":  [
+                                   "cp",
+                                   "algorithm"
+                               ],
+                      "author":  "quocbao",
+                      "created_at":  "2026-05-13T20:00:05"
+                  },
+                  {
+                      "title":  "Mọi người dùng MongoDB hay PostgreSQL cho forum?",
+                      "content":  "Mình đang phân vân giữa MongoDB và PostgreSQL cho hệ thống comment lồng nhau.",
+                      "tags":  [
+                                   "mongodb",
+                                   "backend"
+                               ],
+                      "author":  "hoanglong",
+                      "created_at":  "2026-04-06T17:59:40"
+                  },
+                  {
+                      "title":  "Review môn MA003",
+                      "content":  "MA003 không quá khó nếu chăm làm bài tập. Phần tích phân nhiều biến khá dễ mất điểm.",
+                      "tags":  [
+                                   "MA003",
+                                   "reviewmonhoc"
+                               ],
+                      "author":  "baotran",
+                      "created_at":  "2026-05-10T15:30:50"
+                  },
+                  {
+                      "title":  "Tối ưu JWT authentication với refresh token",
+                      "content":  "Mình vừa implement access token và refresh token bằng FastAPI và Redis để tăng bảo mật.",
+                      "tags":  [
+                                   "backend",
+                                   "fastapi"
+                               ],
+                      "author":  "minhquandeptrai",
+                      "created_at":  "2026-04-14T13:52:02"
+                  },
+                  {
+                      "title":  "Có ai học NT208 sáng thứ 2 không?",
+                      "content":  "Cho mình hỏi tuần này NT208 có học offline không và có đổi phòng học không?",
+                      "tags":  [
+                                   "NT208",
+                                   "UIT"
+                               ],
+                      "author":  "giabao",
+                      "created_at":  "2026-04-08T12:23:16"
+                  },
+                  {
+                      "title":  "Frontend intern năm nay cần gì?",
+                      "content":  "Nhiều công ty giờ yêu cầu React, TypeScript và biết cơ bản về Next.js.",
+                      "tags":  [
+                                   "frontend",
+                                   "intern"
+                               ],
+                      "author":  "giahuy",
+                      "created_at":  "2026-04-02T08:01:47"
+                  },
+                  {
+                      "title":  "YOLOv8 nhận diện biển báo giao thông",
+                      "content":  "Team mình train YOLOv8 trên dataset tự thu thập và hiện model đạt khoảng 91% mAP.",
+                      "tags":  [
+                                   "machinelearning",
+                                   "yolov8"
+                               ],
+                      "author":  "tuanviet",
+                      "created_at":  "2026-05-03T04:49:16"
+                  },
+                  {
+                      "title":  "Có nên dùng SQL Server cho đồ án?",
+                      "content":  "SQL Server khá ổn cho đồ án vì dễ quản lý và support tốt với hệ sinh thái Microsoft.",
+                      "tags":  [
+                                   "sqlserver"
+                               ],
+                      "author":  "hoanglong",
+                      "created_at":  "2026-04-27T23:37:54"
+                  },
+                  {
+                      "title":  "Review CS114 sau khi thi final",
+                      "content":  "CS114 học khá nặng nhưng giúp tư duy giải thuật tốt hơn rất nhiều.",
+                      "tags":  [
+                                   "CS114",
+                                   "reviewmonhoc"
+                               ],
+                      "author":  "quocbao",
+                      "created_at":  "2026-04-27T03:05:37"
+                  },
+                  {
+                      "title":  "Tips chia task teamwork hiệu quả",
+                      "content":  "Team mình dùng Trello và chia task theo sprint nên tránh được tình trạng dồn deadline.",
+                      "tags":  [
+                                   "SE104"
+                               ],
+                      "author":  "baotran",
+                      "created_at":  "2026-04-26T14:47:31"
+                  },
+                  {
+                      "title":  "Mình vừa deploy Next.js lên VPS",
+                      "content":  "Deploy bằng Docker và Nginx khá ổn. Quan trọng nhất là setup SSL và reverse proxy.",
+                      "tags":  [
+                                   "nextjs",
+                                   "docker"
+                               ],
+                      "author":  "thanhdat",
+                      "created_at":  "2026-05-06T18:37:53"
+                  },
+                  {
+                      "title":  "Roadmap backend cho sinh viên năm 2",
+                      "content":  "Nên học HTTP, REST API, database và authentication trước khi đụng microservice.",
+                      "tags":  [
+                                   "backend"
+                               ],
+                      "author":  "minhquandeptrai",
+                      "created_at":  "2026-05-26T05:18:01"
+                  },
+                  {
+                      "title":  "Có ai bị ngợp khi học React không?",
+                      "content":  "Mình mới học React và thấy useEffect khá khó hiểu 😭",
+                      "tags":  [
+                                   "react",
+                                   "frontend"
+                               ],
+                      "author":  "baotran",
+                      "created_at":  "2026-05-15T17:01:37"
+                  },
+                  {
+                      "title":  "Share source code đồ án quản lý thư viện",
+                      "content":  "Mình open-source đồ án quản lý thư viện dùng FastAPI và React.",
+                      "tags":  [
+                                   "doan",
+                                   "fastapi",
+                                   "react"
+                               ],
+                      "author":  "giahuy",
+                      "created_at":  "2026-05-10T01:29:36"
+                  },
+                  {
+                      "title":  "Kinh nghiệm làm đồ án nhóm đông người",
+                      "content":  "Nhóm đông thì nên có tech lead và quy định commit message rõ ràng.",
+                      "tags":  [
+                                   "SE104",
+                                   "doan"
+                               ],
+                      "author":  "giabao",
+                      "created_at":  "2026-06-01T22:12:10"
+                  },
+                  {
+                      "title":  "Review Visual Studio Code sau 3 năm dùng",
+                      "content":  "VSCode plugin ecosystem rất mạnh, đặc biệt cho web development.",
+                      "tags":  [
+                                   "frontend",
+                                   "backend"
+                               ],
+                      "author":  "thanhdat",
+                      "created_at":  "2026-04-25T14:28:46"
+                  },
+                  {
+                      "title":  "Mình vừa fail intern vì không biết SQL",
+                      "content":  "Đi phỏng vấn backend mà SQL yếu thật sự rất khó pass.",
+                      "tags":  [
+                                   "backend",
+                                   "intern"
+                               ],
+                      "author":  "hoanglong",
+                      "created_at":  "2026-05-19T01:34:24"
+                  },
+                  {
+                      "title":  "Có nên học TypeScript sớm không?",
+                      "content":  "Theo mình TypeScript rất đáng học vì code maintain tốt hơn JavaScript thuần.",
+                      "tags":  [
+                                   "frontend",
+                                   "react"
+                               ],
+                      "author":  "giahuy",
+                      "created_at":  "2026-04-28T06:02:57"
+                  },
+                  {
+                      "title":  "Review môn CS221 có khó không?",
+                      "content":  "CS221 khá nặng nhưng nếu học kỹ lab thì sẽ hiểu bài hơn rất nhiều.",
+                      "tags":  [
+                                   "CS221",
+                                   "reviewmonhoc"
+                               ],
+                      "author":  "minhquandeptrai",
+                      "created_at":  "2026-04-03T05:21:09"
+                  },
+                  {
+                      "title":  "Lần đầu train model AI trên Kaggle",
+                      "content":  "Mình train CNN đầu tiên trên Kaggle và mất gần 5 tiếng để debug dataset 😭",
+                      "tags":  [
+                                   "machinelearning"
+                               ],
+                      "author":  "tuanviet",
+                      "created_at":  "2026-05-14T17:52:24"
+                  },
+                  {
+                      "title":  "Docker giúp teamwork dễ hơn thật",
+                      "content":  "Từ lúc dùng Docker thì team mình không còn cảnh code chạy máy này fail máy kia.",
+                      "tags":  [
+                                   "docker"
+                               ],
+                      "author":  "thanhdat",
+                      "created_at":  "2026-05-06T04:45:25"
+                  },
+                  {
+                      "title":  "Review Flutter sau khi publish app",
+                      "content":  "Flutter build cross-platform khá nhanh và UI đẹp.",
+                      "tags":  [
+                                   "flutter"
+                               ],
+                      "author":  "anhthu",
+                      "created_at":  "2026-04-22T04:43:00"
+                  },
+                  {
+                      "title":  "Có ai thức tới 3h sáng để debug không 😭",
+                      "content":  "Debug lỗi CORS mất nguyên một đêm mới phát hiện thiếu middleware.",
+                      "tags":  [
+                                   "backend",
+                                   "fastapi"
+                               ],
+                      "author":  "minhquandeptrai",
+                      "created_at":  "2026-05-15T21:35:08"
+                  },
+                  {
+                      "title":  "Tips học giải thuật hiệu quả",
+                      "content":  "Nên code lại solution sau khi đọc editorial để nhớ tư duy.",
+                      "tags":  [
+                                   "algorithm",
+                                   "cp"
+                               ],
+                      "author":  "quocbao",
+                      "created_at":  "2026-04-09T22:45:26"
+                  },
+                  {
+                      "title":  "Review môn NT208",
+                      "content":  "NT208 nhiều lý thuyết nhưng khá hữu ích nếu muốn theo network.",
+                      "tags":  [
+                                   "NT208",
+                                   "reviewmonhoc"
+                               ],
+                      "author":  "giabao",
+                      "created_at":  "2026-04-17T16:29:40"
+                  },
+                  {
+                      "title":  "Có nên học DevOps khi còn sinh viên?",
+                      "content":  "Theo mình nên biết Docker, Linux và CI/CD cơ bản.",
+                      "tags":  [
+                                   "docker",
+                                   "backend"
+                               ],
+                      "author":  "thanhdat",
+                      "created_at":  "2026-04-09T06:48:52"
+                  },
+                  {
+                      "title":  "Mình vừa build forum bằng FastAPI",
+                      "content":  "FastAPI type hint rất tiện và auto generate Swagger khá thích.",
+                      "tags":  [
+                                   "fastapi",
+                                   "backend"
+                               ],
+                      "author":  "minhquandeptrai",
+                      "created_at":  "2026-05-11T01:40:31"
+                  },
+                  {
+                      "title":  "Review React Query",
+                      "content":  "React Query giúp fetch API và cache data dễ hơn nhiều.",
+                      "tags":  [
+                                   "react",
+                                   "frontend"
+                               ],
+                      "author":  "giahuy",
+                      "created_at":  "2026-04-03T02:26:53"
+                  },
+                  {
+                      "title":  "Có ai dùng MongoDB Atlas cho đồ án chưa?",
+                      "content":  "Atlas setup khá nhanh và free tier đủ dùng cho đồ án.",
+                      "tags":  [
+                                   "mongodb"
+                               ],
+                      "author":  "hoanglong",
+                      "created_at":  "2026-04-19T05:10:46"
+                  },
+                  {
+                      "title":  "Mình vừa hoàn thành app chat realtime",
+                      "content":  "Dùng Socket.IO và Next.js để build realtime chat khá thú vị.",
+                      "tags":  [
+                                   "nextjs",
+                                   "frontend"
+                               ],
+                      "author":  "giahuy",
+                      "created_at":  "2026-05-02T10:22:32"
+                  },
+                  {
+                      "title":  "Tips viết CV intern IT",
+                      "content":  "Nên đưa project thực tế và GitHub lên đầu CV.",
+                      "tags":  [
+                                   "intern"
+                               ],
+                      "author":  "baotran",
+                      "created_at":  "2026-05-05T19:08:41"
+                  },
+                  {
+                      "title":  "Review máy tính cho sinh viên IT",
+                      "content":  "RAM 16GB và SSD là gần như bắt buộc nếu code Docker hoặc AI.",
+                      "tags":  [
+                                   "UIT"
+                               ],
+                      "author":  "giabao",
+                      "created_at":  "2026-05-28T21:30:26"
+                  },
+                  {
+                      "title":  "Lần đầu deploy AI model bằng FastAPI",
+                      "content":  "Expose model qua REST API khá tiện cho frontend gọi.",
+                      "tags":  [
+                                   "machinelearning",
+                                   "fastapi"
+                               ],
+                      "author":  "tuanviet",
+                      "created_at":  "2026-06-01T17:45:45"
+                  },
+                  {
+                      "title":  "Có ai dùng TailwindCSS thấy nghiện không?",
+                      "content":  "Lúc đầu nhìn class hơi rối nhưng dùng quen thì build UI rất nhanh.",
+                      "tags":  [
+                                   "frontend"
+                               ],
+                      "author":  "baotran",
+                      "created_at":  "2026-05-12T05:27:44"
+                  },
+                  {
+                      "title":  "Review môn CS114 thật lòng",
+                      "content":  "Nếu không luyện bài tập thường xuyên thì rất dễ quên tư duy.",
+                      "tags":  [
+                                   "CS114"
+                               ],
+                      "author":  "quocbao",
+                      "created_at":  "2026-04-22T18:29:09"
+                  },
+                  {
+                      "title":  "Mình vừa setup CI/CD bằng GitHub Actions",
+                      "content":  "Auto deploy sau mỗi lần push main branch khá tiện.",
+                      "tags":  [
+                                   "docker",
+                                   "backend"
+                               ],
+                      "author":  "thanhdat",
+                      "created_at":  "2026-04-08T00:21:29"
+                  },
+                  {
+                      "title":  "Có nên học AI vì trend không?",
+                      "content":  "Theo mình chỉ nên theo AI nếu thật sự thích toán và research.",
+                      "tags":  [
+                                   "machinelearning"
+                               ],
+                      "author":  "tuanviet",
+                      "created_at":  "2026-04-05T02:58:23"
+                  },
+                  {
+                      "title":  "Review SQL Server cho người mới",
+                      "content":  "Management Studio khá dễ dùng cho sinh viên mới học database.",
+                      "tags":  [
+                                   "sqlserver"
+                               ],
+                      "author":  "hoanglong",
+                      "created_at":  "2026-04-10T10:46:04"
+                  },
+                  {
+                      "title":  "Mọi người thường học code ở đâu?",
+                      "content":  "Mình chủ yếu học từ YouTube, docs và làm project thực tế.",
+                      "tags":  [
+                                   "UIT"
+                               ],
+                      "author":  "anhthu",
+                      "created_at":  "2026-05-26T15:40:31"
+                  },
+                  {
+                      "title":  "Kinh nghiệm làm đồ án AI nhóm",
+                      "content":  "Dataset cleaning chiếm thời gian nhiều hơn train model 😭",
+                      "tags":  [
+                                   "machinelearning",
+                                   "doan"
+                               ],
+                      "author":  "tuanviet",
+                      "created_at":  "2026-04-14T15:34:47"
+                  },
+                  {
+                      "title":  "Review internship frontend remote",
+                      "content":  "Làm remote giúp tiết kiệm thời gian nhưng cần tự giác hơn.",
+                      "tags":  [
+                                   "frontend",
+                                   "intern"
+                               ],
+                      "author":  "giahuy",
+                      "created_at":  "2026-05-29T20:49:27"
+                  },
+                  {
+                      "title":  "Có ai từng merge code lỗi production chưa 😭",
+                      "content":  "Team mình từng quên env variable và production crash nguyên buổi tối.",
+                      "tags":  [
+                                   "backend",
+                                   "SE104"
+                               ],
+                      "author":  "minhquandeptrai",
+                      "created_at":  "2026-04-18T01:30:34"
+                  },
+                  {
+                      "title":  "Tips giữ động lực học code",
+                      "content":  "Theo mình nên build project nhỏ để thấy progress thay vì chỉ học lý thuyết.",
+                      "tags":  [
+                                   "UIT"
+                               ],
+                      "author":  "giabao",
+                      "created_at":  "2026-05-03T06:24:22"
+                  }
+              ]
 }
