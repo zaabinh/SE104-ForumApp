@@ -206,7 +206,7 @@ def get_user_comments(
     rows = (
         db.query(Comment, Post.title.label("post_title"))
         .outerjoin(Post, Post.id == Comment.post_id)
-        .filter(Comment.user_id == user.id)
+        .filter(Comment.user_id == user.id, Comment.status == "active")
         .order_by(Comment.created_at.desc(), Comment.id.desc())
         .all()
     )

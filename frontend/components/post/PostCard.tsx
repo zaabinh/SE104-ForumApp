@@ -3,7 +3,7 @@
 import { memo, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { FiEye, FiTrendingUp, FiZap } from 'react-icons/fi';
+import { FiEye, FiTrendingUp } from 'react-icons/fi';
 import { PurePostActions } from '@/components/post/PostActions';
 import Tag from '@/components/ui/Tag';
 import { formatRelativeTime } from '@/lib/mockData';
@@ -58,8 +58,8 @@ function PostCard({ post, author, activeTag, onSelectTag, liked, bookmarked, onL
         ))}
       </div>
 
-      <div className="relative mt-5 h-64 overflow-hidden rounded-[26px]">
-        {post.image ? (
+      {post.image ? (
+        <div className="relative mt-5 h-64 overflow-hidden rounded-[26px]">
           <>
             <Image src={post.image} alt={post.title} fill sizes="(max-width: 1280px) 100vw, 900px" loading="lazy" className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink-900/55 via-transparent to-transparent" />
@@ -71,12 +71,8 @@ function PostCard({ post, author, activeTag, onSelectTag, liked, bookmarked, onL
               <FiZap className="h-5 w-5" />
             </div> */}
           </>
-        ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-r from-slate-100 to-slate-200 text-sm font-medium text-slate-400">
-            No image
-          </div>
-        )}
-      </div>
+        </div>
+      ) : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-3 text-xs font-medium text-ink-500">
         <span className="inline-flex items-center gap-1 rounded-full bg-white/70 px-3 py-1.5">

@@ -85,7 +85,7 @@ def get_comments(post_id: int, db: Session = Depends(get_db), current_user: User
     comments = (
         db.query(Comment)
         .options(joinedload(Comment.author))
-        .filter(Comment.post_id == post_id)
+        .filter(Comment.post_id == post_id, Comment.status == "active")
         .order_by(Comment.created_at.asc(), Comment.id.asc())
         .all()
     )

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { api, fetchCurrentUser, getStoredUser, saveStoredUser } from '@/lib/axios';
@@ -28,11 +28,26 @@ const CAREER_GOALS_BY_MAJOR: Record<string, string[]> = {
 };
 
 export default function CompleteProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-slate-100">
+          <div className="rounded-2xl bg-white px-6 py-4 text-sm text-slate-700 shadow-card">Loading profile form...</div>
+        </main>
+      }
+    >
+      <CompleteProfileContent />
+    </Suspense>
+  );
+}
+
+function CompleteProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const promptDetails = useMemo(() => searchParams.get('prompt') === 'details', [searchParams]);
 
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [form, setForm] = useState({
     username: '',
     fullName: '',
@@ -89,26 +104,31 @@ export default function CompleteProfilePage() {
     })();
   }, []);
 
-  const toggleTag = (tag: string) => {
+  const selectedTags = useMemo(() => new Set(form.interestTags), [form.interestTags]);
+
+  const toggleTag = useCallback((tag: string) => {
     setForm((prev) => ({
       ...prev,
       interestTags: prev.interestTags.includes(tag)
         ? prev.interestTags.filter((t) => t !== tag)
         : [...prev.interestTags, tag],
     }));
-  };
+  }, []);
 
   const onAvatarUpload = (file?: File) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-    const result = reader.result;
-    if (typeof result === 'string') {
-      setForm((prev) => ({ ...prev, avatarUrl: result }));
-    }
+    const nextPreview = URL.createObjectURL(file);
+    setAvatarPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return nextPreview;
+    });
   };
-    reader.readAsDataURL(file);
-  };
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/50 to-slate-100 px-4 py-8">
@@ -156,9 +176,9 @@ export default function CompleteProfilePage() {
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Avatar</p>
               <div className="mt-3 flex items-center gap-3">
                 <div className="h-16 w-16 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                  {form.avatarUrl ? (
+                  {avatarPreview || form.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={form.avatarUrl} alt="Avatar preview" className="h-full w-full object-cover" />
+                    <img src={avatarPreview || form.avatarUrl} alt="Avatar preview" className="h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">No image</div>
                   )}
@@ -277,7 +297,7 @@ export default function CompleteProfilePage() {
                 <p className="mt-1 text-xs text-slate-500">Choose topics to personalize your feed.</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {availableTags.map((tag) => {
-                    const active = form.interestTags.includes(tag);
+                    const active = selectedTags.has(tag);
                     return (
                       <button
                         key={tag}

@@ -3,40 +3,64 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "${MSSQL_SA_PASSWORD:-StrongPassword123!}"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-StrongPassword123!}"
       MSSQL_PID: "Developer"
     ports:
       - "1433:1433"
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $$SA_PASSWORD -Q \"SELECT 1\" -C"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q \"SELECT 1\" -C"]
       interval: 20s
       timeout: 10s
       retries: 10
+      start_period: 40s
     volumes:
       - mssql_data:/var/opt/mssql
+
+  db-init:
+    build:
+      context: ./backend
+    environment:
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-StrongPassword123!}"
+      DATABASE_URL: "${DATABASE_URL:-mssql+pyodbc://sa:StrongPassword123!@db:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes}"
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY:-change-me-in-prod}"
+      CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-http://localhost:3000}"
+      FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
+    command:
+      - sh
+      - -c
+      - >
+        python -c "import os, pyodbc; pwd=os.environ['MSSQL_SA_PASSWORD']; conn=pyodbc.connect(f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER=db,1433;UID=sa;PWD={pwd};DATABASE=master;Encrypt=yes;TrustServerCertificate=yes', autocommit=True); conn.cursor().execute(\"IF DB_ID('StudentForum') IS NULL CREATE DATABASE StudentForum\"); conn.close()"
+        && python init_db.py
+        && python upgrade_db.py
+    depends_on:
+      db:
+        condition: service_healthy
 
   backend:
     build:
       context: ./backend
     environment:
-      DATABASE_URL: "${DATABASE_URL}"
+      DATABASE_URL: "${DATABASE_URL:-mssql+pyodbc://sa:StrongPassword123!@db:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes}"
       JWT_SECRET_KEY: "${JWT_SECRET_KEY:-change-me-in-prod}"
       CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-http://localhost:3000}"
       FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
     ports:
       - "8000:8000"
     depends_on:
-      db:
-        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)\""]
       interval: 20s
       timeout: 10s
       retries: 5
+      start_period: 30s
 
   frontend:
     build:
       context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL:-http://localhost:8000}"
     environment:
       NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL:-http://localhost:8000}"
     ports:

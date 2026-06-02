@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation';
 import { BiUpvote } from 'react-icons/bi';
 import { BsBookmark, BsBookmarkFill } from 'react-icons/bs';
 import { FaRegComment } from 'react-icons/fa';
-import { FiShare2 } from 'react-icons/fi';
+import { FiFlag, FiShare2 } from 'react-icons/fi';
+import ReportDialog from '@/components/report/ReportDialog';
 import { useForum } from '@/lib/forumStore';
+import { reportPost } from '@/lib/forumApi';
 import { Post } from '@/lib/types';
 import { useToast } from '@/components/ui/Toast';
+import { useState } from 'react';
 
 type PostActionsProps = {
   post: Post;
@@ -23,6 +26,9 @@ type PostActionsProps = {
 function PostActionsBase({ post, compact = false, onCommentClick, liked, bookmarked, onLikeToggle, onBookmarkToggle }: PostActionsProps) {
   const router = useRouter();
   const { pushToast } = useToast();
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportError, setReportError] = useState('');
   const baseClass = compact ? 'rounded-2xl px-3 py-2 text-sm' : 'rounded-2xl px-4 py-2.5 text-sm';
 
   const handleLike = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -44,7 +50,7 @@ function PostActionsBase({ post, compact = false, onCommentClick, liked, bookmar
   };
 
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
+    <div className="mt-4 flex flex-wrap gap-2" onClick={(event) => event.stopPropagation()}>
       <button
         type="button"
         onClick={handleLike}
@@ -84,6 +90,55 @@ function PostActionsBase({ post, compact = false, onCommentClick, liked, bookmar
         <FiShare2 className="h-4 w-4" />
         Share
       </button>
+      {!compact ? (
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              setReportError('');
+              setIsReportOpen(true);
+            }}
+            className={`inline-flex items-center gap-2 border border-white/70 bg-white/80 text-ink-600 transition-all duration-200 hover:border-rose-300 hover:text-rose-600 ${baseClass}`}
+          >
+            <FiFlag className="h-4 w-4" />
+            Report
+          </button>
+          <ReportDialog
+            targetLabel="bài viết"
+            open={isReportOpen}
+            loading={isReporting}
+            error={reportError}
+            onClose={() => {
+              if (isReporting) return;
+              setIsReportOpen(false);
+              setReportError('');
+            }}
+            onSubmit={async (payload) => {
+              setIsReporting(true);
+              setReportError('');
+              try {
+                await reportPost(post.id, payload);
+                setIsReportOpen(false);
+                pushToast('Đã gửi báo cáo bài viết');
+              } catch (error) {
+                const detail =
+                  typeof error === 'object' &&
+                  error !== null &&
+                  'response' in error &&
+                  typeof error.response === 'object' &&
+                  error.response !== null &&
+                  'status' in error.response &&
+                  error.response.status === 409
+                    ? 'Bạn đã báo cáo bài viết này trước đó.'
+                    : 'Không thể gửi báo cáo. Vui lòng thử lại.';
+                setReportError(detail);
+              } finally {
+                setIsReporting(false);
+              }
+            }}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

@@ -155,7 +155,7 @@
 import Sidebar from '../layout/Sidebar';
 import Topbar from '../layout/Topbar';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isSidebarCollapsed, isMobileSidebarOpen, setIsSidebarCollapsed, setIsMobileSidebarOpen } = useResponsiveSidebar();
@@ -168,12 +168,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
-      <Sidebar 
-        isCollapsed={isSidebarCollapsed}
-        isMobileOpen={isMobileSidebarOpen}
-        onToggleCollapse={toggleSidebarCollapse}
-        onCloseMobile={closeMobileSidebar}
-      />
+      <Suspense fallback={null}>
+        <Sidebar
+          isCollapsed={isSidebarCollapsed}
+          isMobileOpen={isMobileSidebarOpen}
+          onToggleCollapse={toggleSidebarCollapse}
+          onCloseMobile={closeMobileSidebar}
+        />
+      </Suspense>
       
       <div className={`transition-all duration-200 ${isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60'}`}>
         <Topbar 

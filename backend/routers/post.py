@@ -36,6 +36,7 @@ import json
 from services.post_service import (
     build_post_query,
     paginate_latest_posts_fast,
+    paginate_trending_posts_fast,
     paginate_query,
     serialize_post,
     split_known_and_new_tags,
@@ -55,7 +56,7 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 
 def build_stats_for_post(db: Session, post_id: int, current_user_id: str):
     likes_count = db.query(func.count(PostLike.user_id)).filter(PostLike.post_id == post_id).scalar() or 0
-    comments_count = db.query(func.count(Comment.id)).filter(Comment.post_id == post_id).scalar() or 0
+    comments_count = db.query(func.count(Comment.id)).filter(Comment.post_id == post_id, Comment.status == "active").scalar() or 0
     views_count = db.query(func.count(PostView.id)).filter(PostView.post_id == post_id).scalar() or 0
     shares_count = db.query(func.count(PostShare.id)).filter(PostShare.post_id == post_id).scalar() or 0
     is_liked = (
@@ -140,15 +141,17 @@ def get_posts_feed(
 ):
     current_user_id = current_user.id if current_user else None
 
-    # Fast path for the most common feed mode to reduce heavy aggregate query cost.
+    use_trending_fast_path = mode == "trending" or sort == "trending"
     use_fast_path = sort == "latest" and mode != "trending"
-    if use_fast_path:
+    if use_trending_fast_path:
+        rows, pagination = paginate_trending_posts_fast(db, current_user_id, search, tag, page, page_size)
+    elif use_fast_path:
         rows, pagination = paginate_latest_posts_fast(db, current_user_id, search, tag, mode, page, page_size)
     else:
         query = build_post_query(current_user_id, search, tag, mode, sort)
         rows, pagination = paginate_query(db, query, page, page_size)
 
-    if use_fast_path:
+    if use_fast_path or use_trending_fast_path:
         items = [serialize_post(row[0], row[1], current_user_id) for row in rows]
     else:
         items = [serialize_post(row[0], row, current_user_id) for row in rows]
@@ -233,7 +236,7 @@ def delete_post(post_id: int, db: Session = Depends(get_db), current_user: User 
     if post.user_id != current_user.id and current_user.role.lower() != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this post.")
 
-    comment_count = db.query(Comment).filter(Comment.post_id == post.id).count()
+    comment_count = db.query(Comment).filter(Comment.post_id == post.id, Comment.status == "active").count()
     if comment_count and current_user.role.lower() != "admin":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete a post that already has comments.")
 

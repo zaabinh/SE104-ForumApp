@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, func, UnicodeText
+from sqlalchemy import DateTime, ForeignKey, Integer, String, func, UnicodeText
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.orm import Mapped, mapped_column, relationship, backref
 
@@ -20,6 +20,7 @@ class Comment(Base):
     )
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("comments.id"), nullable=True)
     content: Mapped[str] = mapped_column(UnicodeText, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="active", server_default="active", index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
     author = relationship("User", back_populates="comments")

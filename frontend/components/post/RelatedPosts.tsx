@@ -59,17 +59,12 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
               </div>
             )}
 
-            {/* Thumbnail + Info */}
             <div className="flex items-center gap-3">
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl">
-                {post.image ? (
+              {post.image ? (
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl">
                   <Image src={post.image} alt={post.title} fill className="object-cover" />
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-gradient-to-r from-slate-100 to-slate-200 text-[11px] font-medium text-slate-400">
-                    {t('postNoImage')}
-                  </div>
-                )}
-              </div>
+                </div>
+              ) : null}
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-sm font-semibold text-slate-900">{post.title}</p>
                 <p className="mt-1 text-xs text-slate-500">

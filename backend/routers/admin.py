@@ -99,6 +99,27 @@ def add_admin_audit_log(
     )
 
 
+def _ensure_can_ban_user(target_user: User, current_user: User) -> None:
+    if target_user.id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin cannot ban themselves.")
+    if (target_user.role or "").lower() == "admin":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin accounts cannot be banned.")
+
+
+def _ban_user_for_report(db: Session, target_user: User, current_user: User, reason: str) -> None:
+    _ensure_can_ban_user(target_user, current_user)
+    target_user.status = "banned"
+    add_admin_audit_log(db, current_user.id, "ban_user", "user", target_user.id, reason)
+    create_notification(
+        db,
+        user_id=target_user.id,
+        actor_id=current_user.id,
+        notification_type="account_status",
+        title="Your account has been banned",
+        message="An administrator has restricted access to your account after a moderation review.",
+    )
+
+
 @router.get("/users", response_model=AdminUsersListResponse)
 def list_users(
     page: int = Query(default=1, ge=1),
@@ -141,10 +162,7 @@ def ban_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    if user.id == current_user.id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin cannot ban themselves.")
-    if (user.role or "").lower() == "admin":
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin accounts cannot be banned.")
+    _ensure_can_ban_user(user, current_user)
     user.status = "banned"
     add_admin_audit_log(db, current_user.id, "ban_user", "user", user_id, reason)
     create_notification(
@@ -216,6 +234,81 @@ def moderate_report(
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found.")
+
+    action = payload.action or "none"
+    if payload.status in {"dismissed", "reviewed", "pending"} and action != "none":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only resolved reports can apply moderation actions.")
+    if payload.status == "resolved" and action == "none":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Resolved reports must include a moderation action.")
+    if report.comment_id and action in {"hide_post", "hide_post_and_ban_author"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Comment reports cannot use post-only actions.")
+    if not report.comment_id and action in {"hide_comment", "hide_comment_and_ban_author"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Post reports cannot use comment-only actions.")
+
+    action_notes: list[str] = []
+    if payload.status == "resolved":
+        if action in {"hide_post", "hide_post_and_ban_author"}:
+            if not report.post_id:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This report does not target a post.")
+            post = db.query(Post).filter(Post.id == report.post_id).first()
+            if not post:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reported post not found.")
+            post.status = "rejected"
+            action_notes.append(f"post_hidden={post.id}")
+            if post.user_id != current_user.id:
+                create_notification(
+                    db,
+                    user_id=post.user_id,
+                    actor_id=current_user.id,
+                    notification_type="post_moderation",
+                    title="Your post was hidden",
+                    message=f"Post #{post.id} was hidden after a moderation review.",
+                    post_id=post.id,
+                    report_id=report.id,
+                )
+
+        if action in {"hide_comment", "hide_comment_and_ban_author"}:
+            if not report.comment_id:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This report does not target a comment.")
+            comment = db.query(Comment).filter(Comment.id == report.comment_id).first()
+            if not comment:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reported comment not found.")
+            comment.status = "hidden"
+            action_notes.append(f"comment_hidden={comment.id}")
+            if comment.user_id != current_user.id:
+                create_notification(
+                    db,
+                    user_id=comment.user_id,
+                    actor_id=current_user.id,
+                    notification_type="comment_moderation",
+                    title="Your comment was hidden",
+                    message=f"Comment #{comment.id} was hidden after a moderation review.",
+                    post_id=comment.post_id,
+                    comment_id=comment.id,
+                    report_id=report.id,
+                )
+
+        if action in {"ban_author", "hide_post_and_ban_author", "hide_comment_and_ban_author"}:
+            target_user_id: str | None = None
+            if report.comment_id:
+                comment = db.query(Comment).filter(Comment.id == report.comment_id).first()
+                if not comment:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reported comment not found.")
+                target_user_id = comment.user_id
+            elif report.post_id:
+                post = db.query(Post).filter(Post.id == report.post_id).first()
+                if not post:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reported post not found.")
+                target_user_id = post.user_id
+
+            if not target_user_id:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Report has no target author to ban.")
+            target_user = db.query(User).filter(User.id == target_user_id).first()
+            if not target_user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Target author not found.")
+            _ban_user_for_report(db, target_user, current_user, f"report_id={report.id}; reason={report.reason}")
+            action_notes.append(f"author_banned={target_user.id}")
+
     report.status = payload.status
     report.reviewed_by = current_user.id
     report.reviewed_at = datetime.now(UTC).replace(tzinfo=None)
@@ -225,7 +318,7 @@ def moderate_report(
         "moderate_report",
         "report",
         str(report.id),
-        f"status={payload.status}",
+        "; ".join([f"status={payload.status}", f"action={action}", *(action_notes or []), *( [f"notes={payload.notes}"] if payload.notes else [] )]),
     )
     if report.reporter_id:
         create_notification(

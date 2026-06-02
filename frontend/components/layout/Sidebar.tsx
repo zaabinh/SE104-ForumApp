@@ -2,17 +2,16 @@
 
 import { memo, useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   FiBookmark,
   FiChevronLeft,
-  FiCompass,
   FiHome,
   FiLogOut,
   FiPlusSquare,
   FiSettings,
   FiShield,
-  FiUser,
+  FiTrendingUp,
   FiUsers
 } from 'react-icons/fi';
 import { getStoredUser, logout } from '@/lib/axios';
@@ -35,6 +34,7 @@ type SidebarItem = {
 function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }: SidebarProps) {
   const { t } = useI18n();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const storedUser = useMemo(() => getStoredUser(), []);
   const currentProfileHref = storedUser?.username ? `/profile/${storedUser.username}` : '/profile/current-user';
   const desktopWidthClass = isCollapsed ? 'md:w-16' : 'md:w-60';
@@ -44,9 +44,8 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
   const menuItems = useMemo<SidebarItem[]>(
     () => [
       { label: t('sidebarForYou'), href: '/feed', icon: FiHome, match: 'exact' },
-      { label: t('sidebarFollowing'), href: '/feed', icon: FiUsers, match: 'never' },
-      // { label: t('sidebarExplore'), href: '/feed', icon: FiCompass, match: 'never' },
-      // { label: t('sidebarMyProfile'), href: currentProfileHref, icon: FiUser, match: 'startsWith' },
+      { label: t('sidebarFollowing'), href: '/feed?tab=following', icon: FiUsers, match: 'exact' },
+      { label: t('sidebarTrending'), href: '/feed?tab=trending', icon: FiTrendingUp, match: 'exact' },
       { label: t('sidebarBookmarks'), href: currentProfileHref, icon: FiBookmark, match: 'never' },
       { label: t('sidebarSettings'), href: '/settings', icon: FiSettings, match: 'startsWith' },
       ...(isAdmin ? [{ label: t('sidebarAdmin'), href: '/dashboard', icon: FiShield, match: 'startsWith' as const }] : []),
@@ -65,6 +64,15 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
       }
 
       return pathname.startsWith(href);
+    }
+
+    if (href.startsWith('/feed?')) {
+      const expectedTab = new URLSearchParams(href.split('?')[1]).get('tab');
+      return pathname === '/feed' && searchParams.get('tab') === expectedTab;
+    }
+
+    if (href === '/feed') {
+      return pathname === '/feed' && !searchParams.get('tab');
     }
 
     return pathname === href;

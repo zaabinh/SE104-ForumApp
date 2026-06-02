@@ -35,6 +35,14 @@ export type AdminReport = {
   created_at: string;
 };
 
+export type ReportModerationAction =
+  | 'none'
+  | 'hide_post'
+  | 'hide_comment'
+  | 'ban_author'
+  | 'hide_post_and_ban_author'
+  | 'hide_comment_and_ban_author';
+
 export type PendingPost = {
   id: number;
   user_id: string;
@@ -114,8 +122,21 @@ export async function getAdminReports(params: {
   return response.data;
 }
 
-export async function moderateReport(reportId: number, status: 'pending' | 'reviewed' | 'dismissed' | 'resolved') {
-  const response = await api.post<AdminReport>(`/api/admin/reports/${reportId}/moderate`, { status });
+export async function moderateReport(
+  reportId: number,
+  payload:
+    | 'pending'
+    | 'reviewed'
+    | 'dismissed'
+    | 'resolved'
+    | {
+        status: 'pending' | 'reviewed' | 'dismissed' | 'resolved';
+        action?: ReportModerationAction;
+        notes?: string;
+      }
+) {
+  const body = typeof payload === 'string' ? { status: payload, action: 'none' } : payload;
+  const response = await api.post<AdminReport>(`/api/admin/reports/${reportId}/moderate`, body);
   return response.data;
 }
 
