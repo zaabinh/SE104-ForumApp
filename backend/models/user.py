@@ -22,7 +22,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     full_name: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(UnicodeText, nullable=True)
-    bio: Mapped[str | None] = mapped_column(Text, nullable=True)
+    bio: Mapped[str | None] = mapped_column(UnicodeText, nullable=True)
     major: Mapped[str | None] = mapped_column(Unicode(120), nullable=True)
     academic_year: Mapped[str | None] = mapped_column(String(30), nullable=True)
     career_goal: Mapped[str | None] = mapped_column(Unicode(200), nullable=True)

@@ -4,6 +4,11 @@ IF COL_LENGTH('users', 'major') IS NULL
     ALTER TABLE users ADD major NVARCHAR(120) NULL;
 GO
 
+-- Ensure Vietnamese text fields use Unicode storage
+IF COL_LENGTH('users', 'bio') IS NOT NULL
+    ALTER TABLE users ALTER COLUMN bio NVARCHAR(MAX) NULL;
+GO
+
 IF COL_LENGTH('users', 'academic_year') IS NULL
     ALTER TABLE users ADD academic_year VARCHAR(30) NULL;
 GO
@@ -55,6 +60,10 @@ GO
 
 IF COL_LENGTH('posts', 'share_caption') IS NULL
     ALTER TABLE posts ADD share_caption NVARCHAR(MAX) NULL;
+GO
+
+IF COL_LENGTH('posts', 'requested_new_tags') IS NULL
+    ALTER TABLE posts ADD requested_new_tags NVARCHAR(MAX) NULL;
 GO
 
 IF NOT EXISTS (

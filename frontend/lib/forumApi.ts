@@ -21,6 +21,7 @@ export type ApiPost = {
   content: string;
   cover_image: string | null;
   status: string | null;
+  requested_new_tags?: string[];
   tags: string[];
   created_at: string;
   updated_at?: string | null;

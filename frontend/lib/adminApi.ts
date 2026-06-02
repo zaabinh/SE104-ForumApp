@@ -40,6 +40,7 @@ export type PendingPost = {
   user_id: string;
   title: string;
   status: string;
+  requested_new_tags: string[];
   created_at: string;
 };
 

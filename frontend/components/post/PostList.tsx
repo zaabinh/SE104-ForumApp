@@ -12,7 +12,7 @@ import Button from '@/components/ui/Button';
 import Skeleton from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { getStoredUser } from '@/lib/axios';
-import { createPost, getFeed } from '@/lib/forumApi';
+import { createPost, getFeed, getTags as getAllTags } from '@/lib/forumApi';
 import { useI18n } from '@/lib/i18n';
 import { getMyProfile } from '@/lib/profileApi';
 import { FeedMode, SortOption, Post, UserProfile } from '@/lib/types';
@@ -24,6 +24,17 @@ type PostListProps = {
 
 const FALLBACK_AVATAR = '/images/uit.png';
 const INITIAL_FEED_PAGE_SIZE = 16;
+const QUICK_TAG_LIMIT = 5;
+
+function parseInterestTags(raw: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw.map((item) => String(item).trim().toLowerCase()).filter(Boolean);
+  }
+  if (typeof raw === 'string') {
+    return raw.split(',').map((item) => item.trim().toLowerCase()).filter(Boolean);
+  }
+  return [];
+}
 
 function mapAuthor(author: {
   id: string;
@@ -86,7 +97,7 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
   const [bookmarkedPostIds, setBookmarkedPostIds] = useState<number[]>([]);
   const [quickPostTitle, setQuickPostTitle] = useState('');
   const [quickPostContent, setQuickPostContent] = useState('');
-  const [quickPostTags, setQuickPostTags] = useState('');
+  const [quickSelectedTags, setQuickSelectedTags] = useState<string[]>([]);
   const [quickPostSubmitting, setQuickPostSubmitting] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const storedUser = useMemo(() => getStoredUser(), []);
@@ -122,14 +133,17 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
       setLoading(true);
       setError('');
       try {
-        const response = await getFeed({
-          page: 1,
-          pageSize: INITIAL_FEED_PAGE_SIZE,
-          search: searchQuery,
-          tag: activeTag,
-          mode: feedMode,
-          sort: sortBy,
-        });
+        const [response, allTags] = await Promise.all([
+          getFeed({
+            page: 1,
+            pageSize: INITIAL_FEED_PAGE_SIZE,
+            search: searchQuery,
+            tag: activeTag,
+            mode: feedMode,
+            sort: sortBy,
+          }),
+          getAllTags(),
+        ]);
         if (!isMounted) {
           return;
         }
@@ -160,7 +174,7 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
 
         setPosts(mappedPosts);
         setUsersById(mappedUsers);
-        setTags(Array.from(new Set(response.items.flatMap((item) => item.tags))).sort());
+        setTags(Array.from(new Set(allTags.map((item) => item.name))).sort());
         setLikedPostIds(response.items.filter((item) => item.is_liked).map((item) => item.id));
         setBookmarkedPostIds(response.items.filter((item) => item.is_bookmarked).map((item) => item.id));
       } catch (loadError) {
@@ -274,14 +288,7 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
 
     setQuickPostSubmitting(true);
     try {
-      const normalizedTags = Array.from(
-        new Set(
-          quickPostTags
-            .split(',')
-            .map((tag) => tag.trim().toLowerCase())
-            .filter(Boolean)
-        )
-      );
+      const normalizedTags = quickSelectedTags;
       const fallbackTitle = content.length > 70 ? `${content.slice(0, 70)}...` : content;
       const created = await createPost({
         title: quickPostTitle.trim() || fallbackTitle,
@@ -298,7 +305,7 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
       }
       setQuickPostTitle('');
       setQuickPostContent('');
-      setQuickPostTags('');
+      setQuickSelectedTags([]);
       pushToast(t('feedCreateSuccess'));
       router.replace(`/post/${created.id}`);
     } catch {
@@ -306,7 +313,20 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
     } finally {
       setQuickPostSubmitting(false);
     }
-  }, [pushToast, quickPostContent, quickPostSubmitting, quickPostTags, quickPostTitle, router, t]);
+  }, [pushToast, quickPostContent, quickPostSubmitting, quickSelectedTags, quickPostTitle, router, t]);
+
+  const quickSuggestedTags = useMemo(() => {
+    if (!tags.length) {
+      return [];
+    }
+    const selected = new Set(quickSelectedTags);
+    const available = tags.filter((tag) => !selected.has(tag));
+    const interests = new Set(parseInterestTags(storedUser?.interest_tags));
+    const preferred = available.filter((tag) => interests.has(tag.toLowerCase()));
+    const others = available.filter((tag) => !interests.has(tag.toLowerCase()));
+    const randomizedOthers = [...others].sort(() => Math.random() - 0.5);
+    return [...preferred, ...randomizedOthers].slice(0, QUICK_TAG_LIMIT);
+  }, [quickSelectedTags, storedUser, tags]);
 
   const visiblePosts = posts.slice(0, visibleCount);
 
@@ -387,13 +407,32 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
                 placeholder={t('feedQuickContentPlaceholder')}
                 className="mt-3 min-h-[110px] w-full rounded-2xl border border-uit-100 bg-white/90 px-4 py-3 text-sm leading-7 text-ink-700 outline-none transition-all duration-200 focus:border-uit-300"
               />
-              <input
-                type="text"
-                value={quickPostTags}
-                onChange={(event) => setQuickPostTags(event.target.value)}
-                placeholder={t('feedQuickTagsPlaceholder')}
-                className="mt-3 w-full rounded-2xl border border-uit-100 bg-white/90 px-4 py-2.5 text-sm text-ink-700 outline-none transition-all duration-200 focus:border-uit-300"
-              />
+              <div className="mt-3 space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-500">Tags</p>
+                <div className="flex flex-wrap gap-2">
+                  {quickSuggestedTags.map((tag) => {
+                    const active = quickSelectedTags.includes(tag);
+                    return (
+                      <button
+                        key={`quick-tag-${tag}`}
+                        type="button"
+                        onClick={() =>
+                          setQuickSelectedTags((prev) =>
+                            prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag]
+                          )
+                        }
+                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                          active
+                            ? 'border-uit-400 bg-uit-100 text-uit-800'
+                            : 'border-uit-100 bg-white text-ink-600 hover:border-uit-300 hover:bg-uit-50'
+                        }`}
+                      >
+                        #{tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-3">
               <Button

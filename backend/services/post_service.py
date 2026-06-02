@@ -1,5 +1,6 @@
 import math
 import re
+import json
 from dataclasses import dataclass
 from types import SimpleNamespace
 
@@ -38,7 +39,18 @@ def normalize_tags(raw_tags: list[str] | None) -> list[str]:
     return normalized
 
 
-def sync_post_tags(db: Session, post: Post, raw_tags: list[str] | None) -> None:
+def split_known_and_new_tags(db: Session, raw_tags: list[str] | None) -> tuple[list[str], list[str]]:
+    desired_names = normalize_tags(raw_tags)
+    if not desired_names:
+        return [], []
+    existing_tags = db.query(Tag).filter(Tag.name.in_(desired_names)).all()
+    existing_names = {tag.name for tag in existing_tags}
+    known = [name for name in desired_names if name in existing_names]
+    new_tags = [name for name in desired_names if name not in existing_names]
+    return known, new_tags
+
+
+def sync_post_tags(db: Session, post: Post, raw_tags: list[str] | None, create_missing: bool = True) -> None:
     desired_names = normalize_tags(raw_tags)
     current_names = {association.tag.name: association for association in post.tags}
 
@@ -52,6 +64,8 @@ def sync_post_tags(db: Session, post: Post, raw_tags: list[str] | None) -> None:
         slug = slugify(name)
         tag = db.query(Tag).filter(Tag.slug == slug).first()
         if not tag:
+            if not create_missing:
+                continue
             tag = Tag(name=name, slug=slug)
             db.add(tag)
             db.flush()
@@ -105,6 +119,7 @@ def build_post_query(current_user_id: str | None, search: str | None, tag: str |
             Post.status,
             Post.original_post_id,
             Post.share_caption,
+            Post.requested_new_tags,
             Post.created_at,
         )
     )
@@ -280,6 +295,15 @@ def serialize_post(post: Post, stats_row, current_user_id: str | None) -> dict:
         if not normalized_cover or normalized_cover.endswith("/images/uit.png"):
             cover_image = None
 
+    requested_new_tags: list[str] = []
+    if post.requested_new_tags:
+        try:
+            parsed = json.loads(post.requested_new_tags)
+            if isinstance(parsed, list):
+                requested_new_tags = [str(item) for item in parsed if str(item).strip()]
+        except Exception:
+            requested_new_tags = []
+
     return {
         "id": post.id,
         "user_id": post.user_id,
@@ -289,6 +313,7 @@ def serialize_post(post: Post, stats_row, current_user_id: str | None) -> dict:
         "status": post.status,
         "original_post_id": post.original_post_id,
         "share_caption": post.share_caption,
+        "requested_new_tags": requested_new_tags,
         "tags": [association.tag.name for association in post.tags],
         "created_at": post.created_at,
         "author": post.author,

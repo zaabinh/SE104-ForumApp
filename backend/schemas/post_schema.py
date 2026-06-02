@@ -37,6 +37,7 @@ class PostResponse(PostBase):
     status: str | None
     original_post_id: int | None = None
     share_caption: str | None = None
+    requested_new_tags: list[str] = Field(default_factory=list)
     created_at: datetime
     author: UserResponse
     likes_count: int = 0

@@ -33,8 +33,18 @@ export default function LoginForm() {
       saveAuthSession(tokenResponse.data);
       const currentUser = await fetchCurrentUser();
       saveStoredUser(currentUser);
+      const skipKey = `profile_details_skipped:${currentUser.id || currentUser.email}`;
+      const hasExtendedProfile = Boolean(
+        (currentUser.major && currentUser.major.trim()) ||
+          (currentUser.academic_year && currentUser.academic_year.trim()) ||
+          (currentUser.career_goal && currentUser.career_goal.trim())
+      );
       if (!currentUser.profile_completed) {
         router.replace('/complete-profile');
+        return;
+      }
+      if (!hasExtendedProfile && typeof window !== 'undefined' && localStorage.getItem(skipKey) !== '1') {
+        router.replace('/complete-profile?prompt=details');
         return;
       }
       if (!currentUser.is_verified) {
@@ -83,6 +93,12 @@ export default function LoginForm() {
         Quên mật khẩu?{' '}
         <Link href="/forgot-password" className="font-semibold text-forum-primary">
           Đặt lại
+        </Link>
+      </p>
+      <p className="text-sm text-slate-600">
+        Chưa có tài khoản?{' '}
+        <Link href="/register" className="font-semibold text-forum-primary">
+          Đăng ký
         </Link>
       </p>
     </form>

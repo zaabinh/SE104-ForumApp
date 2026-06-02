@@ -18,7 +18,17 @@ from schemas.auth_schema import MessageResponse
 from schemas.post_schema import PostCreate, PostListResponse, PostResponse, PostUpdate, SharePostRequest
 from schemas.report_schema import ReportCreate, ReportResponse
 from services.notification_service import create_notification
-from services.post_service import build_post_query, paginate_latest_posts_fast, paginate_query, serialize_post, sync_post_tags, slugify
+import json
+
+from services.post_service import (
+    build_post_query,
+    paginate_latest_posts_fast,
+    paginate_query,
+    serialize_post,
+    split_known_and_new_tags,
+    sync_post_tags,
+    slugify,
+)
 from services.report_service import normalize_report_reason
 
 
@@ -86,7 +96,13 @@ def create_post(payload: PostCreate, db: Session = Depends(get_db), current_user
     )
     db.add(post)
     db.flush()
-    sync_post_tags(db, post, payload.tags)
+    if current_user.role.lower() == "admin":
+        sync_post_tags(db, post, payload.tags, create_missing=True)
+        post.requested_new_tags = None
+    else:
+        known_tags, requested_new_tags = split_known_and_new_tags(db, payload.tags)
+        sync_post_tags(db, post, known_tags, create_missing=False)
+        post.requested_new_tags = json.dumps(requested_new_tags, ensure_ascii=False) if requested_new_tags else None
     db.commit()
     db.refresh(post)
     post = get_post_or_404(db, post.id)
@@ -175,7 +191,13 @@ def update_post(post_id: int, payload: PostUpdate, db: Session = Depends(get_db)
     elif current_user.role.lower() != "admin":
         post.status = "pending"
     if "tags" in update_data:
-        sync_post_tags(db, post, update_data["tags"])
+        if current_user.role.lower() == "admin":
+            sync_post_tags(db, post, update_data["tags"], create_missing=True)
+            post.requested_new_tags = None
+        else:
+            known_tags, requested_new_tags = split_known_and_new_tags(db, update_data["tags"])
+            sync_post_tags(db, post, known_tags, create_missing=False)
+            post.requested_new_tags = json.dumps(requested_new_tags, ensure_ascii=False) if requested_new_tags else None
 
     db.commit()
     if post.status != "active":

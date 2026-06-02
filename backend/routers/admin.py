@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+import json
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict
@@ -10,6 +11,7 @@ from dependencies.auth import require_role
 from models.admin_audit_log import AdminAuditLog
 from models.comment import Comment
 from models.post import Post
+from models.post_tag import PostTag
 from models.report import Report
 from models.tag import Tag
 from models.user import User
@@ -51,6 +53,7 @@ class AdminPostModerationResponse(BaseModel):
     user_id: str
     title: str
     status: str
+    requested_new_tags: list[str] = []
     created_at: datetime
 
 
@@ -256,11 +259,24 @@ def list_pending_posts(
             user_id=row.user_id,
             title=row.title,
             status=row.status,
+            requested_new_tags=_parse_requested_new_tags(row.requested_new_tags),
             created_at=row.created_at,
         )
         for row in rows
     ]
     return AdminPostsListResponse(items=items, meta=build_pagination_meta(page, page_size, total))
+
+
+def _parse_requested_new_tags(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    try:
+        parsed = json.loads(raw)
+        if isinstance(parsed, list):
+            return [str(item).strip().lower() for item in parsed if str(item).strip()]
+    except Exception:
+        return []
+    return []
 
 
 @router.post("/posts/{post_id}/approve", response_model=MessageResponse)
@@ -272,8 +288,26 @@ def approve_post(
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found.")
+
+    requested_new_tags = _parse_requested_new_tags(post.requested_new_tags)
+    approved_tags: list[str] = []
+    for tag_name in requested_new_tags:
+        slug = slugify(tag_name)
+        tag = db.query(Tag).filter((Tag.slug == slug) | (Tag.name == tag_name)).first()
+        if not tag:
+            tag = Tag(name=tag_name, slug=slug)
+            db.add(tag)
+            db.flush()
+        approved_tags.append(tag.name)
+
+        already_linked = any(assoc.tag_id == tag.id for assoc in post.tags)
+        if not already_linked:
+            db.add(PostTag(post_id=post.id, tag_id=tag.id))
+
+    post.requested_new_tags = None
     post.status = "active"
-    add_admin_audit_log(db, current_user.id, "approve_post", "post", str(post_id))
+    notes = f"approved_new_tags={','.join(approved_tags)}" if approved_tags else None
+    add_admin_audit_log(db, current_user.id, "approve_post", "post", str(post_id), notes)
     db.commit()
     return MessageResponse(message="Post approved successfully.")
 
@@ -288,6 +322,7 @@ def reject_post(
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found.")
     post.status = "rejected"
+    post.requested_new_tags = None
     add_admin_audit_log(db, current_user.id, "reject_post", "post", str(post_id))
     db.commit()
     return MessageResponse(message="Post rejected successfully.")

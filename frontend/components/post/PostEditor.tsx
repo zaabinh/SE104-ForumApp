@@ -139,7 +139,7 @@ export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, 
                 {recommendedTags.length ? (
                   recommendedTags.map((tag) => <Tag key={`suggested-${tag}`} label={tag} onClick={() => addSuggestedTag(tag)} />)
                 ) : (
-                  <span className="text-sm text-slate-400">No matching tags yet. Press Enter to create one.</span>
+                  <span className="text-sm text-slate-400">No matching tags yet. Press Enter to propose a new tag (admin approval required).</span>
                 )}
               </div>
             </div>

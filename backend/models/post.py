@@ -24,6 +24,7 @@ class Post(Base):
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending", server_default="pending", index=True)
     original_post_id: Mapped[int | None] = mapped_column(ForeignKey("posts.id", ondelete="NO ACTION"), nullable=True, index=True)
     share_caption: Mapped[str | None] = mapped_column(UnicodeText, nullable=True)
+    requested_new_tags: Mapped[str | None] = mapped_column(UnicodeText, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
     author = relationship("User", back_populates="posts")
