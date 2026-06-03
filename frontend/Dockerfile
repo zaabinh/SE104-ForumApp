@@ -24,11 +24,14 @@ ENV NODE_ENV=production \
 
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
 
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.ts ./next.config.ts
+COPY --from=builder --chown=nextjs:nextjs /app/package*.json ./
+COPY --from=builder --chown=nextjs:nextjs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nextjs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nextjs /app/public ./public
+COPY --from=builder --chown=nextjs:nextjs /app/next.config.ts ./next.config.ts
+
+RUN mkdir -p .next/cache/images \
+    && chown -R nextjs:nextjs /app/.next/cache
 
 USER nextjs
 EXPOSE 3000

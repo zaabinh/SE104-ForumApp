@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.13-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -18,6 +18,11 @@ RUN apt-get update \
     && curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
+    && DRIVER_LIB="$(find /opt/microsoft/msodbcsql18/lib64 -name 'libmsodbcsql-*.so.*' | sort -V | tail -n 1)" \
+    && test -n "$DRIVER_LIB" \
+    && printf "[ODBC Driver 18 for SQL Server]\nDescription=Microsoft ODBC Driver 18 for SQL Server\nDriver=%s\nUsageCount=1\n" "$DRIVER_LIB" > /etc/odbcinst.ini \
+    && odbcinst -q -d -n "ODBC Driver 18 for SQL Server" \
+    && test -f "$DRIVER_LIB" \
     && apt-get purge -y --auto-remove curl gnupg \
     && rm -rf /var/lib/apt/lists/*
 

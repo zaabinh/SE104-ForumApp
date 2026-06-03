@@ -17,6 +17,7 @@ services:
       - mssql_data:/var/opt/mssql
 
   db-init:
+    image: se104forumapp-backend:local
     build:
       context: ./backend
     environment:
@@ -25,18 +26,13 @@ services:
       JWT_SECRET_KEY: "${JWT_SECRET_KEY:-change-me-in-prod}"
       CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-http://localhost:3000}"
       FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
-    command:
-      - sh
-      - -c
-      - >
-        python -c "import os, pyodbc; pwd=os.environ['MSSQL_SA_PASSWORD']; conn=pyodbc.connect(f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER=db,1433;UID=sa;PWD={pwd};DATABASE=master;Encrypt=yes;TrustServerCertificate=yes', autocommit=True); conn.cursor().execute(\"IF DB_ID('StudentForum') IS NULL CREATE DATABASE StudentForum\"); conn.close()"
-        && python init_db.py
-        && python upgrade_db.py
+    command: ["python", "setup_local_db.py", "--wait", "90"]
     depends_on:
       db:
         condition: service_healthy
 
   backend:
+    image: se104forumapp-backend:local
     build:
       context: ./backend
     environment:
