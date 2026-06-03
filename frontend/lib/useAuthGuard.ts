@@ -11,10 +11,7 @@ function resolveProtectedDestination(currentPath: string, user: { status: string
   if (user.status === 'banned') {
     return `/login?status=banned&email=${encodeURIComponent(user.email)}`;
   }
-  if (!user.is_verified && !currentPath.startsWith('/verify-email')) {
-    return `/verify-email?email=${encodeURIComponent(user.email)}`;
-  }
-  if (user.is_verified && !user.profile_completed && !currentPath.startsWith('/complete-profile')) {
+  if (!user.profile_completed && !currentPath.startsWith('/complete-profile')) {
     return '/complete-profile';
   }
   return null;

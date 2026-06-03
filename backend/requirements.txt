@@ -10,3 +10,4 @@ python-dotenv==1.1.1
 python-slugify==8.0.4
 faker==37.5.3
 pytest==8.3.5
+fastapi[standard]

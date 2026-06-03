@@ -44,8 +44,6 @@ def get_current_user(
 def require_active_verified_user(current_user: User = Depends(get_current_user)) -> User:
     if current_user.status.lower() != "active":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is inactive.")
-    if not current_user.is_verified:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Please verify your email")
     if not is_profile_completed(current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Please complete your profile")
     return current_user

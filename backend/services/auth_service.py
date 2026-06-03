@@ -67,5 +67,5 @@ def create_google_user(*, email: str, full_name: str, avatar_url: str | None) ->
         role="Student",
         status="active",
         provider="google",
-        is_verified=False,
+        is_verified=True,
     )

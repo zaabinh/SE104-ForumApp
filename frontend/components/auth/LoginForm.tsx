@@ -47,10 +47,6 @@ export default function LoginForm() {
         router.replace('/complete-profile?prompt=details');
         return;
       }
-      if (!currentUser.is_verified) {
-        router.replace(`/verify-email?email=${encodeURIComponent(currentUser.email)}`);
-        return;
-      }
       router.replace('/feed');
     } catch (submitError: any) {
       setError(submitError?.response?.data?.detail || 'Unable to login.');

@@ -56,7 +56,7 @@ export default function RegisterForm() {
 
       setSuccess(response.data.message ?? t('registerSuccess'));
       setTimeout(() => {
-        startTransition(() => router.push(`/verify-email?email=${encodeURIComponent(form.email)}`));
+        startTransition(() => router.push('/login'));
       }, 800);
     } catch (submitError) {
       const message =

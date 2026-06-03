@@ -162,8 +162,8 @@ function CompleteProfileContent() {
                 interest_tags: form.interestTags,
               });
               saveStoredUser(response.data);
-              const currentUser = await fetchCurrentUser();
-              router.push(currentUser.is_verified ? '/feed' : `/verify-email?email=${encodeURIComponent(currentUser.email)}`);
+              await fetchCurrentUser();
+              router.push('/feed');
             } catch (submitError: any) {
               setError(submitError?.response?.data?.detail || 'Unable to complete profile.');
             } finally {
