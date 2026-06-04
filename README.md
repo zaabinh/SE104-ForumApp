@@ -102,7 +102,7 @@ docs/
 
 - Python 3.12 recommended
 - Microsoft SQL Server
-- ODBC Driver 17 for SQL Server or compatible Windows driver
+- ODBC Driver 18 for SQL Server or compatible Windows driver
 
 ### Frontend
 
@@ -116,7 +116,7 @@ docs/
 Copy [backend/.env.example](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/backend/.env.example) to `backend/.env`.
 
 ```env
-DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/StudentForum?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes&Encrypt=no&TrustServerCertificate=yes
+DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&Encrypt=no&TrustServerCertificate=yes
 JWT_SECRET_KEY=replace-with-a-long-random-secret
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60

@@ -33,7 +33,7 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Edit .env with your settings
-# SECRET_KEY should be a long random string
+# JWT_SECRET_KEY should be a long random string
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
@@ -111,7 +111,7 @@ backend/
 ### Database (app/database.py)
 - SQLAlchemy engine and session factory
 - Dependency injection via `get_db()`
-- Supports SQLite (dev) and PostgreSQL (prod)
+- Uses Microsoft SQL Server via `pyodbc` and ODBC Driver 18
 
 ### Models (app/models/)
 - **User**: Stores user credentials and profile
@@ -225,9 +225,10 @@ print(response.json())
 ### 1. Set Production Environment
 ```bash
 # .env file
-SECRET_KEY=very-long-random-string-from-secrets.token_urlsafe()
-DATABASE_URL=postgresql://user:password@host:5432/forum
-DEBUG=False
+JWT_SECRET_KEY=very-long-random-string-from-secrets.token_urlsafe()
+DATABASE_URL=mssql+pyodbc://user:password@server.database.windows.net:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no
+CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app
+FRONTEND_URL=https://your-frontend.vercel.app
 ```
 
 ### 2. Using Gunicorn + Uvicorn
@@ -256,16 +257,13 @@ docker build -t forum-api .
 docker run -p 8000:8000 forum-api
 ```
 
-### 4. Database Migration (PostgreSQL)
+### 4. Database Setup (SQL Server)
 ```bash
-# Create database
-createdb forum_db
-
 # Set DATABASE_URL in .env
-DATABASE_URL=postgresql://user:password@localhost:5432/forum_db
+DATABASE_URL=mssql+pyodbc://user:password@server:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes
 
-# Tables are automatically created on startup
-python main.py
+# Create missing tables and run upgrade script
+python setup_local_db.py --wait 90
 ```
 
 ## Troubleshooting
@@ -273,8 +271,8 @@ python main.py
 ### Issue: "ModuleNotFoundError: No module named 'app'"
 **Solution**: Make sure you're running from the backend directory and have activated your virtual environment.
 
-### Issue: "Database is locked" (SQLite)
-**Solution**: Only one process should access SQLite at a time. Use PostgreSQL for production.
+### Issue: "Can't open lib 'ODBC Driver 18 for SQL Server'"
+**Solution**: Install ODBC Driver 18 locally or run the provided backend Docker image, which installs `msodbcsql18`.
 
 ### Issue: 401 Unauthorized errors
 **Solution**: 
@@ -298,8 +296,8 @@ Base.metadata.create_all(bind=engine)  # Create fresh tables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| SECRET_KEY | none | JWT signing key (MUST set in production) |
-| DATABASE_URL | sqlite:///./forum.db | Database connection string |
+| JWT_SECRET_KEY | none | JWT signing key (MUST set in production) |
+| DATABASE_URL | none | SQL Server connection string using ODBC Driver 18 |
 | HOST | 0.0.0.0 | Server host |
 | PORT | 8000 | Server port |
 | ACCESS_TOKEN_EXPIRE_MINUTES | 30 | JWT token lifetime |

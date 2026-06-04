@@ -95,7 +95,7 @@ docs/
 ### Backend
 - Khuyến nghị **Python 3.12**
 - **Microsoft SQL Server**
-- **ODBC Driver 17** cho SQL Server hoặc driver tương thích trên Windows
+- **ODBC Driver 18** cho SQL Server hoặc driver tương thích trên Windows
 
 ### Frontend
 - **Node.js 18+**
@@ -107,7 +107,7 @@ docs/
 Sao chép `backend/.env.example` thành `backend/.env`.
 
 ```env
-DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/StudentForum?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes&Encrypt=no&TrustServerCertificate=yes
+DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&Encrypt=no&TrustServerCertificate=yes
 JWT_SECRET_KEY=thay-bang-mot-chuoi-bi-mat-ngau-nhien
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60

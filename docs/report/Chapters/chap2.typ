@@ -33,7 +33,7 @@ Hệ thống sử dụng *Microsoft SQL Server* làm hệ quản trị cơ sở 
 - *Hỗ trợ ACID:* Đảm bảo tính toàn vẹn dữ liệu thông qua các giao dịch (transaction).
 - *Công cụ quản lý mạnh mẽ:* SQL Server Management Studio (SSMS) cung cấp giao diện trực quan để quản lý và truy vấn dữ liệu.
 
-Kết nối giữa backend và SQL Server thông qua *ODBC Driver 17 for SQL Server*, sử dụng chuỗi kết nối được cấu hình trong biến môi trường.
+Kết nối giữa backend và SQL Server thông qua *ODBC Driver 18 for SQL Server*, sử dụng chuỗi kết nối được cấu hình trong biến môi trường.
 
 == 2.2. Xác thực và bảo mật
 

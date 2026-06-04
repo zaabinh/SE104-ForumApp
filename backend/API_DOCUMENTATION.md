@@ -35,7 +35,7 @@ Production-ready backend for a Student Forum System built with FastAPI, SQLAlche
 
 - **Framework**: FastAPI
 - **ORM**: SQLAlchemy 2.0
-- **Database**: SQLite (dev) / PostgreSQL (production)
+- **Database**: Microsoft SQL Server via `pyodbc` and ODBC Driver 18
 - **Authentication**: JWT with python-jose
 - **Validation**: Pydantic v2
 - **Server**: Uvicorn
@@ -93,8 +93,10 @@ pip install -r requirements.txt
 
 ### 3. Create .env File
 ```env
-SECRET_KEY=your-super-secret-key-change-this-in-production
-DATABASE_URL=sqlite:///./forum.db
+JWT_SECRET_KEY=your-super-secret-key-change-this-in-production
+DATABASE_URL=mssql+pyodbc://user:password@server:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000
+FRONTEND_URL=http://127.0.0.1:3000
 ```
 
 ### 4. Run Server
@@ -462,8 +464,10 @@ You can test all endpoints directly from the browser!
 
 ### Environment Variables for Production
 ```env
-SECRET_KEY=generate-a-long-random-string
-DATABASE_URL=postgresql://user:password@host:5432/forum
+JWT_SECRET_KEY=generate-a-long-random-string
+DATABASE_URL=mssql+pyodbc://user:password@server.database.windows.net:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no
+CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app
+FRONTEND_URL=https://your-frontend.vercel.app
 ```
 
 ### Run with Gunicorn
