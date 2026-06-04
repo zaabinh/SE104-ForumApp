@@ -9,7 +9,7 @@ from models.report import Report
 from models.user import User
 from schemas.comment_schema import CommentCreate, CommentResponse
 from schemas.report_schema import ReportCreate, ReportResponse
-from services.notification_service import create_notification
+from services.notification_service import create_notification, notify_admins
 from services.report_service import normalize_report_reason
 
 
@@ -119,6 +119,29 @@ def report_comment(
         details=payload.details.strip() if payload.details else None,
     )
     db.add(report)
+    db.flush()
+    notify_admins(
+        db,
+        actor_id=current_user.id,
+        notification_type="comment_report",
+        title="New comment report",
+        message=f"{current_user.username} reported comment #{comment.id}.",
+        post_id=post_id,
+        comment_id=comment.id,
+        report_id=report.id,
+    )
+    if comment.user_id != current_user.id:
+        create_notification(
+            db,
+            user_id=comment.user_id,
+            actor_id=None,
+            notification_type="comment_reported",
+            title="Your comment was reported",
+            message="Your comment has been reported and is awaiting review.",
+            post_id=post_id,
+            comment_id=comment.id,
+            report_id=report.id,
+        )
     db.commit()
     db.refresh(report)
     return report

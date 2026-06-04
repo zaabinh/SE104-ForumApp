@@ -79,7 +79,7 @@ export default function ReportDialog({ targetLabel, open, loading = false, error
             {reportReasons.map((item) => (
               <label
                 key={item.value}
-                className={`cursor-pointer rounded-2xl border p-3 transition sm:p-4 ${
+                className={`rounded-2xl border p-3 transition sm:p-4 ${
                   reason === item.value ? 'border-rose-300 bg-rose-50 text-rose-700' : 'border-slate-200 bg-white text-ink-600 hover:border-rose-200'
                 }`}
               >

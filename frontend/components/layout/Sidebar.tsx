@@ -95,7 +95,7 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
           <button
             type="button"
             onClick={onToggleCollapse}
-            className={`hidden h-10 w-10 cursor-pointer select-none items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-ink-600 transition-transform duration-300 ease-in-out hover:border-uit-300 hover:text-uit-700 md:flex ${
+            className={`hidden h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-ink-600 transition-transform duration-300 ease-in-out hover:border-uit-300 hover:text-uit-700 md:flex ${
               isCollapsed ? 'rotate-180' : ''
             }`}
             aria-label={isCollapsed ? t('sidebarExpand') : t('sidebarCollapse')}
@@ -143,7 +143,7 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
                     key={label}
                     href={href}
                     onClick={onCloseMobile}
-                    className={`group flex cursor-pointer select-none items-center gap-3 rounded-[18px] px-3 py-3 text-[15px] font-medium transition-all duration-300 hover:bg-slate-100 hover:text-ink-900 ${
+                    className={`group flex items-center gap-3 rounded-[18px] px-3 py-3 text-[15px] font-medium transition-all duration-300 hover:bg-slate-100 hover:text-ink-900 ${
                       isActive ? 'bg-slate-100 text-ink-900' : 'text-ink-600'
                     } ${justifyClass} ${isCollapsed ? 'md:px-0' : ''}`}
                   >
@@ -177,7 +177,7 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
             onCloseMobile();
             window.location.href = '/login';
           }}
-          className={`mt-4 flex cursor-pointer select-none items-center gap-3 rounded-[18px] px-3 py-3 text-sm font-medium text-ink-500 transition-all duration-300 hover:bg-rose-50 hover:text-rose-500 ${justifyClass} ${
+          className={`mt-4 flex items-center gap-3 rounded-[18px] px-3 py-3 text-sm font-medium text-ink-500 transition-all duration-300 hover:bg-rose-50 hover:text-rose-500 ${justifyClass} ${
             isCollapsed ? 'md:px-0' : ''
           }`}
         >

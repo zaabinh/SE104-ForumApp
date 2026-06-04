@@ -401,6 +401,16 @@ def approve_post(
     post.status = "active"
     notes = f"approved_new_tags={','.join(approved_tags)}" if approved_tags else None
     add_admin_audit_log(db, current_user.id, "approve_post", "post", str(post_id), notes)
+    if post.user_id != current_user.id:
+        create_notification(
+            db,
+            user_id=post.user_id,
+            actor_id=current_user.id,
+            notification_type="post_approved",
+            title="Your post was approved",
+            message=f"Your post \"{post.title}\" is now visible in the feed.",
+            post_id=post.id,
+        )
     db.commit()
     return MessageResponse(message="Post approved successfully.")
 
@@ -417,6 +427,16 @@ def reject_post(
     post.status = "rejected"
     post.requested_new_tags = None
     add_admin_audit_log(db, current_user.id, "reject_post", "post", str(post_id))
+    if post.user_id != current_user.id:
+        create_notification(
+            db,
+            user_id=post.user_id,
+            actor_id=current_user.id,
+            notification_type="post_rejected",
+            title="Your post was not approved",
+            message=f"Your post \"{post.title}\" was rejected by moderation.",
+            post_id=post.id,
+        )
     db.commit()
     return MessageResponse(message="Post rejected successfully.")
 

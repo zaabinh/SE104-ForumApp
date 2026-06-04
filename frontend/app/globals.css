@@ -28,6 +28,13 @@ body {
     'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
+button,
+button *,
+input[type='search'],
+input[type='search'] * {
+  cursor: default;
+}
+
 code,
 pre,
 .monospace {

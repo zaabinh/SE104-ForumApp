@@ -42,19 +42,23 @@ export default function FAQ() {
         
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <div 
+            <div
               key={index}
               className="card-surface overflow-hidden"
-              onClick={() => setOpenIndex(openIndex === index ? null : index)}
             >
-              <div className="flex items-center justify-between p-6 cursor-pointer">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between p-6 text-left"
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                aria-expanded={openIndex === index}
+              >
                 <h3 className="text-xl font-bold text-slate-900">{faq.question}</h3>
                 {openIndex === index ? (
                   <FiChevronUp className="h-5 w-5 text-blue-600" />
                 ) : (
                   <FiChevronDown className="h-5 w-5 text-slate-500" />
                 )}
-              </div>
+              </button>
               {openIndex === index && (
                 <div className="px-6 pb-6">
                   <p className="text-slate-600 leading-relaxed">{faq.answer}</p>

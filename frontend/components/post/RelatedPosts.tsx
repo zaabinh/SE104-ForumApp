@@ -45,7 +45,7 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
             key={post.id}
             type="button"
             onClick={() => router.push(`/post/${post.id}`)}
-            className="group flex w-full cursor-pointer flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3 text-left transition-all duration-200 hover:border-forum-primary/60 hover:bg-forum-primary/[0.04]"
+            className="group flex w-full flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3 text-left transition-all duration-200 hover:border-forum-primary/60 hover:bg-forum-primary/[0.04]"
           >
             {/* Similarity badge và reason */}
             {similarity_score !== undefined && (

@@ -30,7 +30,7 @@ from schemas.trending_schema import (
     UserProfileSummary,
     ProfileAnalysisResponse,
 )
-from services.notification_service import create_notification
+from services.notification_service import create_notification, notify_admins
 import json
 
 from services.post_service import (
@@ -240,7 +240,18 @@ def delete_post(post_id: int, db: Session = Depends(get_db), current_user: User 
     if comment_count and current_user.role.lower() != "admin":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete a post that already has comments.")
 
-    db.delete(post)
+    if current_user.role.lower() == "admin" and post.user_id != current_user.id:
+        create_notification(
+            db,
+            user_id=post.user_id,
+            actor_id=current_user.id,
+            notification_type="post_moderation",
+            title="Your post was removed",
+            message=f"Your post \"{post.title}\" was removed by an administrator.",
+            post_id=post.id,
+        )
+
+    post.status = "deleted"
     db.commit()
     return MessageResponse(message="Post deleted successfully.")
 
@@ -332,7 +343,7 @@ def share_post(
 
 @router.post("/{post_id}/report", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 def report_post(post_id: int, payload: ReportCreate, db: Session = Depends(get_db), current_user: User = Depends(require_active_verified_user)):
-    _ = get_post_or_404(db, post_id)
+    post = get_post_or_404(db, post_id)
     duplicate = (
         db.query(Report)
         .filter(Report.reporter_id == current_user.id, Report.post_id == post_id, Report.comment_id.is_(None))
@@ -347,6 +358,27 @@ def report_post(post_id: int, payload: ReportCreate, db: Session = Depends(get_d
         details=payload.details.strip() if payload.details else None,
     )
     db.add(report)
+    db.flush()
+    notify_admins(
+        db,
+        actor_id=current_user.id,
+        notification_type="post_report",
+        title="New post report",
+        message=f"{current_user.username} reported post #{post.id}.",
+        post_id=post.id,
+        report_id=report.id,
+    )
+    if post.user_id != current_user.id:
+        create_notification(
+            db,
+            user_id=post.user_id,
+            actor_id=None,
+            notification_type="post_reported",
+            title="Your post was reported",
+            message=f"Your post \"{post.title}\" has been reported and is awaiting review.",
+            post_id=post.id,
+            report_id=report.id,
+        )
     db.commit()
     db.refresh(report)
     return report

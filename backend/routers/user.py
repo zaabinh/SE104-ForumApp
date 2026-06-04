@@ -13,6 +13,7 @@ from models.follow import Follow
 from models.notification import Notification
 from models.post import Post
 from models.user import User
+from schemas.auth_schema import MessageResponse
 from schemas.notification_schema import NotificationResponse
 
 
@@ -270,3 +271,23 @@ def mark_notification_read(
     db.commit()
     db.refresh(notification)
     return notification
+
+
+@router.delete("/users/me/notifications/{notification_id}", response_model=MessageResponse)
+def delete_read_notification(
+    notification_id: int,
+    current_user: User = Depends(require_active_verified_user),
+    db: Session = Depends(get_db),
+):
+    notification = (
+        db.query(Notification)
+        .filter(Notification.id == notification_id, Notification.user_id == current_user.id)
+        .first()
+    )
+    if not notification:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found.")
+    if not notification.is_read:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only read notifications can be deleted.")
+    db.delete(notification)
+    db.commit()
+    return MessageResponse(message="Notification deleted successfully.")

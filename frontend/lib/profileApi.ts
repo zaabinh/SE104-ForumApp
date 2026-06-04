@@ -44,6 +44,20 @@ export type ProfileComment = {
   created_at: string;
 };
 
+export type NotificationItem = {
+  id: number;
+  user_id: string;
+  actor_id: string | null;
+  type: string;
+  title: string;
+  message: string | null;
+  is_read: boolean;
+  post_id: number | null;
+  comment_id: number | null;
+  report_id: number | null;
+  created_at: string;
+};
+
 export type UpdateProfilePayload = {
   full_name: string;
   bio: string;
@@ -76,6 +90,23 @@ export async function getUserComments(username: string) {
 
 export async function getUserBookmarks(username: string) {
   const response = await api.get<ProfilePost[]>(`/users/${username}/bookmarks`);
+  return response.data;
+}
+
+export async function getMyNotifications(unreadOnly = false) {
+  const response = await api.get<NotificationItem[]>('/users/me/notifications', {
+    params: { unread_only: unreadOnly },
+  });
+  return response.data;
+}
+
+export async function markNotificationRead(notificationId: number) {
+  const response = await api.post<NotificationItem>(`/users/me/notifications/${notificationId}/read`);
+  return response.data;
+}
+
+export async function deleteReadNotification(notificationId: number) {
+  const response = await api.delete<{ message: string }>(`/users/me/notifications/${notificationId}`);
   return response.data;
 }
 

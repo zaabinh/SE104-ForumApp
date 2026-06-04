@@ -144,7 +144,7 @@ export default function EditProfilePage() {
                   <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">No image</div>
                 )}
               </div>
-              <label className="cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
+              <label className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
                 Upload
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => onAvatarUpload(e.target.files?.[0])} />
               </label>

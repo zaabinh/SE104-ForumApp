@@ -30,7 +30,7 @@ function PostCard({ post, author, activeTag, onSelectTag, liked, bookmarked, onL
   const resolvedBookmarkToggle = onBookmarkToggle ?? (() => false);
 
   return (
-    <article className="dashboard-card content-auto cursor-pointer select-none overflow-hidden p-5 transition-all duration-300 hover:-translate-y-1" onClick={handleOpenPost}>
+    <article className="dashboard-card content-auto overflow-hidden p-5 transition-all duration-300 hover:-translate-y-1">
       <header className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <Image src={author.avatar} alt={author.name} width={48} height={48} sizes="48px" className="rounded-full border border-white/70 object-cover shadow-sm" />
@@ -49,7 +49,9 @@ function PostCard({ post, author, activeTag, onSelectTag, liked, bookmarked, onL
         <span className="rounded-full bg-ink-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-500">Post card</span>
       </div>
 
-      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-ink-900 transition-all duration-200 hover:text-uit-700">{post.title}</h2>
+      <button type="button" onClick={handleOpenPost} className="mt-4 block text-left text-2xl font-semibold tracking-tight text-ink-900 transition-all duration-200 hover:text-uit-700">
+        {post.title}
+      </button>
       <p className="mt-3 text-sm leading-7 text-ink-600">{post.excerpt}</p>
 
       <div className="mt-3 flex flex-wrap gap-2">

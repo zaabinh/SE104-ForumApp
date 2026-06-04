@@ -116,3 +116,5 @@ dmypy.json
 .Trashes
 ehthumbs.db
 .env.*.local
+
+pytest.ini
