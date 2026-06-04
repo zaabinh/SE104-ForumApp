@@ -1,65 +1,17 @@
-# UITConnect - Đồ án SE104
+# UITConnect - Ứng dụng diễn đàn SE104
 
-Cập nhật lần cuối: 12-04-2026
+UITConnect là ứng dụng diễn đàn sinh viên full-stack dành cho cộng đồng UIT. Dự án gồm xác thực, bài viết, bình luận lồng nhau, report, kiểm duyệt, notification, gợi ý bài viết, hồ sơ người dùng và cấu hình deploy lên Vercel + Render.
 
-## Tổng quan
+Cập nhật theo mã nguồn hiện tại: 2026-06-04.
 
-UITConnect là một ứng dụng diễn đàn sinh viên (full-stack) dành riêng cho UIT.
+## Công nghệ
 
-- **Frontend:** Next.js 15, React 19, TypeScript, Tailwind CSS
-- **Backend:** FastAPI, SQLAlchemy 2, JWT authentication
-- **Cơ sở dữ liệu:** Microsoft SQL Server thông qua `pyodbc`
-
-Repository hiện tại đã bao gồm Backend API hoạt động ổn định và Frontend đã kết nối với các API xác thực và diễn đàn cho các luồng người dùng chính.
-
-## Trạng thái hiện tại
-
-Các tính năng đã triển khai trong mã nguồn:
-
-- **Xác thực (Authentication):**
-  - Đăng ký tài khoản
-  - Đăng nhập bằng email hoặc tên người dùng
-  - Luồng làm mới token (Refresh token)
-  - Đăng xuất
-  - Xác minh email
-  - Gửi lại mã xác minh
-  - Quên mật khẩu & Đặt lại mật khẩu
-  - Đăng nhập qua Google OAuth
-  - Hoàn thiện hồ sơ (Complete profile flow)
-- **Diễn đàn (Forum):**
-  - Tạo, sửa, xóa và xem bài viết
-  - Bảng tin (Feed) hỗ trợ tìm kiếm, gắn thẻ (tag), chế độ xem, sắp xếp và phân trang
-  - Thích (likes), dấu trang (bookmarks), chia sẻ và báo cáo (reports)
-  - Bình luận lồng nhau và báo cáo bình luận (cho người dùng đã xác thực)
-  - Quản lý thẻ (Tags)
-- **Tính năng người dùng:**
-  - Hồ sơ cá nhân hiện tại
-  - Chỉnh sửa hồ sơ cá nhân
-  - Xem hồ sơ công khai qua tên người dùng
-  - Danh sách bài viết, bình luận, dấu trang của người dùng
-  - Theo dõi và hủy theo dõi người dùng
-  - Danh sách thông báo và đánh dấu đã đọc
-- **Quản trị viên (Admin backend):**
-  - Danh sách người dùng
-  - Khóa (ban) và mở khóa người dùng
-  - Kiểm duyệt báo cáo
-  - Quản lý thẻ
-
-**Các trang Frontend hiện có:**
-- Landing page, Đăng nhập & Đăng ký
-- Xác minh email
-- Quên mật khẩu & Đặt lại mật khẩu
-- Google auth callback
-- Hoàn thiện hồ sơ
-- Bảng tin (Feed)
-- Tạo và Chỉnh sửa bài viết
-- Chi tiết bài viết
-- Hồ sơ cá nhân và Chỉnh sửa hồ sơ
-
-**Các phần chưa hoàn thiện hoặc chủ yếu là giao diện (UI-only):**
-- `/dashboard`: Hiện là khung giao diện (wireframe), chưa kết nối hoàn toàn với bảng điều khiển admin.
-- `/settings`: Đã có trang nhưng nội dung vẫn là bản nháp (placeholder).
-- Việc gửi email thực tế đang được thay thế bằng việc in mã ra console của backend trong môi trường phát triển.
+- Frontend: Next.js 15.5.19, React 19.0.4, TypeScript, Tailwind CSS
+- Backend: FastAPI, SQLAlchemy 2.0, Uvicorn
+- Database: Microsoft SQL Server qua `pyodbc`
+- SQL driver: ODBC Driver 18 for SQL Server
+- Xác thực: JWT access/refresh token, Google OAuth tùy chọn
+- Deploy: Vercel cho frontend, Render Docker backend, Azure SQL hoặc SQL Server bên ngoài
 
 ## Cấu trúc Repository
 
@@ -67,15 +19,13 @@ Các tính năng đã triển khai trong mã nguồn:
 backend/
   main.py
   database.py
-  init_db.py
-  seed_admin.py
+  render_start.py
+  Dockerfile
   requirements.txt
-  routers/
   models/
+  routers/
   schemas/
   services/
-  dependencies/
-  utils/
 
 frontend/
   app/
@@ -84,107 +34,165 @@ frontend/
   public/
   package.json
   next.config.ts
-
-Database/
-  StudentForum.sql
+  vercel.json
 
 docs/
-  report/
+docker-compose.yml
+render.yaml
+PROJECT_SUMMARY.md
+PROJECT_SUMMARY_vi.md
 ```
-  ## Yêu cầu hệ thống
+
+## Trạng thái tính năng
+
+Đã có:
+
+- Đăng ký và đăng nhập local
+- JWT refresh/logout
+- Google OAuth callback tùy chọn
+- Luồng hoàn thiện hồ sơ
+- Feed, tìm kiếm, tag, sắp xếp và phân trang
+- Tạo, sửa, xóa, like, bookmark, share và report bài viết
+- Bình luận lồng nhau và report bình luận
+- Hồ sơ người dùng hiện tại/công khai
+- Follow/unfollow
+- Notification cho kiểm duyệt, like, comment, reply, report, follow và trạng thái tài khoản
+- Admin quản lý user, xử lý report, duyệt/từ chối bài, tag và analytics
+- Gợi ý bài viết theo trending, tương tự, collaborative và profile
+
+Giới hạn hiện tại:
+
+- Xác minh email đang tạm tắt.
+- Gửi email thật chưa hoàn thiện; backend đang in email ra log.
+- Notification chưa realtime.
+- Upload trên Render dùng filesystem tạm nếu chưa chuyển sang storage ngoài.
+- `/settings` vẫn là giao diện placeholder.
+
+## Biến môi trường
+
 ### Backend
-- Khuyến nghị **Python 3.12**
-- **Microsoft SQL Server**
-- **ODBC Driver 18** cho SQL Server hoặc driver tương thích trên Windows
 
-### Frontend
-- **Node.js 18+**
-- **npm 9+**
-
-## Thiết lập môi trường
-
-### Backend
-Sao chép `backend/.env.example` thành `backend/.env`.
+Tạo `backend/.env` từ `backend/.env.example`.
 
 ```env
-DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&Encrypt=no&TrustServerCertificate=yes
-JWT_SECRET_KEY=thay-bang-mot-chuoi-bi-mat-ngau-nhien
+DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes
+JWT_SECRET_KEY=replace-with-a-long-random-secret
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 REFRESH_TOKEN_EXPIRE_DAYS=7
-FRONTEND_URL=[http://127.0.0.1:3000](http://127.0.0.1:3000)
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=[http://127.0.0.1:8000/auth/google/callback](http://127.0.0.1:8000/auth/google/callback)
+FRONTEND_URL=http://127.0.0.1:3000
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000
+PUBLIC_API_URL=http://127.0.0.1:8000
 ```
-## Ghi chú
 
-- `FRONTEND_URL` được sử dụng khi tạo link xác thực tài khoản và đặt lại mật khẩu.
-- Google OAuth là tùy chọn. Bạn có thể để trống các biến Google nếu không sử dụng.
+Ví dụ Azure SQL / Render:
+
+```env
+DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER.database.windows.net:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no
+```
+
+Nếu password DB có ký tự đặc biệt thì cần URL-encode, ví dụ `!` -> `%21`, `@` -> `%40`, `#` -> `%23`.
 
 ### Frontend
 
-Sao chép file [frontend/.env.example](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/frontend/.env.example) thành `frontend/.env.local`.
+Tạo `frontend/.env.local` từ `frontend/.env.example`.
 
 ```env
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
-## Chạy project trên máy local
+## Chạy local không dùng Docker
 
-### 1. Khởi động backend
+### Backend
 
 ```powershell
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-python init_db.py
+python setup_local_db.py --wait 90
 uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
-## Tài liệu API
 
-- Swagger UI: http://127.0.0.1:8000/docs  
-- ReDoc: http://127.0.0.1:8000/redoc  
+Tài liệu API:
 
-## Công cụ hỗ trợ (tùy chọn)
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
+- Health check: `http://127.0.0.1:8000/health`
 
-```powershell
-python test_db.py
-python seed_admin.py
-```
-
----
-
-## 2. Khởi động frontend
-
-Mở terminal thứ hai:
+### Frontend
 
 ```powershell
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-## Địa chỉ frontend
+Frontend URL: `http://127.0.0.1:3000`
 
+## Chạy bằng Docker Compose
+
+Tại root repo:
+
+```powershell
+docker compose up -d --build
 ```
-http://127.0.0.1:3000
+
+Các service:
+
+- SQL Server: `localhost:1433`
+- Backend: `http://localhost:8000`
+- Frontend: `http://localhost:3000`
+
+## Deploy
+
+### Frontend trên Vercel
+
+Cấu hình Vercel Project Settings:
+
+- Root Directory: `frontend`
+- Framework Preset: Next.js
+- Install Command: `npm ci`
+- Build Command: `npm run build`
+- Output Directory: để trống
+
+Biến môi trường:
+
+```env
+NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
 ```
 
----
+### Backend trên Render
 
-## Các route chính
+Dùng Blueprint `render.yaml` ở root repo, hoặc tạo Docker Web Service thủ công:
 
-### Frontend
+- Dockerfile Path: `backend/Dockerfile`
+- Docker Context: `backend`
+- Health Check Path: `/health`
+
+Biến môi trường trên Render:
+
+```env
+DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER.database.windows.net:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no
+FRONTEND_URL=https://your-frontend.vercel.app
+CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app
+PUBLIC_API_URL=https://your-backend.onrender.com
+JWT_SECRET_KEY=generate-a-long-random-secret
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+REFRESH_TOKEN_EXPIRE_DAYS=7
+RUN_DB_SETUP_ON_START=false
+```
+
+Nếu database mới chưa có bảng, đặt `RUN_DB_SETUP_ON_START=true` cho lần deploy đầu, sau đó đổi lại `false`.
+
+## Route chính
+
+Frontend:
 
 - `/`
 - `/login`
 - `/register`
-- `/verify-email`
-- `/forgot-password`
-- `/reset-password`
-- `/complete-profile`
 - `/feed`
 - `/create`
 - `/edit/[id]`
@@ -194,94 +202,50 @@ http://127.0.0.1:3000
 - `/dashboard`
 - `/settings`
 
----
-
-### Backend
-
-#### Xác thực (Auth)
+Backend:
 
 - `POST /auth/register`
 - `POST /auth/login`
-- `GET /auth/google/login`
-- `GET /auth/google/callback`
-- `POST /auth/refresh`
-- `POST /auth/logout`
-- `POST /auth/verify-email`
-- `POST /auth/resend-verification`
-- `POST /auth/forgot-password`
-- `POST /auth/reset-password`
-- `POST /auth/complete-profile`
 - `GET /auth/me`
-
-#### Diễn đàn (Forum)
-
 - `GET /api/posts/feed`
 - `POST /api/posts/`
 - `GET /api/posts/{post_id}`
-- `PUT /api/posts/{post_id}`
-- `DELETE /api/posts/{post_id}`
-- `POST /api/posts/{post_id}/like`
-- `POST /api/posts/{post_id}/bookmark`
-- `POST /api/posts/{post_id}/share`
-- `POST /api/posts/{post_id}/report`
-- `GET /api/posts/tags`
 - `POST /api/posts/{post_id}/comments/`
-- `GET /api/posts/{post_id}/comments/`
-- `POST /api/posts/{post_id}/comments/{comment_id}/report`
-
-#### Người dùng & mạng xã hội
-
-- `GET /users/me`
-- `PUT /users/me`
-- `GET /users/{username}`
-- `GET /users/{username}/posts`
-- `GET /users/{username}/comments`
-- `GET /users/{username}/bookmarks`
 - `GET /users/me/notifications`
-- `POST /users/me/notifications/{notification_id}/read`
-- `POST /follow/{user_id}`
-- `DELETE /follow/{user_id}`
-
-#### Admin
-
-- `GET /api/admin/users`
-- `POST /api/admin/users/{user_id}/ban`
-- `POST /api/admin/users/{user_id}/unban`
 - `GET /api/admin/reports`
 - `POST /api/admin/reports/{report_id}/moderate`
-- `GET /api/admin/tags`
-- `POST /api/admin/tags`
-- `PUT /api/admin/tags/{tag_id}`
-- `DELETE /api/admin/tags/{tag_id}`
+- `GET /api/admin/posts/pending`
+- `POST /api/admin/posts/{post_id}/approve`
 
----
+Xem `PROJECT_SUMMARY_vi.md` để có danh sách endpoint đầy đủ.
 
-## Lưu ý
+## Kiểm tra
 
-- Hầu hết các endpoint `/api/posts`, comment, notification, follow và admin đều yêu cầu đăng nhập.  
-- Các thao tác với bài viết và bình luận yêu cầu tài khoản đã được xác thực.
+Backend:
 
----
+```powershell
+python -m py_compile backend\main.py backend\database.py backend\render_start.py
+```
 
-## Ghi chú thêm
+Frontend:
 
-- Backend tự tạo bảng khi khởi động thông qua SQLAlchemy metadata.  
-- Frontend sử dụng Axios interceptor tại `frontend/lib/axios.ts` để:
-  - Gắn access token  
-  - Tự động refresh khi gặp lỗi `401`  
-- Email xác thực và reset password hiện được in ra console backend (dev).  
-- Một số tài liệu cũ có thể không còn chính xác → ưu tiên:
-  - `README.md`
-  - Swagger
-  - Source code hiện tại  
+```powershell
+cd frontend
+npm audit
+npm run build
+```
 
----
+Docker Compose:
+
+```powershell
+docker compose -f docker-compose.yml config
+```
 
 ## Tài liệu liên quan
 
-- `README-vi.md`
-- `AUTHENTICATION.md`
-- `AUTHENTICATION_vi.md`
-- `API_ENDPOINTS.md`
-- `backend/API_DOCUMENTATION.md`
+- `PROJECT_SUMMARY.md`
+- `PROJECT_SUMMARY_vi.md`
+- `docs/deploy.md`
 - `backend/BACKEND_SETUP.md`
+- `backend/API_DOCUMENTATION.md`
+

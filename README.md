@@ -1,69 +1,17 @@
-# UITConnect - SE104 Project
+# UITConnect - SE104 Forum App
 
-Last updated: 2026-04-12
+UITConnect is a full-stack student forum for UIT communities. It includes authentication, forum posts, nested comments, reports, moderation, notifications, recommendations, profile pages, and deploy configuration for Vercel + Render.
 
-## Overview
+Last synchronized with source code: 2026-06-04.
 
-UITConnect is a full-stack student forum application for UIT.
+## Stack
 
-- Frontend: Next.js 15, React 19, TypeScript, Tailwind CSS
-- Backend: FastAPI, SQLAlchemy 2, JWT authentication
-- Database: Microsoft SQL Server via `pyodbc`
-
-The repository currently contains a working backend API and a frontend that is already connected to the live authentication and forum APIs for the main user flows.
-
-## Current Status
-
-Implemented in the current codebase:
-
-- Authentication:
-  - register
-  - login with email or username
-  - refresh token flow
-  - logout
-  - email verification
-  - resend verification
-  - forgot password
-  - reset password
-  - Google OAuth login
-  - complete profile flow
-- Forum:
-  - create, edit, delete, and view posts
-  - feed endpoint with search, tag, mode, sort, and pagination
-  - likes, bookmarks, shares, and reports
-  - nested comments and comment reporting for authenticated users
-  - tags
-- User features:
-  - current user profile
-  - edit own profile
-  - public profile by username
-  - user posts, comments, bookmarks
-  - follow and unfollow users
-  - notifications list and mark-as-read
-- Admin backend:
-  - user list
-  - ban and unban users
-  - reports moderation
-  - tag management
-
-Frontend pages already present:
-
-- landing page
-- login and register
-- verify email
-- forgot password and reset password
-- Google auth callback
-- complete profile
-- feed
-- create post and edit post
-- post detail
-- profile and profile edit
-
-Still incomplete or mostly UI-only:
-
-- `/dashboard` is a visual wireframe, not a fully connected admin console
-- `/settings` is present but still placeholder content
-- development email sending is currently a console-print placeholder in the backend
+- Frontend: Next.js 15.5.19, React 19.0.4, TypeScript, Tailwind CSS
+- Backend: FastAPI, SQLAlchemy 2.0, Uvicorn
+- Database: Microsoft SQL Server through `pyodbc`
+- SQL driver: ODBC Driver 18 for SQL Server
+- Auth: JWT access/refresh tokens, optional Google OAuth
+- Deployment: Vercel frontend, Render Docker backend, Azure SQL or external SQL Server
 
 ## Repository Structure
 
@@ -71,15 +19,13 @@ Still incomplete or mostly UI-only:
 backend/
   main.py
   database.py
-  init_db.py
-  seed_admin.py
+  render_start.py
+  Dockerfile
   requirements.txt
-  routers/
   models/
+  routers/
   schemas/
   services/
-  dependencies/
-  utils/
 
 frontend/
   app/
@@ -88,68 +34,83 @@ frontend/
   public/
   package.json
   next.config.ts
-
-Database/
-  StudentForum.sql
+  vercel.json
 
 docs/
-  report/
+docker-compose.yml
+render.yaml
+PROJECT_SUMMARY.md
+PROJECT_SUMMARY_vi.md
 ```
 
-## Requirements
+## Current Feature Status
+
+Implemented:
+
+- Local registration and login
+- JWT refresh/logout flow
+- Optional Google OAuth callback flow
+- Complete profile flow
+- Feed, search, tags, sorting and pagination
+- Create, edit, delete, like, bookmark, share and report posts
+- Nested comments and comment reports
+- Public/current user profiles
+- Follow/unfollow users
+- Notifications for moderation, likes, comments, replies, reports, follows and account status
+- Admin user management, report moderation, pending post approval/rejection, tags and analytics
+- Recommendation endpoints for trending, similar, collaborative and profile-based posts
+
+Known limitations:
+
+- Email verification is temporarily disabled.
+- Email sending currently prints to backend logs instead of using a mail provider.
+- Notifications are pull-based, not realtime.
+- Uploads on Render use ephemeral filesystem unless moved to external storage.
+- `/settings` is still placeholder-level UI.
+
+## Environment Variables
 
 ### Backend
 
-- Python 3.12 recommended
-- Microsoft SQL Server
-- ODBC Driver 18 for SQL Server or compatible Windows driver
-
-### Frontend
-
-- Node.js 18+
-- npm 9+
-
-## Environment Setup
-
-### Backend
-
-Copy [backend/.env.example](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/backend/.env.example) to `backend/.env`.
+Create `backend/.env` from `backend/.env.example`.
 
 ```env
-DATABASE_URL=mssql+pyodbc://@localhost\\SQLEXPRESS/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&Encrypt=no&TrustServerCertificate=yes
+DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes
 JWT_SECRET_KEY=replace-with-a-long-random-secret
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 REFRESH_TOKEN_EXPIRE_DAYS=7
 FRONTEND_URL=http://127.0.0.1:3000
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=http://127.0.0.1:8000/auth/google/callback
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000
+PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
-Notes:
+Azure SQL / Render example:
 
-- `FRONTEND_URL` is used when building verification and password reset links.
-- Google OAuth is optional. Leave the Google variables empty if you do not need it.
+```env
+DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER.database.windows.net:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no
+```
+
+URL-encode special characters in database passwords, for example `!` -> `%21`, `@` -> `%40`, `#` -> `%23`.
 
 ### Frontend
 
-Copy [frontend/.env.example](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/frontend/.env.example) to `frontend/.env.local`.
+Create `frontend/.env.local` from `frontend/.env.example`.
 
 ```env
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
-## Run Locally
+## Run Locally Without Docker
 
-### 1. Start the backend
+### Backend
 
 ```powershell
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-python init_db.py
+python setup_local_db.py --wait 90
 uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -157,41 +118,81 @@ API docs:
 
 - Swagger UI: `http://127.0.0.1:8000/docs`
 - ReDoc: `http://127.0.0.1:8000/redoc`
+- Health check: `http://127.0.0.1:8000/health`
 
-Optional utilities:
-
-```powershell
-python test_db.py
-python seed_admin.py
-```
-
-### 2. Start the frontend
-
-Open a second terminal:
+### Frontend
 
 ```powershell
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Frontend URL:
+Frontend URL: `http://127.0.0.1:3000`
 
-```text
-http://127.0.0.1:3000
+## Run With Docker Compose
+
+From the repository root:
+
+```powershell
+docker compose up -d --build
 ```
+
+Services:
+
+- SQL Server: `localhost:1433`
+- Backend: `http://localhost:8000`
+- Frontend: `http://localhost:3000`
+
+## Deploy
+
+### Frontend on Vercel
+
+Set Vercel Project Settings:
+
+- Root Directory: `frontend`
+- Framework Preset: Next.js
+- Install Command: `npm ci`
+- Build Command: `npm run build`
+- Output Directory: leave empty
+
+Environment variable:
+
+```env
+NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
+```
+
+### Backend on Render
+
+Use the root `render.yaml` Blueprint, or create a Docker Web Service manually:
+
+- Dockerfile Path: `backend/Dockerfile`
+- Docker Context: `backend`
+- Health Check Path: `/health`
+
+Render environment variables:
+
+```env
+DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER.database.windows.net:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no
+FRONTEND_URL=https://your-frontend.vercel.app
+CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app
+PUBLIC_API_URL=https://your-backend.onrender.com
+JWT_SECRET_KEY=generate-a-long-random-secret
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+REFRESH_TOKEN_EXPIRE_DAYS=7
+RUN_DB_SETUP_ON_START=false
+```
+
+If the database is new, set `RUN_DB_SETUP_ON_START=true` for the first deploy, then switch it back to `false`.
 
 ## Main Routes
 
-### Frontend
+Frontend:
 
 - `/`
 - `/login`
 - `/register`
-- `/verify-email`
-- `/forgot-password`
-- `/reset-password`
-- `/complete-profile`
 - `/feed`
 - `/create`
 - `/edit/[id]`
@@ -201,78 +202,50 @@ http://127.0.0.1:3000
 - `/dashboard`
 - `/settings`
 
-### Backend
-
-Auth:
+Backend:
 
 - `POST /auth/register`
 - `POST /auth/login`
-- `GET /auth/google/login`
-- `GET /auth/google/callback`
-- `POST /auth/refresh`
-- `POST /auth/logout`
-- `POST /auth/verify-email`
-- `POST /auth/resend-verification`
-- `POST /auth/forgot-password`
-- `POST /auth/reset-password`
-- `POST /auth/complete-profile`
 - `GET /auth/me`
-
-Forum:
-
 - `GET /api/posts/feed`
 - `POST /api/posts/`
 - `GET /api/posts/{post_id}`
-- `PUT /api/posts/{post_id}`
-- `DELETE /api/posts/{post_id}`
-- `POST /api/posts/{post_id}/like`
-- `POST /api/posts/{post_id}/bookmark`
-- `POST /api/posts/{post_id}/share`
-- `POST /api/posts/{post_id}/report`
-- `GET /api/posts/tags`
 - `POST /api/posts/{post_id}/comments/`
-- `GET /api/posts/{post_id}/comments/`
-- `POST /api/posts/{post_id}/comments/{comment_id}/report`
-
-Users and social:
-
-- `GET /users/me`
-- `PUT /users/me`
-- `GET /users/{username}`
-- `GET /users/{username}/posts`
-- `GET /users/{username}/comments`
-- `GET /users/{username}/bookmarks`
 - `GET /users/me/notifications`
-- `POST /users/me/notifications/{notification_id}/read`
-- `POST /follow/{user_id}`
-- `DELETE /follow/{user_id}`
-
-Admin:
-
-- `GET /api/admin/users`
-- `POST /api/admin/users/{user_id}/ban`
-- `POST /api/admin/users/{user_id}/unban`
 - `GET /api/admin/reports`
 - `POST /api/admin/reports/{report_id}/moderate`
-- `GET /api/admin/tags`
-- `POST /api/admin/tags`
-- `PUT /api/admin/tags/{tag_id}`
-- `DELETE /api/admin/tags/{tag_id}`
+- `GET /api/admin/posts/pending`
+- `POST /api/admin/posts/{post_id}/approve`
 
-Most `/api/posts`, comment, notification, follow, and admin endpoints require an authenticated user. Post and comment interactions also require the account to be verified.
+See `PROJECT_SUMMARY.md` for the full endpoint list.
 
-## Notes
+## Validation
 
-- The backend creates tables on startup through SQLAlchemy metadata.
-- The frontend uses an Axios interceptor in [frontend/lib/axios.ts](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/frontend/lib/axios.ts) to attach the access token and refresh it automatically on `401`.
-- Verification and password reset emails are currently printed to the backend console during development.
-- Some older docs in the repository still describe earlier backend layouts or database assumptions. Use `README.md`, Swagger, and the current source as the authoritative reference.
+Backend:
 
-## Related Docs
+```powershell
+python -m py_compile backend\main.py backend\database.py backend\render_start.py
+```
 
-- [README-vi.md](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/README-vi.md)
-- [AUTHENTICATION.md](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/AUTHENTICATION.md)
-- [AUTHENTICATION_vi.md](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/AUTHENTICATION_vi.md)
-- [API_ENDPOINTS.md](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/API_ENDPOINTS.md)
-- [backend/API_DOCUMENTATION.md](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/backend/API_DOCUMENTATION.md)
-- [backend/BACKEND_SETUP.md](/d:/ZB/Code/UIT/NMCNPM/SE104.ForumApp/backend/BACKEND_SETUP.md)
+Frontend:
+
+```powershell
+cd frontend
+npm audit
+npm run build
+```
+
+Docker Compose:
+
+```powershell
+docker compose -f docker-compose.yml config
+```
+
+## Related Documents
+
+- `PROJECT_SUMMARY.md`
+- `PROJECT_SUMMARY_vi.md`
+- `docs/deploy.md`
+- `backend/BACKEND_SETUP.md`
+- `backend/API_DOCUMENTATION.md`
+
