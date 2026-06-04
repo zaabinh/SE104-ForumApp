@@ -1,4 +1,14 @@
-# UITConnect - Ứng dụng diễn đàn SE104
+# Đồ án SE104 - UITConnect
+
+Giảng viên: Đỗ Văn Tiến
+
+## Sinh Viên Thực Hiện
+
+| Họ và tên | MSSV | Phân công |
+| --- | --- | --- |
+| Đoàn Hữu Gia Bình | 24520192 |  |
+| Nguyễn Thái Bảo | 24 |  |
+| Võ Hoài Chiều |  |  |
 
 UITConnect là ứng dụng diễn đàn sinh viên full-stack dành cho cộng đồng UIT. Dự án gồm xác thực, bài viết, bình luận lồng nhau, report, kiểm duyệt, notification, gợi ý bài viết, hồ sơ người dùng và cấu hình deploy lên Vercel + Render.
 

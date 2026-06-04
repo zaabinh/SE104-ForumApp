@@ -1,19 +1,29 @@
-# UITConnect - SE104 Forum App
+# Đồ án SE104 - UITConnect
 
-UITConnect is a full-stack student forum for UIT communities. It includes authentication, forum posts, nested comments, reports, moderation, notifications, recommendations, profile pages, and deploy configuration for Vercel + Render.
+Giảng viên: Đỗ Văn Tiến
 
-Last synchronized with source code: 2026-06-04.
+## Sinh Viên Thực Hiện
 
-## Stack
+| Họ và tên | MSSV | Phân công |
+| --- | --- | --- |
+| Đoàn Hữu Gia Bình |  |  |
+| Nguyễn Thái Bảo |  |  |
+| Võ Hoài Chiều |  |  |
+
+UITConnect là ứng dụng diễn đàn sinh viên full-stack dành cho cộng đồng UIT. Dự án gồm xác thực, bài viết, bình luận lồng nhau, report, kiểm duyệt, notification, gợi ý bài viết, hồ sơ người dùng và cấu hình deploy lên Vercel + Render.
+
+Cập nhật theo mã nguồn hiện tại: 2026-06-04.
+
+## Công nghệ
 
 - Frontend: Next.js 15.5.19, React 19.0.4, TypeScript, Tailwind CSS
 - Backend: FastAPI, SQLAlchemy 2.0, Uvicorn
-- Database: Microsoft SQL Server through `pyodbc`
+- Database: Microsoft SQL Server qua `pyodbc`
 - SQL driver: ODBC Driver 18 for SQL Server
-- Auth: JWT access/refresh tokens, optional Google OAuth
-- Deployment: Vercel frontend, Render Docker backend, Azure SQL or external SQL Server
+- Xác thực: JWT access/refresh token, Google OAuth tùy chọn
+- Deploy: Vercel cho frontend, Render Docker backend, Azure SQL hoặc SQL Server bên ngoài
 
-## Repository Structure
+## Cấu trúc Repository
 
 ```text
 backend/
@@ -43,36 +53,36 @@ PROJECT_SUMMARY.md
 PROJECT_SUMMARY_vi.md
 ```
 
-## Current Feature Status
+## Trạng thái tính năng
 
-Implemented:
+Đã có:
 
-- Local registration and login
-- JWT refresh/logout flow
-- Optional Google OAuth callback flow
-- Complete profile flow
-- Feed, search, tags, sorting and pagination
-- Create, edit, delete, like, bookmark, share and report posts
-- Nested comments and comment reports
-- Public/current user profiles
-- Follow/unfollow users
-- Notifications for moderation, likes, comments, replies, reports, follows and account status
-- Admin user management, report moderation, pending post approval/rejection, tags and analytics
-- Recommendation endpoints for trending, similar, collaborative and profile-based posts
+- Đăng ký và đăng nhập local
+- JWT refresh/logout
+- Google OAuth callback tùy chọn
+- Luồng hoàn thiện hồ sơ
+- Feed, tìm kiếm, tag, sắp xếp và phân trang
+- Tạo, sửa, xóa, like, bookmark, share và report bài viết
+- Bình luận lồng nhau và report bình luận
+- Hồ sơ người dùng hiện tại/công khai
+- Follow/unfollow
+- Notification cho kiểm duyệt, like, comment, reply, report, follow và trạng thái tài khoản
+- Admin quản lý user, xử lý report, duyệt/từ chối bài, tag và analytics
+- Gợi ý bài viết theo trending, tương tự, collaborative và profile
 
-Known limitations:
+Giới hạn hiện tại:
 
-- Email verification is temporarily disabled.
-- Email sending currently prints to backend logs instead of using a mail provider.
-- Notifications are pull-based, not realtime.
-- Uploads on Render use ephemeral filesystem unless moved to external storage.
-- `/settings` is still placeholder-level UI.
+- Xác minh email đang tạm tắt.
+- Gửi email thật chưa hoàn thiện; backend đang in email ra log.
+- Notification chưa realtime.
+- Upload trên Render dùng filesystem tạm nếu chưa chuyển sang storage ngoài.
+- `/settings` vẫn là giao diện placeholder.
 
-## Environment Variables
+## Biến môi trường
 
 ### Backend
 
-Create `backend/.env` from `backend/.env.example`.
+Tạo `backend/.env` từ `backend/.env.example`.
 
 ```env
 DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes
@@ -85,23 +95,23 @@ CORS_ALLOWED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000
 PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
-Azure SQL / Render example:
+Ví dụ Azure SQL / Render:
 
 ```env
 DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER.database.windows.net:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no
 ```
 
-URL-encode special characters in database passwords, for example `!` -> `%21`, `@` -> `%40`, `#` -> `%23`.
+Nếu password DB có ký tự đặc biệt thì cần URL-encode, ví dụ `!` -> `%21`, `@` -> `%40`, `#` -> `%23`.
 
 ### Frontend
 
-Create `frontend/.env.local` from `frontend/.env.example`.
+Tạo `frontend/.env.local` từ `frontend/.env.example`.
 
 ```env
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
-## Run Locally Without Docker
+## Chạy local không dùng Docker
 
 ### Backend
 
@@ -114,7 +124,7 @@ python setup_local_db.py --wait 90
 uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-API docs:
+Tài liệu API:
 
 - Swagger UI: `http://127.0.0.1:8000/docs`
 - ReDoc: `http://127.0.0.1:8000/redoc`
@@ -130,15 +140,15 @@ npm run dev
 
 Frontend URL: `http://127.0.0.1:3000`
 
-## Run With Docker Compose
+## Chạy bằng Docker Compose
 
-From the repository root:
+Tại root repo:
 
 ```powershell
 docker compose up -d --build
 ```
 
-Services:
+Các service:
 
 - SQL Server: `localhost:1433`
 - Backend: `http://localhost:8000`
@@ -146,31 +156,31 @@ Services:
 
 ## Deploy
 
-### Frontend on Vercel
+### Frontend trên Vercel
 
-Set Vercel Project Settings:
+Cấu hình Vercel Project Settings:
 
 - Root Directory: `frontend`
 - Framework Preset: Next.js
 - Install Command: `npm ci`
 - Build Command: `npm run build`
-- Output Directory: leave empty
+- Output Directory: để trống
 
-Environment variable:
+Biến môi trường:
 
 ```env
 NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
 ```
 
-### Backend on Render
+### Backend trên Render
 
-Use the root `render.yaml` Blueprint, or create a Docker Web Service manually:
+Dùng Blueprint `render.yaml` ở root repo, hoặc tạo Docker Web Service thủ công:
 
 - Dockerfile Path: `backend/Dockerfile`
 - Docker Context: `backend`
 - Health Check Path: `/health`
 
-Render environment variables:
+Biến môi trường trên Render:
 
 ```env
 DATABASE_URL=mssql+pyodbc://USER:PASSWORD@SERVER.database.windows.net:1433/StudentForum?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no
@@ -184,9 +194,9 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 RUN_DB_SETUP_ON_START=false
 ```
 
-If the database is new, set `RUN_DB_SETUP_ON_START=true` for the first deploy, then switch it back to `false`.
+Nếu database mới chưa có bảng, đặt `RUN_DB_SETUP_ON_START=true` cho lần deploy đầu, sau đó đổi lại `false`.
 
-## Main Routes
+## Route chính
 
 Frontend:
 
@@ -217,9 +227,9 @@ Backend:
 - `GET /api/admin/posts/pending`
 - `POST /api/admin/posts/{post_id}/approve`
 
-See `PROJECT_SUMMARY.md` for the full endpoint list.
+Xem `PROJECT_SUMMARY_vi.md` để có danh sách endpoint đầy đủ.
 
-## Validation
+## Kiểm tra
 
 Backend:
 
@@ -241,11 +251,4 @@ Docker Compose:
 docker compose -f docker-compose.yml config
 ```
 
-## Related Documents
-
-- `PROJECT_SUMMARY.md`
-- `PROJECT_SUMMARY_vi.md`
-- `docs/deploy.md`
-- `backend/BACKEND_SETUP.md`
-- `backend/API_DOCUMENTATION.md`
 
