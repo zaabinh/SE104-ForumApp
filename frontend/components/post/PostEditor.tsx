@@ -1,14 +1,13 @@
 'use client';
 
-import { useDeferredValue, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Tag from '@/components/ui/Tag';
-import { useForum } from '@/lib/forumStore';
+import { getStoredUser } from '@/lib/axios';
+import { getTags } from '@/lib/forumApi';
 import { EditorPostDraft } from '@/lib/types';
-import {api} from '@/lib/axios';
-import axios from 'axios';
 
 
 type PostEditorProps = {
@@ -25,24 +24,61 @@ const emptyDraft: EditorPostDraft = {
   image: '',
 };
 
+function shuffleTags(tags: string[]) {
+  return [...tags].sort(() => Math.random() - 0.5);
+}
+
 export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, onDelete }: PostEditorProps) {
-  const { tags } = useForum();
   const [draft, setDraft] = useState<EditorPostDraft>(initialValue);
   const [tagValue, setTagValue] = useState('');
+  const [dbTags, setDbTags] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const deferredTagValue = useDeferredValue(tagValue);
 
-  const popularTags = useMemo(() => tags.slice(0, 10), [tags]);
+  useEffect(() => {
+    let isMounted = true;
+
+    getTags()
+      .then((items) => {
+        if (!isMounted) {
+          return;
+        }
+
+        const tagNames = items.map((tag) => tag.name.trim().toLowerCase()).filter(Boolean);
+        setDbTags(shuffleTags(Array.from(new Set(tagNames))));
+      })
+      .catch(() => {
+        if (isMounted) {
+          setDbTags([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const interestTags = useMemo(() => {
+    const storedUser = getStoredUser();
+    return Array.from(
+      new Set((storedUser?.interest_tags ?? []).map((tag) => tag.trim().toLowerCase()).filter(Boolean))
+    );
+  }, []);
+
   const recommendedTags = useMemo(() => {
     const normalized = deferredTagValue.trim().toLowerCase();
-    const availableTags = tags.filter((tag) => !draft.tags.includes(tag));
+    const selectedTags = new Set(draft.tags.map((tag) => tag.toLowerCase()));
+    const normalizedTags = Array.from(new Set(dbTags.map((tag) => tag.trim().toLowerCase()).filter(Boolean)));
+    const interestTagSet = new Set(interestTags);
+    const availableInterestTags = interestTags.filter((tag) => !selectedTags.has(tag));
+    const availableRandomTags = normalizedTags.filter((tag) => !selectedTags.has(tag) && !interestTagSet.has(tag));
 
     if (!normalized) {
-      return availableTags.slice(0, 8);
+      return [...availableInterestTags, ...availableRandomTags].slice(0, 10);
     }
 
-    return availableTags.filter((tag) => tag.includes(normalized)).slice(0, 8);
-  }, [deferredTagValue, draft.tags, tags]);
+    return [...availableInterestTags, ...availableRandomTags].filter((tag) => tag.includes(normalized)).slice(0, 10);
+  }, [dbTags, deferredTagValue, draft.tags, interestTags]);
   const titleError =
     draft.title.trim().length > 0 && draft.title.trim().length < 5
       ? 'Title must be at least 5 characters.'
@@ -128,13 +164,8 @@ export default function PostEditor({ mode, initialValue = emptyDraft, onSubmit, 
               ))}
             </div>
             <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Popular tags</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {popularTags.map((tag) => (
-                  <Tag key={`popular-${tag}`} label={tag} onClick={() => addSuggestedTag(tag)} />
-                ))}
-              </div>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Recommendations</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Recommendations</p>
+              <p className="mt-2 text-xs text-slate-400">Interest tags are shown first, followed by random tags from the database.</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {recommendedTags.length ? (
                   recommendedTags.map((tag) => <Tag key={`suggested-${tag}`} label={tag} onClick={() => addSuggestedTag(tag)} />)

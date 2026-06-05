@@ -168,14 +168,14 @@ export default function Profile() {
           ...userProfile,
           id: userProfile.id,
         });
-        setPosts(userPosts);
+        setPosts(userPosts.filter((post) => post.status !== 'deleted'));
         setComments(userComments);
 
         if (userProfile.is_current_user) {
           const savedPosts = await getUserBookmarks(username);
           if (isMounted) {
             setProfile((prev) => (prev ? { ...prev, id: myProfile.id } : prev));
-            setBookmarks(savedPosts);
+            setBookmarks(savedPosts.filter((post) => post.status !== 'deleted'));
           }
         } else {
           setBookmarks([]);

@@ -89,7 +89,10 @@ def get_user_by_username_or_404(username: str, db: Session) -> User:
 def build_profile_response(user: User, current_user: User, db: Session) -> ProfileResponse:
     followers_count = db.query(func.count()).select_from(Follow).filter(Follow.following_id == user.id).scalar() or 0
     following_count = db.query(func.count()).select_from(Follow).filter(Follow.follower_id == user.id).scalar() or 0
-    posts_count = db.query(func.count()).select_from(Post).filter(Post.user_id == user.id).scalar() or 0
+    posts_count_query = db.query(func.count()).select_from(Post).filter(Post.user_id == user.id, Post.status != "deleted")
+    if current_user.id != user.id and current_user.role.lower() != "admin":
+        posts_count_query = posts_count_query.filter(Post.status == "active")
+    posts_count = posts_count_query.scalar() or 0
     is_following = (
         db.query(Follow)
         .filter(Follow.follower_id == current_user.id, Follow.following_id == user.id)
@@ -171,7 +174,7 @@ def get_user_posts(
     db: Session = Depends(get_db),
 ):
     user = get_user_by_username_or_404(username, db)
-    query = db.query(Post).filter(Post.user_id == user.id)
+    query = db.query(Post).filter(Post.user_id == user.id, Post.status != "deleted")
     if current_user.id != user.id and current_user.role.lower() != "admin":
         query = query.filter(Post.status == "active")
     posts = query.order_by(Post.created_at.desc(), Post.id.desc()).all()
@@ -236,7 +239,7 @@ def get_user_bookmarks(
     return (
         db.query(Post)
         .join(Bookmark, Bookmark.post_id == Post.id)
-        .filter(Bookmark.user_id == user.id)
+        .filter(Bookmark.user_id == user.id, Post.status != "deleted")
         .order_by(Bookmark.created_at.desc(), Post.id.desc())
         .all()
     )

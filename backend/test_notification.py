@@ -14,6 +14,7 @@ auth_stub.require_role = lambda *args, **kwargs: None
 sys.modules.setdefault("dependencies.auth", auth_stub)
 
 from models.comment import Comment
+from models.follow import Follow
 from models.notification import Notification
 from models.post import Post
 from models.post_like import PostLike
@@ -25,7 +26,7 @@ from routers import post as post_router
 from routers import user as user_router
 from schemas.comment_schema import CommentCreate
 from schemas.report_schema import ReportCreate, ReportModerate
-from services.notification_service import create_notification, notify_admins
+from services.notification_service import create_notification, notify_admins, notify_followers
 
 
 def utc_now_naive():
@@ -191,6 +192,26 @@ def test_notify_admins_targets_active_admins_except_actor():
     assert notifications[0].type == "post_report"
     assert notifications[0].post_id == 10
     assert notifications[0].report_id == 99
+
+
+def test_notify_followers_targets_author_followers():
+    follow = Follow(follower_id="follower-id", following_id="author-id")
+    db = FakeSession({Follow: [follow]})
+
+    notifications = notify_followers(
+        db,
+        author_id="author-id",
+        notification_type="new_post",
+        title="New post from someone you follow",
+        message="author published a new post.",
+        post_id=10,
+    )
+
+    assert len(notifications) == 1
+    assert notifications[0].user_id == "follower-id"
+    assert notifications[0].actor_id == "author-id"
+    assert notifications[0].type == "new_post"
+    assert notifications[0].post_id == 10
 
 
 def test_post_approval_notifies_post_author(monkeypatch):

@@ -19,7 +19,7 @@ from schemas.auth_schema import MessageResponse
 from schemas.common_schema import PaginationMeta
 from schemas.report_schema import ReportModerate, ReportResponse
 from schemas.tag_schema import TagCreate, TagResponse, TagUpdate
-from services.notification_service import create_notification
+from services.notification_service import create_notification, notify_followers
 from services.post_service import slugify
 
 
@@ -411,6 +411,14 @@ def approve_post(
             message=f"Your post \"{post.title}\" is now visible in the feed.",
             post_id=post.id,
         )
+    notify_followers(
+        db,
+        author_id=post.user_id,
+        notification_type="new_post",
+        title="New post from someone you follow",
+        message=f"{post.author.username if post.author else 'A user'} published \"{post.title}\".",
+        post_id=post.id,
+    )
     db.commit()
     return MessageResponse(message="Post approved successfully.")
 
