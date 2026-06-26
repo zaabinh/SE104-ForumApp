@@ -38,6 +38,7 @@
 #set par(justify: true)
 
 #include "Chapters/outline.typ"
+#include "Chapters/team_work.typ"
 #include "Chapters/chap1.typ"
 #include "Chapters/chap2.typ"
 #include "Chapters/chap3.typ"
@@ -45,5 +46,3 @@
 #include "Chapters/chap5.typ"
 #include "Chapters/chap6.typ"
 #include "Chapters/chap7.typ"
-#include "Chapters/chap8.typ"
-

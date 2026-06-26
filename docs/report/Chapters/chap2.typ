@@ -1,69 +1,105 @@
 = CHƯƠNG 2. CÔNG NGHỆ SỬ DỤNG
 
-== 2.1. Công nghệ sử dụng
+== 2.1. Kiến trúc công nghệ tổng quan
 
-=== 2.1.1. Frontend — Next.js 15
-
-Hệ thống sử dụng *Next.js 15* — một framework xây dựng trên nền tảng React, được phát triển bởi Vercel. Next.js cung cấp nhiều tính năng mạnh mẽ giúp xây dựng ứng dụng web hiện đại:
-
-- *Server-Side Rendering (SSR)* và *Static Site Generation (SSG):* Hỗ trợ render trang phía server, cải thiện hiệu năng tải trang và tối ưu SEO.
-- *App Router:* Hệ thống định tuyến dựa trên cấu trúc thư mục, giúp tổ chức mã nguồn rõ ràng và dễ bảo trì.
-- *API Routes:* Cho phép xây dựng các endpoint API ngay trong ứng dụng frontend.
-- *Hỗ trợ TypeScript:* Tích hợp sẵn TypeScript, giúp phát hiện lỗi sớm trong quá trình phát triển.
-
-Giao diện được xây dựng bằng *CSS* thuần, đảm bảo khả năng tùy biến cao và kiểm soát hoàn toàn thiết kế. Ứng dụng hỗ trợ giao diện responsive, hoạt động tốt trên cả máy tính và thiết bị di động.
-
-=== 2.1.2. Backend — FastAPI (Python)
-
-Backend được xây dựng bằng *FastAPI* — một web framework hiệu năng cao dành cho Python. FastAPI được chọn vì các ưu điểm sau:
-
-- *Hiệu năng cao:* Dựa trên ASGI (Asynchronous Server Gateway Interface), FastAPI có tốc độ xử lý nhanh, tương đương Node.js và Go.
-- *Tự động tạo tài liệu API:* Tích hợp sẵn Swagger UI tại `/docs`, giúp việc kiểm thử và tài liệu hóa API trở nên thuận tiện.
-- *Validation tự động:* Sử dụng Pydantic để kiểm tra dữ liệu đầu vào, giảm thiểu lỗi từ phía client.
-- *Hỗ trợ bất đồng bộ (async/await):* Phù hợp cho các tác vụ I/O như truy vấn database và gọi API bên ngoài.
-
-Backend sử dụng *SQLAlchemy* làm ORM (Object-Relational Mapping) để tương tác với cơ sở dữ liệu, kết hợp với *pyodbc* làm driver kết nối.
-
-=== 2.1.3. Cơ sở dữ liệu — Microsoft SQL Server
-
-Hệ thống sử dụng *Microsoft SQL Server* làm hệ quản trị cơ sở dữ liệu quan hệ (RDBMS). SQL Server được chọn vì:
-
-- *Hiệu năng và độ tin cậy:* SQL Server là một trong những RDBMS phổ biến nhất trong môi trường doanh nghiệp, hỗ trợ xử lý lượng dữ liệu lớn với hiệu năng ổn định.
-- *Tích hợp tốt với hệ sinh thái Windows:* Hỗ trợ Windows Authentication, tích hợp dễ dàng với các công cụ Microsoft.
-- *Hỗ trợ ACID:* Đảm bảo tính toàn vẹn dữ liệu thông qua các giao dịch (transaction).
-- *Công cụ quản lý mạnh mẽ:* SQL Server Management Studio (SSMS) cung cấp giao diện trực quan để quản lý và truy vấn dữ liệu.
-
-Kết nối giữa backend và SQL Server thông qua *ODBC Driver 17 for SQL Server*, sử dụng chuỗi kết nối được cấu hình trong biến môi trường.
-
-== 2.2. Xác thực và bảo mật
-
-Hệ thống sử dụng cơ chế xác thực dựa trên *JWT (JSON Web Token)* với mô hình hai token:
-
-- *Access Token:* Thời gian sống ngắn (mặc định 60 phút), được gửi trong header `Authorization: Bearer <token>` để truy cập các API cần đăng nhập.
-- *Refresh Token:* Thời gian sống dài (mặc định 7 ngày), được lưu trong bảng `auth_sessions` tại database. Dùng để cấp lại access token mà không cần đăng nhập lại.
-
-Mật khẩu người dùng được mã hóa bằng thuật toán *Argon2* thông qua thư viện `passlib` — đây là thuật toán hash mật khẩu được khuyến nghị bởi OWASP, có khả năng chống lại các cuộc tấn công brute-force hiệu quả.
-
-Phía frontend sử dụng *Axios interceptor* để tự động refresh token khi access token hết hạn, đảm bảo trải nghiệm người dùng liền mạch.
-
-== 2.3. Công cụ phát triển
+Hệ thống được xây dựng theo mô hình client-server. Frontend Next.js chịu trách nhiệm giao diện và trải nghiệm người dùng, backend FastAPI cung cấp REST API và xử lý nghiệp vụ, còn Microsoft SQL Server lưu trữ dữ liệu quan hệ. Dữ liệu được trao đổi qua HTTP dưới dạng JSON.
 
 #table(
-  columns: (auto, auto),
-  align: (left, left),
-  table.header(
-    [*Công cụ*], [*Mục đích*],
-  ),
+  columns: (auto, 1fr, 1.4fr),
+  align: (left, left, left),
+  table.header([*Thành phần*], [*Công nghệ*], [*Vai trò*]),
   table.hline(),
-  [Visual Studio Code], [Trình soạn thảo mã nguồn chính],
-  [Enterprise Architect], [Vẽ sơ đồ Use Case, DFD],
-  [SQL Server Management Studio], [Quản lý cơ sở dữ liệu],
-  [Git / GitHub], [Quản lý mã nguồn, cộng tác nhóm],
-  [Swagger UI], [Kiểm thử và tài liệu hóa API],
-  [Postman], [Kiểm thử API thủ công],
-  [npm], [Quản lý thư viện frontend],
-  [pip], [Quản lý thư viện backend],
+  [Frontend], [Next.js 15,\ React 19,\ TypeScript,\ Tailwind CSS], [Xây dựng giao diện, định tuyến App Router, quản lý trạng thái UI và gọi API.],
+  [Backend], [FastAPI,\ SQLAlchemy 2,\ Pydantic], [Cung cấp REST API, validation, xử lý nghiệp vụ và truy vấn CSDL.],
+  [Xác thực], [JWT,\ Argon2,\ OAuth Google], [Đăng nhập, refresh token, mã hóa mật khẩu, xác minh người dùng.],
+  [CSDL], [Microsoft SQL Server,\ pyodbc], [Lưu trữ dữ liệu tài khoản, bài viết, tương tác, báo cáo và thông báo.],
+  [Triển khai], [Docker Compose,\ Uvicorn,\ Next.js server], [Chạy đồng bộ frontend, backend và database trong môi trường local/staging.],
 )
 
+== 2.2. Frontend
+
+Frontend sử dụng *Next.js 15* với App Router, kết hợp React 19 và TypeScript. Cấu trúc thư mục `frontend/app` định nghĩa các route chính như landing page, đăng nhập, đăng ký, xác minh email, bảng tin, tạo/chỉnh sửa bài viết, chi tiết bài viết, hồ sơ và dashboard quản trị.
+
+Các điểm chính của frontend:
+
+- *TypeScript:* Giúp định nghĩa kiểu dữ liệu cho bài viết, hồ sơ, phản hồi API và trạng thái giao diện.
+- *Tailwind CSS:* Dùng để xây dựng giao diện responsive, đồng bộ style và tối ưu tốc độ phát triển UI.
+- *Axios:* Tập trung cấu hình HTTP client trong `frontend/lib/axios.ts`, tự gắn access token vào header và tự refresh token khi gặp lỗi `401`.
+- *Custom hooks:* Bao gồm `useAuthGuard`, `useDebouncedValue`, `useResponsiveSidebar` để tái sử dụng logic kiểm tra đăng nhập, debounce tìm kiếm và điều khiển sidebar.
+- *API layer:* Các file `forumApi.ts`, `profileApi.ts`, `adminApi.ts` đóng vai trò adapter giữa giao diện và backend.
+
+== 2.3. Backend
+
+Backend sử dụng *FastAPI* vì tốc độ xử lý tốt, hỗ trợ type hint, validation tự động và sinh tài liệu Swagger UI tại `/docs`. Ứng dụng khởi tạo tại `backend/main.py`, đăng ký các router chính:
+
+- `/auth`: đăng ký, đăng nhập, Google OAuth, refresh token, logout, verify email, resend verification, forgot/reset password, complete profile, current user.
+- `/api/posts`: bài viết, feed, tag, like, bookmark, share, report, recommendation.
+- `/api/posts/{post_id}/comments`: bình luận và report comment.
+- `/users`: hồ sơ, activity cá nhân, notification.
+- `/follow`: follow/unfollow người dùng.
+- `/api/admin`: quản trị người dùng, báo cáo, bài chờ duyệt, tag và analytics.
+
+Backend được tổ chức theo các tầng:
+
+#table(
+  columns: (auto, 1fr),
+  align: (left, left),
+  table.header([*Tầng*], [*Mô tả*]),
+  table.hline(),
+  [`routers/`], [Nhận request, kiểm tra quyền, điều phối xử lý và trả response.],
+  [`schemas/`], [Định nghĩa Pydantic model cho dữ liệu vào/ra.],
+  [`services/`], [Chứa logic tái sử dụng như tạo token email, đồng bộ tag, recommendation, notification.],
+  [`models/`], [Định nghĩa bảng SQLAlchemy ORM và quan hệ giữa các bảng.],
+  [`dependencies/`], [Chứa dependency xác thực và phân quyền.],
+  [`utils/`], [Hàm tiện ích JWT và hash mật khẩu.],
+)
+
+== 2.4. Cơ sở dữ liệu
+
+Hệ thống dùng *Microsoft SQL Server* làm hệ quản trị cơ sở dữ liệu quan hệ. Backend kết nối thông qua SQLAlchemy engine và `pyodbc`. Các bảng được khai báo bằng SQLAlchemy ORM và được tạo bằng `Base.metadata.create_all(bind=engine)` khi backend khởi động.
+
+Nhóm bảng dữ liệu chính gồm:
+
+- `users`, `auth_sessions`
+- `email_verification_tokens`, `password_reset_tokens`.
+- `posts`, `tags`, `post_tags`, `post_views`, `post_likes`, `post_shares`, `bookmarks`.
+- `comments`, `follows`, `notifications`, `reports`.
+- `admin_audit_logs` để truy vết hành động quản trị.
+
+Các dữ liệu như số lượt like, comment, view, share và trending score không lưu cứng trong bài viết mà được tổng hợp khi truy vấn.
+
+== 2.5. Xác thực và phân quyền
+
+Hệ thống sử dụng JWT với hai loại token:
+
+- *Access token:* thời gian sống ngắn, dùng để gọi API cần xác thực.
+- *Refresh token:* thời gian sống dài hơn, lưu trong bảng `auth_sessions` để cấp lại access token và có thể thu hồi khi logout hoặc reset mật khẩu.
+
+Mật khẩu người dùng được hash bằng `Argon2` thông qua `passlib`. Backend không lưu mật khẩu dạng plaintext. Người dùng cần thỏa ba điều kiện để sử dụng đầy đủ chức năng: tài khoản `active`, email đã xác minh và hồ sơ đã hoàn thiện.
+
+Phân quyền được triển khai bằng dependency:
+
+- `get_current_user`: kiểm tra Bearer token, trạng thái deleted/banned và trả về user hiện tại.
+- `require_active_verified_user`: yêu cầu tài khoản active, đã verify email và đã complete profile.
+- `require_role("admin")`: yêu cầu vai trò quản trị viên cho các endpoint admin.
+
+
+
+== 2.6. Công cụ phát triển
+
+#table(
+  columns: (auto, 1fr),
+  align: (left, left),
+  table.header([*Công cụ*], [*Mục đích*]),
+  table.hline(),
+  [Visual Studio Code], [Soạn thảo mã nguồn và tài liệu.],
+  [Git / GitHub], [Quản lý phiên bản và cộng tác nhóm.],
+  [Swagger UI], [Kiểm thử API tự động sinh từ FastAPI.],
+  [SQL Server Management Studio], [Quản lý và kiểm tra dữ liệu SQL Server.],
+  [Docker Compose], [Chạy đồng bộ database, backend và frontend.],
+  [npm], [Quản lý thư viện frontend.],
+  [pip], [Quản lý thư viện backend.],
+  [pytest], [Kiểm thử service/schema backend.],
+)
 
 #pagebreak()

@@ -20,7 +20,7 @@
 
 #align(center)[
   #v(2cm)
-  #set text(size:14pt)
+  #set text(size:15pt)
   *TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN* 
   #v(0.25cm)
   *ĐẠI HỌC QUỐC GIA TP. HCM*
@@ -36,23 +36,23 @@
 
   #v(0.5cm)
 
-  #line(length: 60%, stroke: 1.5pt)
+  #line(length: 70%, stroke: 1.5pt)
   #v(0.5cm)
-  #set text(size:14pt)
+  #set text(size:18pt)
   *QUẢN LÝ FORUM SINH VIÊN*
   #v(0.5cm)
-  #set text(size:14pt)
-  #line(length: 60%, stroke: 1.5pt)
+  #set text(size:15pt)
+  #line(length: 70%, stroke: 1.5pt)
   #v(0.25cm)
   *Lớp học phần*: SE104.Q28
   #v(0.25cm)
   *GVHD:*  ThS. Đỗ Văn Tiến 
-  #v(1cm)
+  #v(0.5cm)
   #line(length: 40%, stroke: 1pt)
   #v(1cm)
   
   *Sinh viên thực hiện:*
-  #v(0.25cm)
+  #v(0.5cm)
 ]
 
  #block(inset: (left: 4cm))[
@@ -68,10 +68,10 @@
 
   )
 ]
-#v(3cm)
+#v(1.25cm)
   #align(center)[
 
-  Thành phố Hồ Chí Minh, ngày \*\* tháng \*\* năm 2026
+  Thành phố Hồ Chí Minh, ngày 26 tháng 6 năm 2026
   ]
 
 ]]
