@@ -29,7 +29,7 @@ Mục tiêu của đề tài là xây dựng một hệ thống forum sinh viên
 - *Hồ sơ cá nhân:* Cho phép xem hồ sơ công khai, cập nhật thông tin cá nhân, chuyên ngành, năm học, mục tiêu nghề nghiệp, tag quan tâm, danh sách bài viết, bình luận và bookmark.
 - *Thông báo:* Tự động tạo thông báo khi có tương tác như like, comment, reply, follow, share, xử lý báo cáo hoặc thay đổi trạng thái tài khoản.
 - *Quản trị hệ thống:* Cho phép quản trị viên quản lý người dùng, khóa/mở khóa tài khoản, xử lý báo cáo, duyệt bài viết chờ kiểm duyệt, quản lý tag và xem thống kê tổng quan.
-- *Gợi ý nội dung:* Hệ thống có các API gợi ý bài viết theo xu hướng, bài viết tương tự,và phân tích hồ sơ để cá nhân hóa bảng tin.
+- *Gợi ý nội dung:* Hệ thống có các API gợi ý bài viết theo xu hướng, bài viết tương tự, và phân tích hồ sơ để cá nhân hóa bảng tin.
 
 == 1.3. Phạm vi thực hiện
 
