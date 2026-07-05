@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 from database import get_db
 from dependencies.auth import get_current_user
 from models.auth_session import AuthSession
-from models.email_verification_token import EmailVerificationToken
 from models.password_reset_token import PasswordResetToken
 from models.user import User
 from schemas.auth_schema import (
@@ -31,12 +30,10 @@ from schemas.auth_schema import (
     VerifyEmailRequest,
 )
 from services.auth_service import (
-    create_email_verification_token,
     create_google_user,
     create_password_reset_token,
     is_profile_completed,
     send_password_reset_email,
-    send_verification_email,
 )
 from services.google_oauth_service import build_google_auth_url, exchange_google_code, fetch_google_userinfo
 from utils.hash import hash_password, verify_password
@@ -118,13 +115,11 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         role="Student",
         status="active",
         provider="local",
-        is_verified=False,
+        is_verified=True,
     )
     db.add(user)
     try:
         db.flush()
-        verification_token = create_email_verification_token(db, user)
-        send_verification_email(user, verification_token.token)
         db.commit()
     except IntegrityError as exc:
         db.rollback()
@@ -133,7 +128,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error during registration.") from exc
 
-    return VerificationResponse(message="Registration successful. Please verify your email.", verification_token=verification_token.token)
+    return VerificationResponse(message="Registration successful. You can now log in.")
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -144,8 +139,6 @@ def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     if user.status.lower() == "banned":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is banned")
-    if not user.is_verified:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Please verify your email")
     if not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password.")
 
@@ -182,17 +175,10 @@ def google_callback(code: str, request: Request, db: Session = Depends(get_db)):
     if user.status.lower() == "banned":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is banned")
 
-    verification_token = None
-    if created or not user.is_verified:
-        verification_token = create_email_verification_token(db, user)
-        send_verification_email(user, verification_token.token)
-
     token_response = create_session_tokens(user, request, db)
     next_path = "/feed"
     if not is_profile_completed(user):
         next_path = "/complete-profile"
-    elif not user.is_verified:
-        next_path = "/verify-email"
 
     query = urlencode(
         {
@@ -258,32 +244,14 @@ def logout(payload: LogoutRequest, db: Session = Depends(get_db)):
 
 @router.post("/verify-email", response_model=MessageResponse)
 def verify_email(payload: VerifyEmailRequest, db: Session = Depends(get_db)):
-    record = db.query(EmailVerificationToken).filter(EmailVerificationToken.token == payload.token).first()
-    if not record or record.expires_at < datetime.utcnow():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Verification token is invalid or expired.")
-    user = db.query(User).filter(User.id == record.user_id).first()
-    if not user or user.status.lower() == "deleted":
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    user.is_verified = True
-    db.delete(record)
-    db.commit()
-    return MessageResponse(message="Email verified successfully.")
+    _ = payload, db
+    return MessageResponse(message="Email verification is temporarily disabled.")
 
 
 @router.post("/resend-verification", response_model=VerificationResponse)
 def resend_verification(payload: ResendVerificationRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == payload.email.lower().strip()).first()
-    if not user or user.status.lower() == "deleted":
-        return VerificationResponse(message="If the email exists, a verification link has been sent.")
-    if user.status.lower() == "banned":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is banned")
-    if user.is_verified:
-        return VerificationResponse(message="Email is already verified.")
-
-    verification_token = create_email_verification_token(db, user)
-    send_verification_email(user, verification_token.token)
-    db.commit()
-    return VerificationResponse(message="Verification email sent.", verification_token=verification_token.token)
+    _ = payload, db
+    return VerificationResponse(message="Email verification is temporarily disabled.")
 
 
 @router.post("/forgot-password", response_model=MessageResponse)

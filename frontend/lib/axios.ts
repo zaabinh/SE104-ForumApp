@@ -2,10 +2,21 @@
 
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-if (!API_BASE_URL) {
-  throw new Error('Missing NEXT_PUBLIC_API_URL in environment.');
+function resolveApiBaseUrl() {
+  const value = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+  if (!value) {
+    return undefined;
+  }
+
+  try {
+    return new URL(value).origin;
+  } catch {
+    return undefined;
+  }
 }
+
+const API_BASE_URL = resolveApiBaseUrl();
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'auth_user';
@@ -153,6 +164,10 @@ export async function refreshAccessToken(): Promise<string | null> {
 }
 
 api.interceptors.request.use((config) => {
+  if (!API_BASE_URL) {
+    throw new Error('Missing or invalid NEXT_PUBLIC_API_URL. Set it to your deployed backend origin, for example https://api.example.com.');
+  }
+
   const token = getAccessToken();
   config.headers = config.headers ?? {};
   if (token) {

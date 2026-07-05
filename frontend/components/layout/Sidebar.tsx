@@ -2,17 +2,16 @@
 
 import { memo, useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   FiBookmark,
   FiChevronLeft,
-  FiCompass,
   FiHome,
   FiLogOut,
   FiPlusSquare,
   FiSettings,
   FiShield,
-  FiUser,
+  FiTrendingUp,
   FiUsers
 } from 'react-icons/fi';
 import { getStoredUser, logout } from '@/lib/axios';
@@ -35,6 +34,7 @@ type SidebarItem = {
 function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }: SidebarProps) {
   const { t } = useI18n();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const storedUser = useMemo(() => getStoredUser(), []);
   const currentProfileHref = storedUser?.username ? `/profile/${storedUser.username}` : '/profile/current-user';
   const desktopWidthClass = isCollapsed ? 'md:w-16' : 'md:w-60';
@@ -44,9 +44,8 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
   const menuItems = useMemo<SidebarItem[]>(
     () => [
       { label: t('sidebarForYou'), href: '/feed', icon: FiHome, match: 'exact' },
-      { label: t('sidebarFollowing'), href: '/feed', icon: FiUsers, match: 'never' },
-      // { label: t('sidebarExplore'), href: '/feed', icon: FiCompass, match: 'never' },
-      // { label: t('sidebarMyProfile'), href: currentProfileHref, icon: FiUser, match: 'startsWith' },
+      { label: t('sidebarFollowing'), href: '/feed?tab=following', icon: FiUsers, match: 'exact' },
+      { label: t('sidebarTrending'), href: '/feed?tab=trending', icon: FiTrendingUp, match: 'exact' },
       { label: t('sidebarBookmarks'), href: currentProfileHref, icon: FiBookmark, match: 'never' },
       { label: t('sidebarSettings'), href: '/settings', icon: FiSettings, match: 'startsWith' },
       ...(isAdmin ? [{ label: t('sidebarAdmin'), href: '/dashboard', icon: FiShield, match: 'startsWith' as const }] : []),
@@ -65,6 +64,15 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
       }
 
       return pathname.startsWith(href);
+    }
+
+    if (href.startsWith('/feed?')) {
+      const expectedTab = new URLSearchParams(href.split('?')[1]).get('tab');
+      return pathname === '/feed' && searchParams.get('tab') === expectedTab;
+    }
+
+    if (href === '/feed') {
+      return pathname === '/feed' && !searchParams.get('tab');
     }
 
     return pathname === href;
@@ -87,7 +95,7 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
           <button
             type="button"
             onClick={onToggleCollapse}
-            className={`hidden h-10 w-10 cursor-pointer select-none items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-ink-600 transition-transform duration-300 ease-in-out hover:border-uit-300 hover:text-uit-700 md:flex ${
+            className={`hidden h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white text-ink-600 transition-transform duration-300 ease-in-out hover:border-uit-300 hover:text-uit-700 md:flex ${
               isCollapsed ? 'rotate-180' : ''
             }`}
             aria-label={isCollapsed ? t('sidebarExpand') : t('sidebarCollapse')}
@@ -135,7 +143,7 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
                     key={label}
                     href={href}
                     onClick={onCloseMobile}
-                    className={`group flex cursor-pointer select-none items-center gap-3 rounded-[18px] px-3 py-3 text-[15px] font-medium transition-all duration-300 hover:bg-slate-100 hover:text-ink-900 ${
+                    className={`group flex items-center gap-3 rounded-[18px] px-3 py-3 text-[15px] font-medium transition-all duration-300 hover:bg-slate-100 hover:text-ink-900 ${
                       isActive ? 'bg-slate-100 text-ink-900' : 'text-ink-600'
                     } ${justifyClass} ${isCollapsed ? 'md:px-0' : ''}`}
                   >
@@ -169,7 +177,7 @@ function Sidebar({ isCollapsed, isMobileOpen, onToggleCollapse, onCloseMobile }:
             onCloseMobile();
             window.location.href = '/login';
           }}
-          className={`mt-4 flex cursor-pointer select-none items-center gap-3 rounded-[18px] px-3 py-3 text-sm font-medium text-ink-500 transition-all duration-300 hover:bg-rose-50 hover:text-rose-500 ${justifyClass} ${
+          className={`mt-4 flex items-center gap-3 rounded-[18px] px-3 py-3 text-sm font-medium text-ink-500 transition-all duration-300 hover:bg-rose-50 hover:text-rose-500 ${justifyClass} ${
             isCollapsed ? 'md:px-0' : ''
           }`}
         >

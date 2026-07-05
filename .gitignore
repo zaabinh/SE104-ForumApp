@@ -11,8 +11,7 @@ frontend/*.log
 # Environment variables
 frontend/.env
 frontend/.env.local
-frontend/.env.development.local
-frontend/.env.production.local
+frontend/.env.docker
 
 # =========================
 # BACKEND (FastAPI / Python)
@@ -29,7 +28,7 @@ backend/.packages/
 # Environment variables
 backend/.env
 backend/.env.local
-backend/.env.production.local
+backend/.env.docker
 
 # Virtual Environments
 backend/venv/
@@ -117,3 +116,5 @@ dmypy.json
 .Trashes
 ehthumbs.db
 .env.*.local
+
+pytest.ini

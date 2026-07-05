@@ -25,6 +25,7 @@ type PostListProps = {
 const FALLBACK_AVATAR = '/images/uit.png';
 const INITIAL_FEED_PAGE_SIZE = 16;
 const QUICK_TAG_LIMIT = 5;
+let cachedTags: string[] | null = null;
 
 function parseInterestTags(raw: unknown): string[] {
   if (Array.isArray(raw)) {
@@ -69,7 +70,7 @@ function mapPost(post: any): Post {
     content: post.content,
     excerpt: `${post.content.slice(0, 120)}${post.content.length > 120 ? '...' : ''}`,
     tags: post.tags || [],
-    image: post.cover_image || FALLBACK_AVATAR,
+    image: post.cover_image || '',
     createdAt: post.created_at,
     likes: post.likes_count || 0,
     comments: post.comments_count || 0,
@@ -142,7 +143,7 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
             mode: feedMode,
             sort: sortBy,
           }),
-          getAllTags(),
+          cachedTags ? Promise.resolve(cachedTags.map((name) => ({ id: 0, name, slug: name }))) : getAllTags(),
         ]);
         if (!isMounted) {
           return;
@@ -174,7 +175,9 @@ export default function PostList({ searchQuery = '', initialFeedMode = 'for-you'
 
         setPosts(mappedPosts);
         setUsersById(mappedUsers);
-        setTags(Array.from(new Set(allTags.map((item) => item.name))).sort());
+        const nextTags = Array.from(new Set(allTags.map((item) => item.name))).sort();
+        cachedTags = nextTags;
+        setTags(nextTags);
         setLikedPostIds(response.items.filter((item) => item.is_liked).map((item) => item.id));
         setBookmarkedPostIds(response.items.filter((item) => item.is_bookmarked).map((item) => item.id));
       } catch (loadError) {

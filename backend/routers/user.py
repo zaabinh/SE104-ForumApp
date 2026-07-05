@@ -13,6 +13,7 @@ from models.follow import Follow
 from models.notification import Notification
 from models.post import Post
 from models.user import User
+from schemas.auth_schema import MessageResponse
 from schemas.notification_schema import NotificationResponse
 
 
@@ -88,7 +89,10 @@ def get_user_by_username_or_404(username: str, db: Session) -> User:
 def build_profile_response(user: User, current_user: User, db: Session) -> ProfileResponse:
     followers_count = db.query(func.count()).select_from(Follow).filter(Follow.following_id == user.id).scalar() or 0
     following_count = db.query(func.count()).select_from(Follow).filter(Follow.follower_id == user.id).scalar() or 0
-    posts_count = db.query(func.count()).select_from(Post).filter(Post.user_id == user.id).scalar() or 0
+    posts_count_query = db.query(func.count()).select_from(Post).filter(Post.user_id == user.id, Post.status != "deleted")
+    if current_user.id != user.id and current_user.role.lower() != "admin":
+        posts_count_query = posts_count_query.filter(Post.status == "active")
+    posts_count = posts_count_query.scalar() or 0
     is_following = (
         db.query(Follow)
         .filter(Follow.follower_id == current_user.id, Follow.following_id == user.id)
@@ -170,7 +174,7 @@ def get_user_posts(
     db: Session = Depends(get_db),
 ):
     user = get_user_by_username_or_404(username, db)
-    query = db.query(Post).filter(Post.user_id == user.id)
+    query = db.query(Post).filter(Post.user_id == user.id, Post.status != "deleted")
     if current_user.id != user.id and current_user.role.lower() != "admin":
         query = query.filter(Post.status == "active")
     posts = query.order_by(Post.created_at.desc(), Post.id.desc()).all()
@@ -206,7 +210,7 @@ def get_user_comments(
     rows = (
         db.query(Comment, Post.title.label("post_title"))
         .outerjoin(Post, Post.id == Comment.post_id)
-        .filter(Comment.user_id == user.id)
+        .filter(Comment.user_id == user.id, Comment.status == "active")
         .order_by(Comment.created_at.desc(), Comment.id.desc())
         .all()
     )
@@ -235,7 +239,7 @@ def get_user_bookmarks(
     return (
         db.query(Post)
         .join(Bookmark, Bookmark.post_id == Post.id)
-        .filter(Bookmark.user_id == user.id)
+        .filter(Bookmark.user_id == user.id, Post.status != "deleted")
         .order_by(Bookmark.created_at.desc(), Post.id.desc())
         .all()
     )
@@ -270,3 +274,23 @@ def mark_notification_read(
     db.commit()
     db.refresh(notification)
     return notification
+
+
+@router.delete("/users/me/notifications/{notification_id}", response_model=MessageResponse)
+def delete_read_notification(
+    notification_id: int,
+    current_user: User = Depends(require_active_verified_user),
+    db: Session = Depends(get_db),
+):
+    notification = (
+        db.query(Notification)
+        .filter(Notification.id == notification_id, Notification.user_id == current_user.id)
+        .first()
+    )
+    if not notification:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found.")
+    if not notification.is_read:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only read notifications can be deleted.")
+    db.delete(notification)
+    db.commit()
+    return MessageResponse(message="Notification deleted successfully.")

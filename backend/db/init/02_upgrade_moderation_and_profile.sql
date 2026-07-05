@@ -66,6 +66,17 @@ IF COL_LENGTH('posts', 'requested_new_tags') IS NULL
     ALTER TABLE posts ADD requested_new_tags NVARCHAR(MAX) NULL;
 GO
 
+IF COL_LENGTH('comments', 'status') IS NULL
+BEGIN
+    ALTER TABLE comments ADD status VARCHAR(20) NOT NULL CONSTRAINT DF_comments_status DEFAULT 'active';
+    CREATE INDEX IX_comments_status ON comments(status);
+END
+GO
+
+IF COL_LENGTH('reports', 'details') IS NOT NULL
+    ALTER TABLE reports ALTER COLUMN details NVARCHAR(MAX) NULL;
+GO
+
 IF NOT EXISTS (
     SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_posts_original_post_id'
 )

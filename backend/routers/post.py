@@ -30,12 +30,13 @@ from schemas.trending_schema import (
     UserProfileSummary,
     ProfileAnalysisResponse,
 )
-from services.notification_service import create_notification
+from services.notification_service import create_notification, notify_admins, notify_followers
 import json
 
 from services.post_service import (
     build_post_query,
     paginate_latest_posts_fast,
+    paginate_trending_posts_fast,
     paginate_query,
     serialize_post,
     split_known_and_new_tags,
@@ -52,18 +53,24 @@ from datetime import datetime
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
-
+# Xây dựng các chỉ số cho bài viết
 def build_stats_for_post(db: Session, post_id: int, current_user_id: str):
+    # Số lượt like
     likes_count = db.query(func.count(PostLike.user_id)).filter(PostLike.post_id == post_id).scalar() or 0
-    comments_count = db.query(func.count(Comment.id)).filter(Comment.post_id == post_id).scalar() or 0
+    # Số lượt comment
+    comments_count = db.query(func.count(Comment.id)).filter(Comment.post_id == post_id, Comment.status == "active").scalar() or 0
+    # Số lượt view
     views_count = db.query(func.count(PostView.id)).filter(PostView.post_id == post_id).scalar() or 0
+    # Số lượt share
     shares_count = db.query(func.count(PostShare.id)).filter(PostShare.post_id == post_id).scalar() or 0
+    # Bài viết đã được người dùng hiện tại thích chưa
     is_liked = (
         db.query(PostLike)
         .filter(PostLike.post_id == post_id, PostLike.user_id == current_user_id)
         .first()
         is not None
     )
+    # Bài viết đã được người dùng hiện tại lưu chưa
     is_bookmarked = (
         db.query(Bookmark)
         .filter(Bookmark.post_id == post_id, Bookmark.user_id == current_user_id)
@@ -84,8 +91,9 @@ def build_stats_for_post(db: Session, post_id: int, current_user_id: str):
         },
     )()
 
-
+# Hàm get bài viết từ db
 def get_post_or_404(db: Session, post_id: int) -> Post:
+    # Tìm kiếm bài viết theo id, load thông tin tác giả, tags
     post = (
         db.query(Post)
         .options(joinedload(Post.author), joinedload(Post.tags).joinedload(PostTag.tag))
@@ -120,6 +128,23 @@ def create_post(payload: PostCreate, db: Session = Depends(get_db), current_user
         known_tags, requested_new_tags = split_known_and_new_tags(db, payload.tags)
         sync_post_tags(db, post, known_tags, create_missing=False)
         post.requested_new_tags = json.dumps(requested_new_tags, ensure_ascii=False) if requested_new_tags else None
+        notify_admins(
+            db,
+            actor_id=current_user.id,
+            notification_type="post_pending",
+            title="New post awaiting approval",
+            message=f"{current_user.username} submitted \"{post.title}\" for moderation.",
+            post_id=post.id,
+        )
+    if initial_status == "active":
+        notify_followers(
+            db,
+            author_id=current_user.id,
+            notification_type="new_post",
+            title="New post from someone you follow",
+            message=f"{current_user.username} published \"{post.title}\".",
+            post_id=post.id,
+        )
     db.commit()
     db.refresh(post)
     post = get_post_or_404(db, post.id)
@@ -140,15 +165,17 @@ def get_posts_feed(
 ):
     current_user_id = current_user.id if current_user else None
 
-    # Fast path for the most common feed mode to reduce heavy aggregate query cost.
+    use_trending_fast_path = mode == "trending" or sort == "trending"
     use_fast_path = sort == "latest" and mode != "trending"
-    if use_fast_path:
+    if use_trending_fast_path:
+        rows, pagination = paginate_trending_posts_fast(db, current_user_id, search, tag, page, page_size)
+    elif use_fast_path:
         rows, pagination = paginate_latest_posts_fast(db, current_user_id, search, tag, mode, page, page_size)
     else:
         query = build_post_query(current_user_id, search, tag, mode, sort)
         rows, pagination = paginate_query(db, query, page, page_size)
 
-    if use_fast_path:
+    if use_fast_path or use_trending_fast_path:
         items = [serialize_post(row[0], row[1], current_user_id) for row in rows]
     else:
         items = [serialize_post(row[0], row, current_user_id) for row in rows]
@@ -233,11 +260,22 @@ def delete_post(post_id: int, db: Session = Depends(get_db), current_user: User 
     if post.user_id != current_user.id and current_user.role.lower() != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this post.")
 
-    comment_count = db.query(Comment).filter(Comment.post_id == post.id).count()
+    comment_count = db.query(Comment).filter(Comment.post_id == post.id, Comment.status == "active").count()
     if comment_count and current_user.role.lower() != "admin":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete a post that already has comments.")
 
-    db.delete(post)
+    if current_user.role.lower() == "admin" and post.user_id != current_user.id:
+        create_notification(
+            db,
+            user_id=post.user_id,
+            actor_id=current_user.id,
+            notification_type="post_moderation",
+            title="Your post was removed",
+            message=f"Your post \"{post.title}\" was removed by an administrator.",
+            post_id=post.id,
+        )
+
+    post.status = "deleted"
     db.commit()
     return MessageResponse(message="Post deleted successfully.")
 
@@ -310,6 +348,15 @@ def share_post(
     db.add(shared_post)
     db.flush()
     sync_post_tags(db, shared_post, [association.tag.name for association in post.tags if association.tag])
+    if initial_status == "active":
+        notify_followers(
+            db,
+            author_id=current_user.id,
+            notification_type="new_post",
+            title="New post from someone you follow",
+            message=f"{current_user.username} shared \"{post.title}\".",
+            post_id=shared_post.id,
+        )
     db.commit()
 
     if post.user_id != current_user.id:
@@ -329,7 +376,7 @@ def share_post(
 
 @router.post("/{post_id}/report", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 def report_post(post_id: int, payload: ReportCreate, db: Session = Depends(get_db), current_user: User = Depends(require_active_verified_user)):
-    _ = get_post_or_404(db, post_id)
+    post = get_post_or_404(db, post_id)
     duplicate = (
         db.query(Report)
         .filter(Report.reporter_id == current_user.id, Report.post_id == post_id, Report.comment_id.is_(None))
@@ -344,6 +391,27 @@ def report_post(post_id: int, payload: ReportCreate, db: Session = Depends(get_d
         details=payload.details.strip() if payload.details else None,
     )
     db.add(report)
+    db.flush()
+    notify_admins(
+        db,
+        actor_id=current_user.id,
+        notification_type="post_report",
+        title="New post report",
+        message=f"{current_user.username} reported post #{post.id}.",
+        post_id=post.id,
+        report_id=report.id,
+    )
+    if post.user_id != current_user.id:
+        create_notification(
+            db,
+            user_id=post.user_id,
+            actor_id=None,
+            notification_type="post_reported",
+            title="Your post was reported",
+            message=f"Your post \"{post.title}\" has been reported and is awaiting review.",
+            post_id=post.id,
+            report_id=report.id,
+        )
     db.commit()
     db.refresh(report)
     return report

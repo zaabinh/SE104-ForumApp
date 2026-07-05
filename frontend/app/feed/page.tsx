@@ -8,9 +8,26 @@ import { useI18n } from '@/lib/i18n';
 import { useAuthGuard } from '@/lib/useAuthGuard';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
 import { useResponsiveSidebar } from '@/lib/useResponsiveSidebar';
-import { useCallback, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 
 export default function FeedPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-slate-100">
+          <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-medium text-slate-700 shadow-card">
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-forum-primary" />
+            Loading feed...
+          </div>
+        </main>
+      }
+    >
+      <FeedPageContent />
+    </Suspense>
+  );
+}
+
+function FeedPageContent() {
   const { isCheckingAuth, userEmail } = useAuthGuard();
   const { t } = useI18n();
   const searchParams = useSearchParams();
@@ -33,7 +50,8 @@ export default function FeedPage() {
   }
 
   const sidebarOffsetClass = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-60';
-  const initialFeedMode = searchParams.get('tab') === 'following' ? 'following' : 'for-you';
+  const tab = searchParams.get('tab');
+  const initialFeedMode = tab === 'following' || tab === 'trending' ? tab : 'for-you';
 
   return (
     <main className="min-h-screen overflow-hidden">

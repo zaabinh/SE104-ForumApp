@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Avatar from '@/components/ui/Avatar';
+import ReportDialog from '@/components/report/ReportDialog';
 import { formatRelativeTime } from '@/lib/mockData';
+import { reportComment } from '@/lib/forumApi';
 import { CommentNode, UserProfile } from '@/lib/types';
 import { useToast } from '@/components/ui/Toast';
 
@@ -18,9 +20,11 @@ export default function CommentItem({ comment, depth = 0, postId, currentUser, o
   const { pushToast } = useToast();
   const [replyValue, setReplyValue] = useState('');
   const [isReplying, setIsReplying] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportError, setReportError] = useState('');
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(comment.likes);
-  void postId;
   void currentUser;
 
   return (
@@ -55,6 +59,16 @@ export default function CommentItem({ comment, depth = 0, postId, currentUser, o
               className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-all duration-200 hover:border-forum-primary hover:text-forum-primary"
             >
               Reply
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setReportError('');
+                setIsReportOpen(true);
+              }}
+              className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-all duration-200 hover:border-rose-300 hover:text-rose-600"
+            >
+              Report
             </button>
           </div>
           {isReplying ? (
@@ -94,6 +108,40 @@ export default function CommentItem({ comment, depth = 0, postId, currentUser, o
           ) : null}
         </div>
       </div>
+      <ReportDialog
+        targetLabel="bình luận"
+        open={isReportOpen}
+        loading={isReporting}
+        error={reportError}
+        onClose={() => {
+          if (isReporting) return;
+          setIsReportOpen(false);
+          setReportError('');
+        }}
+        onSubmit={async (payload) => {
+          setIsReporting(true);
+          setReportError('');
+          try {
+            await reportComment(postId, comment.id, payload);
+            setIsReportOpen(false);
+            pushToast('Đã gửi báo cáo bình luận');
+          } catch (error) {
+            const detail =
+              typeof error === 'object' &&
+              error !== null &&
+              'response' in error &&
+              typeof error.response === 'object' &&
+              error.response !== null &&
+              'status' in error.response &&
+              error.response.status === 409
+                ? 'Bạn đã báo cáo bình luận này trước đó.'
+                : 'Không thể gửi báo cáo. Vui lòng thử lại.';
+            setReportError(detail);
+          } finally {
+            setIsReporting(false);
+          }
+        }}
+      />
       {comment.replies.length ? (
         <div className="mt-3 space-y-3">
           {comment.replies.map((reply) => (

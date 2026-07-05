@@ -210,6 +210,37 @@ export async function createComment(postId: number, payload: { content: string; 
   return response.data;
 }
 
+export type ReportReason = 'spam' | 'harassment' | 'hate_speech' | 'violence' | 'misinformation' | 'other';
+
+export type ReportResponse = {
+  id: number;
+  reporter_id: string | null;
+  post_id: number | null;
+  comment_id: number | null;
+  reason: ReportReason | string;
+  details: string | null;
+  status: 'pending' | 'reviewed' | 'dismissed' | 'resolved';
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+};
+
+export async function reportPost(postId: number, payload: { reason: ReportReason; details?: string | null }) {
+  const response = await api.post<ReportResponse>(`/api/posts/${postId}/report`, {
+    reason: payload.reason,
+    details: payload.details || null,
+  });
+  return response.data;
+}
+
+export async function reportComment(postId: number, commentId: number, payload: { reason: ReportReason; details?: string | null }) {
+  const response = await api.post<ReportResponse>(`/api/posts/${postId}/comments/${commentId}/report`, {
+    reason: payload.reason,
+    details: payload.details || null,
+  });
+  return response.data;
+}
+
 export async function getTags() {
   const response = await api.get<Array<{ id: number; name: string; slug: string }>>('/api/posts/tags');
   return response.data;

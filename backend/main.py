@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from database import Base, engine
 from models import (
@@ -26,10 +27,11 @@ from models import (
     Tag,
     User,
 )
-from routers import admin, auth, comment, follow, post, user
+from routers import admin, auth, comment, follow, post, upload, user
 
 
 load_dotenv()
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 
 _ = (
     AdminAuditLog,
@@ -89,6 +91,9 @@ app.include_router(post.router, prefix="/api")
 app.include_router(comment.router, prefix="/api")
 app.include_router(follow.router)
 app.include_router(admin.router, prefix="/api")
+app.include_router(upload.router)
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 @app.get("/health")

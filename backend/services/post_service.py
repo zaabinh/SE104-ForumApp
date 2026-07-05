@@ -1,6 +1,7 @@
 import math
 import re
 import json
+import unicodedata
 from dataclasses import dataclass
 from types import SimpleNamespace
 from datetime import datetime
@@ -21,8 +22,9 @@ from models.user import User
 
 
 def slugify(value: str) -> str:
-    normalized = re.sub(r"[^a-zA-Z0-9\\s-]", "", value.strip().lower())
-    normalized = re.sub(r"\\s+", "-", normalized)
+    ascii_value = unicodedata.normalize("NFKD", value.strip().lower()).encode("ascii", "ignore").decode("ascii")
+    normalized = re.sub(r"[^a-zA-Z0-9\s-]", "", ascii_value)
+    normalized = re.sub(r"\s+", "-", normalized)
     return normalized.strip("-") or "post"
 
 
@@ -107,7 +109,7 @@ def build_post_query(current_user_id: str | None, search: str | None, tag: str |
             is_bookmarked,
         )
         .outerjoin(PostLike, PostLike.post_id == Post.id)
-        .outerjoin(Comment, Comment.post_id == Post.id)
+        .outerjoin(Comment, (Comment.post_id == Post.id) & (Comment.status == "active"))
         .outerjoin(PostView, PostView.post_id == Post.id)
         .outerjoin(PostShare, PostShare.post_id == Post.id)
         .outerjoin(Bookmark, Bookmark.post_id == Post.id)
@@ -216,7 +218,7 @@ def paginate_latest_posts_fast(
             post_by_id = {post.id: post for post in candidate_posts}
 
             likes_map = dict(db.query(PostLike.post_id, func.count()).filter(PostLike.post_id.in_(candidate_ids)).group_by(PostLike.post_id).all())
-            comments_map = dict(db.query(Comment.post_id, func.count()).filter(Comment.post_id.in_(candidate_ids)).group_by(Comment.post_id).all())
+            comments_map = dict(db.query(Comment.post_id, func.count()).filter(Comment.post_id.in_(candidate_ids), Comment.status == "active").group_by(Comment.post_id).all())
             views_map = dict(db.query(PostView.post_id, func.count()).filter(PostView.post_id.in_(candidate_ids)).group_by(PostView.post_id).all())
             shares_map = dict(db.query(PostShare.post_id, func.count()).filter(PostShare.post_id.in_(candidate_ids)).group_by(PostShare.post_id).all())
 
@@ -250,7 +252,7 @@ def paginate_latest_posts_fast(
     ordered_posts = [post_by_id[post_id] for post_id in page_ids if post_id in post_by_id]
 
     likes_map = dict(db.query(PostLike.post_id, func.count()).filter(PostLike.post_id.in_(page_ids)).group_by(PostLike.post_id).all())
-    comments_map = dict(db.query(Comment.post_id, func.count()).filter(Comment.post_id.in_(page_ids)).group_by(Comment.post_id).all())
+    comments_map = dict(db.query(Comment.post_id, func.count()).filter(Comment.post_id.in_(page_ids), Comment.status == "active").group_by(Comment.post_id).all())
     views_map = dict(db.query(PostView.post_id, func.count()).filter(PostView.post_id.in_(page_ids)).group_by(PostView.post_id).all())
     shares_map = dict(db.query(PostShare.post_id, func.count()).filter(PostShare.post_id.in_(page_ids)).group_by(PostShare.post_id).all())
 
@@ -283,6 +285,102 @@ def paginate_latest_posts_fast(
             views_count=views_count,
             shares_count=shares_count,
             trending_score=likes_count * 4 + comments_count * 3 + views_count,
+            is_liked=post.id in liked_set,
+            is_bookmarked=post.id in bookmarked_set,
+        )
+        rows.append((post, stats))
+
+    return rows, Pagination(page=page, page_size=page_size, total=total)
+
+
+def paginate_trending_posts_fast(
+    db: Session,
+    current_user_id: str | None,
+    search: str | None,
+    tag: str | None,
+    page: int,
+    page_size: int,
+):
+    page, page_size = _paginate_bounds(page, page_size)
+    offset = (page - 1) * page_size
+
+    post_ids_query = select(Post.id).where(Post.status == "active")
+
+    if search:
+        term = f"%{search.strip()}%"
+        post_ids_query = post_ids_query.where((Post.title.ilike(term)) | (Post.content.ilike(term)))
+
+    if tag:
+        post_ids_query = (
+            post_ids_query.join(PostTag, PostTag.post_id == Post.id)
+            .join(Tag, Tag.id == PostTag.tag_id)
+            .where(Tag.slug == slugify(tag))
+        )
+
+    total = db.execute(select(func.count()).select_from(post_ids_query.distinct().subquery())).scalar_one()
+    candidate_ids = db.execute(post_ids_query.order_by(Post.created_at.desc(), Post.id.desc()).limit(300)).scalars().all()
+    if not candidate_ids:
+        return [], Pagination(page=page, page_size=page_size, total=total)
+
+    likes_map = dict(db.query(PostLike.post_id, func.count()).filter(PostLike.post_id.in_(candidate_ids)).group_by(PostLike.post_id).all())
+    comments_map = dict(db.query(Comment.post_id, func.count()).filter(Comment.post_id.in_(candidate_ids), Comment.status == "active").group_by(Comment.post_id).all())
+    views_map = dict(db.query(PostView.post_id, func.count()).filter(PostView.post_id.in_(candidate_ids)).group_by(PostView.post_id).all())
+    shares_map = dict(db.query(PostShare.post_id, func.count()).filter(PostShare.post_id.in_(candidate_ids)).group_by(PostShare.post_id).all())
+
+    posts = (
+        db.query(Post)
+        .options(joinedload(Post.author), joinedload(Post.tags).joinedload(PostTag.tag))
+        .filter(Post.id.in_(candidate_ids))
+        .all()
+    )
+    post_by_id = {post.id: post for post in posts}
+
+    def score(post_id: int) -> float:
+        post = post_by_id.get(post_id)
+        if not post:
+            return 0.0
+        age_hours = max((datetime.now() - post.created_at).total_seconds() / 3600, 0.0)
+        decay = math.exp(-age_hours / 72)
+        popularity = (
+            float(likes_map.get(post_id, 0)) * 4.0
+            + float(comments_map.get(post_id, 0)) * 3.0
+            + float(shares_map.get(post_id, 0)) * 5.0
+            + float(views_map.get(post_id, 0))
+        )
+        return popularity * decay
+
+    ranked_ids = sorted(candidate_ids, key=lambda post_id: (score(post_id), post_id), reverse=True)
+    page_ids = ranked_ids[offset: offset + page_size]
+    ordered_posts = [post_by_id[post_id] for post_id in page_ids if post_id in post_by_id]
+
+    liked_set: set[int] = set()
+    bookmarked_set: set[int] = set()
+    if current_user_id and page_ids:
+        liked_set = {
+            post_id
+            for (post_id,) in db.query(PostLike.post_id)
+            .filter(PostLike.user_id == current_user_id, PostLike.post_id.in_(page_ids))
+            .all()
+        }
+        bookmarked_set = {
+            post_id
+            for (post_id,) in db.query(Bookmark.post_id)
+            .filter(Bookmark.user_id == current_user_id, Bookmark.post_id.in_(page_ids))
+            .all()
+        }
+
+    rows = []
+    for post in ordered_posts:
+        likes_count = int(likes_map.get(post.id, 0))
+        comments_count = int(comments_map.get(post.id, 0))
+        views_count = int(views_map.get(post.id, 0))
+        shares_count = int(shares_map.get(post.id, 0))
+        stats = SimpleNamespace(
+            likes_count=likes_count,
+            comments_count=comments_count,
+            views_count=views_count,
+            shares_count=shares_count,
+            trending_score=int(score(post.id)),
             is_liked=post.id in liked_set,
             is_bookmarked=post.id in bookmarked_set,
         )

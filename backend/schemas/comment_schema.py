@@ -20,6 +20,7 @@ class CommentResponse(CommentBase):
     post_id: int
     user_id: str
     parent_id: int | None
+    status: str = "active"
     created_at: datetime
     author: UserResponse
     replies: list["CommentResponse"] = Field(default_factory=list)

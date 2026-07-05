@@ -7,6 +7,7 @@ import {
   AdminReport,
   AdminUser,
   PendingPost,
+  ReportModerationAction,
   approvePost,
   banUser,
   getAdminOverview,
@@ -29,6 +30,7 @@ export default function DashboardPage() {
   const [usersSearch, setUsersSearch] = useState('');
   const [usersStatus, setUsersStatus] = useState('');
   const [reportsStatus, setReportsStatus] = useState('');
+  const [reportActions, setReportActions] = useState<Record<number, ReportModerationAction>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -52,6 +54,21 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
+  const getDefaultReportAction = (report: AdminReport): ReportModerationAction => (report.comment_id ? 'hide_comment' : 'hide_post');
+
+  const getReportActionOptions = (report: AdminReport): Array<{ value: ReportModerationAction; label: string }> =>
+    report.comment_id
+      ? [
+          { value: 'hide_comment', label: 'Hide comment' },
+          { value: 'ban_author', label: 'Ban author' },
+          { value: 'hide_comment_and_ban_author', label: 'Hide comment + ban author' },
+        ]
+      : [
+          { value: 'hide_post', label: 'Hide post' },
+          { value: 'ban_author', label: 'Ban author' },
+          { value: 'hide_post_and_ban_author', label: 'Hide post + ban author' },
+        ];
 
   useEffect(() => {
     void loadData();
@@ -154,6 +171,7 @@ export default function DashboardPage() {
                 <th className="py-2">ID</th>
                 <th>Target</th>
                 <th>Reason</th>
+                <th>Details</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -162,12 +180,56 @@ export default function DashboardPage() {
               {reports.map((report) => (
                 <tr key={report.id} className="border-t border-slate-100">
                   <td className="py-2">#{report.id}</td>
-                  <td>{report.post_id ? `Post ${report.post_id}` : `Comment ${report.comment_id}`}</td>
+                  <td>{report.comment_id ? `Comment ${report.comment_id}` : `Post ${report.post_id}`}</td>
                   <td>{report.reason}</td>
-                  <td>{report.status}</td>
-                  <td className="space-x-2">
-                    <button onClick={async () => { await moderateReport(report.id, 'resolved'); await loadData(); }} className="rounded-lg bg-emerald-600 px-2 py-1 text-xs text-white">Resolve</button>
-                    <button onClick={async () => { await moderateReport(report.id, 'dismissed'); await loadData(); }} className="rounded-lg bg-slate-500 px-2 py-1 text-xs text-white">Dismiss</button>
+                  <td className="max-w-xs truncate text-slate-600" title={report.details || ''}>{report.details || '-'}</td>
+                  <td>
+                    <span
+                      className={`rounded-lg px-2 py-1 text-xs font-semibold ${
+                        report.status === 'pending'
+                          ? 'bg-amber-100 text-amber-700'
+                          : report.status === 'resolved'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : report.status === 'dismissed'
+                              ? 'bg-slate-100 text-slate-600'
+                              : 'bg-blue-100 text-blue-700'
+                      }`}
+                    >
+                      {report.status}
+                    </span>
+                  </td>
+                  <td className="min-w-[320px]">
+                    {report.status === 'resolved' || report.status === 'dismissed' ? (
+                      <span className="text-xs text-slate-400">Closed</span>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <select
+                          value={reportActions[report.id] || getDefaultReportAction(report)}
+                          onChange={(event) => setReportActions((prev) => ({ ...prev, [report.id]: event.target.value as ReportModerationAction }))}
+                          className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                        >
+                          {getReportActionOptions(report).map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={async () => {
+                            await moderateReport(report.id, {
+                              status: 'resolved',
+                              action: reportActions[report.id] || getDefaultReportAction(report),
+                            });
+                            await loadData();
+                          }}
+                          className="rounded-lg bg-emerald-600 px-2 py-1 text-xs text-white"
+                        >
+                          Resolve
+                        </button>
+                        <button onClick={async () => { await moderateReport(report.id, 'reviewed'); await loadData(); }} className="rounded-lg bg-blue-600 px-2 py-1 text-xs text-white">Reviewed</button>
+                        <button onClick={async () => { await moderateReport(report.id, 'dismissed'); await loadData(); }} className="rounded-lg bg-slate-500 px-2 py-1 text-xs text-white">Dismiss</button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

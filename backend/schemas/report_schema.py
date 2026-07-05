@@ -13,6 +13,15 @@ class ReportCreate(BaseModel):
 
 class ReportModerate(BaseModel):
     status: str = Field(..., pattern="^(pending|reviewed|dismissed|resolved)$")
+    action: Literal[
+        "none",
+        "hide_post",
+        "hide_comment",
+        "ban_author",
+        "hide_post_and_ban_author",
+        "hide_comment_and_ban_author",
+    ] = "none"
+    notes: str | None = Field(default=None, max_length=1000)
 
 
 class ReportResponse(BaseModel):

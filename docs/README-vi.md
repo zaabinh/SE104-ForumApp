@@ -6,11 +6,11 @@ Giảng viên: Đỗ Văn Tiến
 
 | Họ và tên | MSSV | Phân công |
 | --- | --- | --- |
-| Đoàn Hữu Gia Bình | 24520192 | Thiết kế frontend (giao diện) cho trang web; Nghiên cứu và Thiết kế Phân hệ Tương tác cốt lõi (Bài viết, Like, Share, Comment, Bookmark, Report, Follow); Triển khai hệ thống (Deployment). |
-| Nguyễn Thái Bảo | 24520173 | Nghiên cứu và Thiết kế Phân hệ Quản trị & Xác thực (Auth, Phân quyền, Profile); Phát triển Dashboard Admin và Phân tích thống kê dữ liệu; phân tích yêu cầu và viết báo cáo cho cho đồ án |
-| Võ Hoài Chiều | 24520220 | Thiết kế cơ sở dữ liệu; Nghiên cứu và Xây dựng Phân hệ Lọc & Tìm kiếm ; Phát triển thuật toán đề xuất bài viết (Trending Score, Similar Post, Collaborative Filtering, Profile Recommendation).|
+| Đoàn Hữu Gia Bình | 24520192 |  |
+| Nguyễn Thái Bảo | 24 |  |
+| Võ Hoài Chiều |  |  |
 
-UITConnect là ứng dụng diễn đàn sinh viên dành cho cộng đồng UIT. Dự án gồm xác thực, bài viết, bình luận lồng nhau, report, kiểm duyệt, notification, gợi ý bài viết, hồ sơ người dùng và cấu hình deploy lên Vercel + Render.
+UITConnect là ứng dụng diễn đàn sinh viên full-stack dành cho cộng đồng UIT. Dự án gồm xác thực, bài viết, bình luận lồng nhau, report, kiểm duyệt, notification, gợi ý bài viết, hồ sơ người dùng và cấu hình deploy lên Vercel + Render.
 
 Cập nhật theo mã nguồn hiện tại: 2026-06-04.
 
@@ -75,6 +75,7 @@ Giới hạn hiện tại:
 - Xác minh email đang tạm tắt.
 - Gửi email thật chưa hoàn thiện; backend đang in email ra log.
 - Notification chưa realtime.
+- Upload trên Render dùng filesystem tạm nếu chưa chuyển sang storage ngoài.
 - `/settings` vẫn là giao diện placeholder.
 
 ## Biến môi trường
@@ -250,4 +251,11 @@ Docker Compose:
 docker compose -f docker-compose.yml config
 ```
 
+## Tài liệu liên quan
+
+- `PROJECT_SUMMARY.md`
+- `PROJECT_SUMMARY_vi.md`
+- `docs/deploy.md`
+- `backend/BACKEND_SETUP.md`
+- `backend/API_DOCUMENTATION.md`
 

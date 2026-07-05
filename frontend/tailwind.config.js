@@ -1,9 +1,9 @@
-import type { Config } from 'tailwindcss';
-
-const config: Config = {
+/** @type {import('tailwindcss').Config} */
+const config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}'
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
@@ -14,7 +14,7 @@ const config: Config = {
           primary: '#376BB4',
           secondary: '#5A8CFF',
           accent: '#DCE9FF',
-          text: '#09111F'
+          text: '#09111F',
         },
         uit: {
           50: '#F2F7FF',
@@ -53,27 +53,27 @@ const config: Config = {
         glass: '0 18px 45px rgba(15, 31, 68, 0.12)',
       },
       animation: {
-        'gradient': 'gradient 3s ease-in-out infinite',
-        'float': 'float 6s ease-in-out infinite',
+        gradient: 'gradient 3s ease-in-out infinite',
+        float: 'float 6s ease-in-out infinite',
         'pulse-soft': 'pulseSoft 2.6s ease-in-out infinite',
       },
       keyframes: {
         gradient: {
           '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' }
+          '50%': { backgroundPosition: '100% 50%' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' }
+          '50%': { transform: 'translateY(-10px)' },
         },
         pulseSoft: {
           '0%, 100%': { opacity: '0.9', transform: 'scale(1)' },
           '50%': { opacity: '1', transform: 'scale(1.02)' },
-        }
-      }
-    }
+        },
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
 
-export default config;
+module.exports = config;
