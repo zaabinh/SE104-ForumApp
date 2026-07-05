@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1320" viewBox="0 0 1800 1320">
+  <defs>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #111827; }
+      .group { fill: #f9fafb; stroke: #d1d5db; stroke-width: 1.5; rx: 14; }
+      .group-title { font: 700 18px Arial, sans-serif; fill: #111827; }
+      .box { fill: #ffffff; stroke: #111827; stroke-width: 2; rx: 10; }
+      .h-user { fill: #dbeafe; }
+      .h-auth { fill: #e0f2fe; }
+      .h-post { fill: #dcfce7; }
+      .h-interact { fill: #fef3c7; }
+      .h-admin { fill: #fae8ff; }
+      .name { font: 700 15px Arial, sans-serif; fill: #111827; }
+      .field { font: 12.5px Arial, sans-serif; fill: #374151; }
+      .rel { stroke: #111827; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .soft { stroke: #6b7280; stroke-width: 2; stroke-dasharray: 8 6; fill: none; marker-end: url(#arrow-soft); }
+      .label { font: 12px Arial, sans-serif; fill: #111827; }
+      .legend { fill: #ffffff; stroke: #d1d5db; stroke-width: 1.5; rx: 10; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111827"/>
+    </marker>
+    <marker id="arrow-soft" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280"/>
+    </marker>
+  </defs>
+
+  <text x="900" y="46" text-anchor="middle" class="title">Sơ đồ lớp dữ liệu và quan hệ giữa các bảng</text>
+
+  <rect x="55" y="85" width="360" height="1120" class="group"/>
+  <text x="80" y="120" class="group-title">Tài khoản</text>
+
+  <rect x="90" y="150" width="290" height="150" class="box"/>
+  <rect x="90" y="150" width="290" height="34" class="h-user"/>
+  <text x="235" y="173" text-anchor="middle" class="name">User</text>
+  <text x="110" y="205" class="field">PK id</text>
+  <text x="110" y="226" class="field">username, email, full_name</text>
+  <text x="110" y="247" class="field">role, status, provider</text>
+  <text x="110" y="268" class="field">is_verified, interest_tags</text>
+
+  <rect x="90" y="350" width="290" height="85" class="box"/>
+  <rect x="90" y="350" width="290" height="32" class="h-auth"/>
+  <text x="235" y="371" text-anchor="middle" class="name">AuthSession</text>
+  <text x="110" y="404" class="field">PK id, FK user_id</text>
+  <text x="110" y="425" class="field">refresh_token, expires_at</text>
+
+  <rect x="90" y="485" width="290" height="85" class="box"/>
+  <rect x="90" y="485" width="290" height="32" class="h-auth"/>
+  <text x="235" y="506" text-anchor="middle" class="name">EmailVerificationToken</text>
+  <text x="110" y="539" class="field">PK id, FK user_id</text>
+  <text x="110" y="560" class="field">token, expires_at</text>
+
+  <rect x="90" y="620" width="290" height="85" class="box"/>
+  <rect x="90" y="620" width="290" height="32" class="h-auth"/>
+  <text x="235" y="641" text-anchor="middle" class="name">PasswordResetToken</text>
+  <text x="110" y="674" class="field">PK id, FK user_id</text>
+  <text x="110" y="695" class="field">token, expires_at, used_at</text>
+
+  <rect x="90" y="770" width="290" height="85" class="box"/>
+  <rect x="90" y="770" width="290" height="32" class="h-interact"/>
+  <text x="235" y="791" text-anchor="middle" class="name">Follow</text>
+  <text x="110" y="824" class="field">PK/FK follower_id</text>
+  <text x="110" y="845" class="field">PK/FK following_id</text>
+
+  <rect x="500" y="85" width="520" height="1120" class="group"/>
+  <text x="525" y="120" class="group-title">Nội dung</text>
+
+  <rect x="560" y="150" width="330" height="155" class="box"/>
+  <rect x="560" y="150" width="330" height="34" class="h-post"/>
+  <text x="725" y="173" text-anchor="middle" class="name">Post</text>
+  <text x="580" y="205" class="field">PK id, FK user_id</text>
+  <text x="580" y="226" class="field">title, slug, content</text>
+  <text x="580" y="247" class="field">status, original_post_id</text>
+  <text x="580" y="268" class="field">share_caption, requested_new_tags</text>
+
+  <rect x="560" y="375" width="250" height="85" class="box"/>
+  <rect x="560" y="375" width="250" height="32" class="h-post"/>
+  <text x="685" y="396" text-anchor="middle" class="name">Tag</text>
+  <text x="580" y="429" class="field">PK id</text>
+  <text x="580" y="450" class="field">name, slug</text>
+
+  <rect x="560" y="510" width="250" height="85" class="box"/>
+  <rect x="560" y="510" width="250" height="32" class="h-post"/>
+  <text x="685" y="531" text-anchor="middle" class="name">PostTag</text>
+  <text x="580" y="564" class="field">PK/FK post_id</text>
+  <text x="580" y="585" class="field">PK/FK tag_id</text>
+
+  <rect x="560" y="665" width="300" height="105" class="box"/>
+  <rect x="560" y="665" width="300" height="32" class="h-interact"/>
+  <text x="710" y="686" text-anchor="middle" class="name">Comment</text>
+  <text x="580" y="719" class="field">PK id, FK post_id, user_id</text>
+  <text x="580" y="740" class="field">parent_id, content</text>
+
+  <rect x="1110" y="85" width="635" height="1120" class="group"/>
+  <text x="1135" y="120" class="group-title">Tương tác, thông báo và quản trị</text>
+
+  <rect x="1160" y="150" width="240" height="82" class="box"/>
+  <rect x="1160" y="150" width="240" height="32" class="h-interact"/>
+  <text x="1280" y="171" text-anchor="middle" class="name">PostLike</text>
+  <text x="1180" y="204" class="field">PK user_id, post_id</text>
+  <text x="1180" y="225" class="field">created_at</text>
+
+  <rect x="1465" y="150" width="240" height="82" class="box"/>
+  <rect x="1465" y="150" width="240" height="32" class="h-interact"/>
+  <text x="1585" y="171" text-anchor="middle" class="name">Bookmark</text>
+  <text x="1485" y="204" class="field">PK user_id, post_id</text>
+  <text x="1485" y="225" class="field">created_at</text>
+
+  <rect x="1160" y="285" width="240" height="82" class="box"/>
+  <rect x="1160" y="285" width="240" height="32" class="h-interact"/>
+  <text x="1280" y="306" text-anchor="middle" class="name">PostView</text>
+  <text x="1180" y="339" class="field">PK id, FK post_id</text>
+  <text x="1180" y="360" class="field">user_id nullable</text>
+
+  <rect x="1465" y="285" width="240" height="82" class="box"/>
+  <rect x="1465" y="285" width="240" height="32" class="h-interact"/>
+  <text x="1585" y="306" text-anchor="middle" class="name">PostShare</text>
+  <text x="1485" y="339" class="field">PK id, FK post_id</text>
+  <text x="1485" y="360" class="field">user_id nullable</text>
+
+  <rect x="1160" y="465" width="265" height="105" class="box"/>
+  <rect x="1160" y="465" width="265" height="32" class="h-admin"/>
+  <text x="1292" y="486" text-anchor="middle" class="name">Report</text>
+  <text x="1180" y="519" class="field">PK id, FK reporter_id</text>
+  <text x="1180" y="540" class="field">post_id, comment_id, reviewed_by</text>
+  <text x="1180" y="561" class="field">reason, status</text>
+
+  <rect x="1160" y="650" width="300" height="115" class="box"/>
+  <rect x="1160" y="650" width="300" height="32" class="h-admin"/>
+  <text x="1310" y="671" text-anchor="middle" class="name">Notification</text>
+  <text x="1180" y="704" class="field">PK id, FK user_id, actor_id</text>
+  <text x="1180" y="725" class="field">post_id, comment_id, report_id</text>
+  <text x="1180" y="746" class="field">type, title, is_read</text>
+
+  <rect x="1160" y="845" width="300" height="100" class="box"/>
+  <rect x="1160" y="845" width="300" height="32" class="h-admin"/>
+  <text x="1310" y="866" text-anchor="middle" class="name">AdminAuditLog</text>
+  <text x="1180" y="899" class="field">PK id, FK admin_user_id</text>
+  <text x="1180" y="920" class="field">action_type, target_type, target_id</text>
+
+  <path d="M380 225 L560 225" class="rel"/>
+  <text x="445" y="212" class="label">1-N</text>
+
+  <path d="M235 300 L235 350" class="rel"/>
+  <path d="M215 300 L215 485" class="rel"/>
+  <path d="M255 300 L255 620" class="rel"/>
+  <path d="M235 300 L235 770" class="rel"/>
+  <text x="265" y="735" class="label">self N-N</text>
+
+  <path d="M890 225 L1160 191" class="rel"/>
+  <path d="M890 235 L1465 191" class="rel"/>
+  <path d="M890 245 L1160 326" class="rel"/>
+  <path d="M890 255 L1465 326" class="rel"/>
+  <text x="1010" y="176" class="label">Post - tương tác</text>
+
+  <path d="M725 305 L725 510" class="rel"/>
+  <path d="M685 460 L685 510" class="rel"/>
+  <text x="740" y="492" class="label">N-N qua PostTag</text>
+
+  <path d="M890 285 L940 285 L940 710 L860 710" class="rel"/>
+  <text x="900" y="700" class="label">1-N</text>
+  <path d="M710 770 L710 820 L780 820 L780 770" class="soft"/>
+  <text x="790" y="817" class="label">reply</text>
+
+  <path d="M890 275 L1040 275 L1040 518 L1160 518" class="rel"/>
+  <path d="M860 720 L1030 720 L1030 540 L1160 540" class="rel"/>
+  <path d="M380 250 L470 250 L470 505 L1160 505" class="soft"/>
+
+  <path d="M380 240 L455 240 L455 705 L1160 705" class="rel"/>
+  <path d="M890 265 L1020 265 L1020 725 L1160 725" class="soft"/>
+  <path d="M860 735 L1025 735 L1025 745 L1160 745" class="soft"/>
+  <path d="M1425 518 L1515 518 L1515 745 L1460 745" class="soft"/>
+
+  <path d="M380 260 L450 260 L450 895 L1160 895" class="rel"/>
+
+  <rect x="95" y="1230" width="1610" height="60" class="legend"/>
+  <text x="125" y="1266" class="label">Ghi chú: đường liền là quan hệ khóa ngoại chính; đường nét đứt là quan hệ phụ hoặc tham chiếu tùy chọn. Nhãn chi tiết của từng quan hệ được liệt kê ở mục 5.3.</text>
+</svg>

@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1120" viewBox="0 0 1400 1120">
+  <defs>
+    <style>
+      .title { font: 700 28px Arial, sans-serif; fill: #111827; }
+      .lane-title { font: 700 17px Arial, sans-serif; fill: #111827; }
+      .lane { fill: #f9fafb; stroke: #e5e7eb; stroke-width: 1.5; rx: 12; }
+      .node { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 2; rx: 14; }
+      .system { fill: #dcfce7; stroke: #15803d; stroke-width: 2; rx: 14; }
+      .admin { fill: #fef3c7; stroke: #d97706; stroke-width: 2; rx: 14; }
+      .error { fill: #fee2e2; stroke: #b91c1c; stroke-width: 2; rx: 14; }
+      .decision { fill: #ffffff; stroke: #111827; stroke-width: 2; }
+      .label { font: 600 16px Arial, sans-serif; fill: #111827; }
+      .small { font: 14px Arial, sans-serif; fill: #111827; }
+      .arrow { stroke: #111827; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .start { fill: #111827; }
+      .end { fill: #ffffff; stroke: #111827; stroke-width: 4; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111827"/>
+    </marker>
+  </defs>
+
+  <text x="700" y="46" text-anchor="middle" class="title">Activity Diagram - Báo cáo và xử lý báo cáo</text>
+
+  <rect x="70" y="80" width="360" height="930" class="lane"/>
+  <rect x="520" y="80" width="360" height="930" class="lane"/>
+  <rect x="970" y="80" width="360" height="930" class="lane"/>
+
+  <text x="250" y="115" text-anchor="middle" class="lane-title">Người dùng</text>
+  <text x="700" y="115" text-anchor="middle" class="lane-title">Hệ thống</text>
+  <text x="1150" y="115" text-anchor="middle" class="lane-title">Quản trị viên</text>
+
+  <circle cx="250" cy="165" r="16" class="start"/>
+
+  <rect x="125" y="220" width="250" height="64" class="node"/>
+  <text x="250" y="246" text-anchor="middle" class="label">Chọn nội dung</text>
+  <text x="250" y="268" text-anchor="middle" class="label">cần báo cáo</text>
+
+  <rect x="125" y="340" width="250" height="64" class="node"/>
+  <text x="250" y="366" text-anchor="middle" class="label">Nhập lý do</text>
+  <text x="250" y="388" text-anchor="middle" class="label">và gửi báo cáo</text>
+
+  <polygon points="700,330 820,400 700,470 580,400" class="decision"/>
+  <text x="700" y="396" text-anchor="middle" class="label">Nội dung</text>
+  <text x="700" y="418" text-anchor="middle" class="label">tồn tại?</text>
+
+  <rect x="540" y="520" width="250" height="64" class="error"/>
+  <text x="665" y="546" text-anchor="middle" class="label">Trả lỗi</text>
+  <text x="665" y="568" text-anchor="middle" class="label">không tìm thấy</text>
+
+  <circle cx="665" cy="640" r="17" class="end"/>
+  <circle cx="665" cy="640" r="9" class="start"/>
+
+  <polygon points="700,665 820,735 700,805 580,735" class="decision"/>
+  <text x="700" y="731" text-anchor="middle" class="label">Đã báo cáo</text>
+  <text x="700" y="753" text-anchor="middle" class="label">trước đó?</text>
+
+  <rect x="210" y="705" width="250" height="64" class="error"/>
+  <text x="335" y="731" text-anchor="middle" class="label">Trả lỗi</text>
+  <text x="335" y="753" text-anchor="middle" class="label">báo cáo trùng</text>
+
+  <circle cx="335" cy="825" r="17" class="end"/>
+  <circle cx="335" cy="825" r="9" class="start"/>
+
+  <rect x="575" y="860" width="250" height="64" class="system"/>
+  <text x="700" y="886" text-anchor="middle" class="label">Lưu báo cáo</text>
+  <text x="700" y="908" text-anchor="middle" class="label">status = pending</text>
+
+  <rect x="1025" y="220" width="250" height="64" class="admin"/>
+  <text x="1150" y="246" text-anchor="middle" class="label">Xem danh sách</text>
+  <text x="1150" y="268" text-anchor="middle" class="label">báo cáo</text>
+
+  <rect x="1025" y="340" width="250" height="64" class="admin"/>
+  <text x="1150" y="366" text-anchor="middle" class="label">Chọn trạng thái</text>
+  <text x="1150" y="388" text-anchor="middle" class="label">xử lý</text>
+
+  <rect x="1025" y="500" width="250" height="64" class="system"/>
+  <text x="1150" y="526" text-anchor="middle" class="label">Cập nhật report</text>
+  <text x="1150" y="548" text-anchor="middle" class="label">và reviewed_at</text>
+
+  <rect x="1025" y="660" width="250" height="64" class="system"/>
+  <text x="1150" y="686" text-anchor="middle" class="label">Ghi nhật ký</text>
+  <text x="1150" y="708" text-anchor="middle" class="label">quản trị</text>
+
+  <rect x="1025" y="820" width="250" height="64" class="system"/>
+  <text x="1150" y="846" text-anchor="middle" class="label">Tạo thông báo</text>
+  <text x="1150" y="868" text-anchor="middle" class="label">cho người báo cáo</text>
+
+  <circle cx="1150" cy="955" r="17" class="end"/>
+  <circle cx="1150" cy="955" r="9" class="start"/>
+
+  <line x1="250" y1="181" x2="250" y2="220" class="arrow"/>
+  <line x1="250" y1="284" x2="250" y2="340" class="arrow"/>
+  <path d="M375 372 L520 372 L520 400 L580 400" class="arrow"/>
+
+  <line x1="700" y1="470" x2="700" y2="520" class="arrow"/>
+  <text x="735" y="500" class="small">Không</text>
+  <line x1="665" y1="584" x2="665" y2="623" class="arrow"/>
+
+  <path d="M820 400 L880 400 L880 610 L700 610 L700 665" class="arrow"/>
+  <text x="850" y="382" class="small">Có</text>
+
+  <path d="M580 735 L460 735" class="arrow"/>
+  <text x="515" y="718" class="small">Có</text>
+  <line x1="335" y1="769" x2="335" y2="808" class="arrow"/>
+
+  <line x1="700" y1="805" x2="700" y2="860" class="arrow"/>
+  <text x="735" y="838" class="small">Không</text>
+
+  <path d="M825 892 L940 892 L940 252 L1025 252" class="arrow"/>
+  <text x="890" y="875" class="small">Báo cáo mới</text>
+
+  <line x1="1150" y1="284" x2="1150" y2="340" class="arrow"/>
+  <line x1="1150" y1="404" x2="1150" y2="500" class="arrow"/>
+  <line x1="1150" y1="564" x2="1150" y2="660" class="arrow"/>
+  <line x1="1150" y1="724" x2="1150" y2="820" class="arrow"/>
+  <line x1="1150" y1="884" x2="1150" y2="938" class="arrow"/>
+</svg>
