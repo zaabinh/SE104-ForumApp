@@ -1,4 +1,4 @@
-*LỜI NÓI ĐẦU*
+= LỜI NÓI ĐẦU
 
 Đề tài của nhóm được thực hiện trong khuôn khổ đồ án môn Nhập môn Công nghệ phần mềm. Thông qua đề tài, nhóm có cơ hội vận dụng các kiến thức đã học vào quá trình xây dựng một hệ thống phần mềm hoàn chỉnh, từ khảo sát nhu cầu, phân tích yêu cầu, thiết kế, cài đặt đến trình bày kết quả.
 
