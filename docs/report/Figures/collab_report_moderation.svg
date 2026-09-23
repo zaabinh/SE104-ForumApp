@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <style>
+      .title { font: 700 28px Arial, sans-serif; fill: #111827; }
+      .label { font: 600 17px Arial, sans-serif; fill: #111827; }
+      .small { font: 14px Arial, sans-serif; fill: #111827; }
+      .legend-title { font: 700 16px Arial, sans-serif; fill: #111827; }
+      .obj { fill: #e0f2fe; stroke: #0369a1; stroke-width: 2; rx: 10; }
+      .store { fill: #dcfce7; stroke: #15803d; stroke-width: 2; rx: 10; }
+      .log { fill: #fef3c7; stroke: #d97706; stroke-width: 2; rx: 10; }
+      .notify { fill: #fae8ff; stroke: #a21caf; stroke-width: 2; rx: 10; }
+      .legend-box { fill: #f9fafb; stroke: #d1d5db; stroke-width: 1.5; rx: 10; }
+      .arrow { stroke: #111827; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #374151; stroke-width: 2; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrow-gray); }
+      .num-circle { fill: #ffffff; stroke: #111827; stroke-width: 2; }
+      .num-text { font: 700 14px Arial, sans-serif; fill: #111827; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111827"/>
+    </marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#374151"/>
+    </marker>
+  </defs>
+
+  <text x="700" y="46" text-anchor="middle" class="title">Collaboration Diagram - Báo cáo và kiểm duyệt nội dung</text>
+
+  <rect x="70" y="105" width="190" height="70" class="obj"/>
+  <text x="165" y="136" text-anchor="middle" class="label">Người</text>
+  <text x="165" y="158" text-anchor="middle" class="label">báo cáo</text>
+
+  <rect x="350" y="105" width="190" height="70" class="obj"/>
+  <text x="445" y="146" text-anchor="middle" class="label">Giao diện web</text>
+
+  <rect x="630" y="105" width="180" height="70" class="obj"/>
+  <text x="720" y="146" text-anchor="middle" class="label">Report API</text>
+
+  <rect x="910" y="105" width="190" height="70" class="store"/>
+  <text x="1005" y="136" text-anchor="middle" class="label">Bảng</text>
+  <text x="1005" y="158" text-anchor="middle" class="label">reports</text>
+
+  <rect x="1190" y="105" width="170" height="70" class="store"/>
+  <text x="1275" y="136" text-anchor="middle" class="label">posts /</text>
+  <text x="1275" y="158" text-anchor="middle" class="label">comments</text>
+
+  <rect x="210" y="365" width="190" height="70" class="obj"/>
+  <text x="305" y="406" text-anchor="middle" class="label">Quản trị viên</text>
+
+  <rect x="500" y="365" width="180" height="70" class="obj"/>
+  <text x="590" y="406" text-anchor="middle" class="label">Admin API</text>
+
+  <rect x="790" y="365" width="190" height="70" class="notify"/>
+  <text x="885" y="406" text-anchor="middle" class="label">notifications</text>
+
+  <rect x="1090" y="365" width="210" height="70" class="log"/>
+  <text x="1195" y="396" text-anchor="middle" class="label">admin</text>
+  <text x="1195" y="418" text-anchor="middle" class="label">audit_logs</text>
+
+  <path d="M260 140 L350 140" class="arrow"/>
+  <circle cx="305" cy="118" r="15" class="num-circle"/>
+  <text x="305" y="123" text-anchor="middle" class="num-text">1</text>
+
+  <path d="M540 140 L630 140" class="arrow"/>
+  <circle cx="585" cy="118" r="15" class="num-circle"/>
+  <text x="585" y="123" text-anchor="middle" class="num-text">2</text>
+
+  <path d="M720 175 L720 250 L1275 250 L1275 175" class="arrow"/>
+  <circle cx="720" cy="222" r="15" class="num-circle"/>
+  <text x="720" y="227" text-anchor="middle" class="num-text">3</text>
+
+  <path d="M810 140 L910 140" class="arrow"/>
+  <circle cx="860" cy="118" r="15" class="num-circle"/>
+  <text x="860" y="123" text-anchor="middle" class="num-text">4</text>
+
+  <path d="M305 365 L305 285 L950 285 L950 175" class="dash"/>
+  <circle cx="305" cy="320" r="15" class="num-circle"/>
+  <text x="305" y="325" text-anchor="middle" class="num-text">5</text>
+
+  <path d="M400 400 L500 400" class="arrow"/>
+  <circle cx="450" cy="378" r="15" class="num-circle"/>
+  <text x="450" y="383" text-anchor="middle" class="num-text">6</text>
+
+  <path d="M590 365 L590 300 L1050 300 L1050 175" class="arrow"/>
+  <circle cx="770" cy="300" r="15" class="num-circle"/>
+  <text x="770" y="305" text-anchor="middle" class="num-text">7</text>
+
+  <path d="M680 400 L790 400" class="arrow"/>
+  <circle cx="735" cy="378" r="15" class="num-circle"/>
+  <text x="735" y="383" text-anchor="middle" class="num-text">8</text>
+
+  <path d="M620 435 L620 465 L1195 465 L1195 435" class="arrow"/>
+  <circle cx="750" cy="465" r="15" class="num-circle"/>
+  <text x="750" y="470" text-anchor="middle" class="num-text">9</text>
+
+  <rect x="70" y="595" width="1290" height="250" class="legend-box"/>
+  <text x="95" y="630" class="legend-title">Chú giải luồng thông điệp</text>
+
+  <text x="95" y="667" class="small">1. Người dùng chọn nội dung vi phạm trên giao diện.</text>
+  <text x="95" y="697" class="small">2. Giao diện gửi lý do báo cáo đến Report API.</text>
+  <text x="95" y="727" class="small">3. Report API kiểm tra bài viết hoặc bình luận được báo cáo còn tồn tại.</text>
+  <text x="95" y="757" class="small">4. Report API lưu báo cáo vào bảng reports với trạng thái pending.</text>
+  <text x="95" y="787" class="small">5. Quản trị viên xem danh sách báo cáo cần xử lý.</text>
+
+  <text x="760" y="667" class="small">6. Quản trị viên chọn hướng xử lý báo cáo.</text>
+  <text x="760" y="697" class="small">7. Admin API cập nhật trạng thái báo cáo trong bảng reports.</text>
+  <text x="760" y="727" class="small">8. Admin API tạo thông báo kết quả cho người dùng liên quan.</text>
+  <text x="760" y="757" class="small">9. Admin API ghi thao tác xử lý vào admin_audit_logs.</text>
+</svg>

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="720" viewBox="0 0 1300 720">
+  <defs>
+    <style>
+      .title { font: 700 28px Arial, sans-serif; fill: #111827; }
+      .state { fill: #ede9fe; stroke: #7c3aed; stroke-width: 2; rx: 16; }
+      .done { fill: #dcfce7; stroke: #15803d; stroke-width: 2; rx: 16; }
+      .note { fill: #f9fafb; stroke: #d1d5db; stroke-width: 1.5; rx: 12; }
+      .label { font: 700 18px Arial, sans-serif; fill: #111827; }
+      .sub { font: 14px Arial, sans-serif; fill: #374151; }
+      .small { font: 14px Arial, sans-serif; fill: #111827; }
+      .num { font: 700 14px Arial, sans-serif; fill: #111827; }
+      .arrow { stroke: #111827; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dot { fill: #111827; }
+      .badge { fill: #ffffff; stroke: #111827; stroke-width: 2; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111827"/>
+    </marker>
+  </defs>
+
+  <text x="650" y="46" text-anchor="middle" class="title">State Diagram - Vòng đời báo cáo</text>
+
+  <circle cx="95" cy="230" r="18" class="dot"/>
+
+  <rect x="185" y="185" width="190" height="90" class="state"/>
+  <text x="280" y="222" text-anchor="middle" class="label">Chờ xử lý</text>
+  <text x="280" y="248" text-anchor="middle" class="sub">pending</text>
+
+  <rect x="555" y="105" width="190" height="90" class="done"/>
+  <text x="650" y="142" text-anchor="middle" class="label">Đã xem xét</text>
+  <text x="650" y="168" text-anchor="middle" class="sub">reviewed</text>
+
+  <rect x="555" y="305" width="190" height="90" class="done"/>
+  <text x="650" y="342" text-anchor="middle" class="label">Bị bỏ qua</text>
+  <text x="650" y="368" text-anchor="middle" class="sub">dismissed</text>
+
+  <rect x="920" y="205" width="190" height="90" class="done"/>
+  <text x="1015" y="242" text-anchor="middle" class="label">Đã xử lý</text>
+  <text x="1015" y="268" text-anchor="middle" class="sub">resolved</text>
+
+  <path d="M113 230 L185 230" class="arrow"/>
+  <circle cx="150" cy="206" r="15" class="badge"/>
+  <text x="150" y="211" text-anchor="middle" class="num">1</text>
+
+  <path d="M375 230 L555 150" class="arrow"/>
+  <circle cx="465" cy="170" r="15" class="badge"/>
+  <text x="465" y="175" text-anchor="middle" class="num">2</text>
+
+  <path d="M375 230 L555 350" class="arrow"/>
+  <circle cx="465" cy="314" r="15" class="badge"/>
+  <text x="465" y="319" text-anchor="middle" class="num">3</text>
+
+  <path d="M375 230 L920 250" class="arrow"/>
+  <circle cx="650" cy="224" r="15" class="badge"/>
+  <text x="650" y="229" text-anchor="middle" class="num">4</text>
+
+  <path d="M745 150 L1015 205" class="arrow"/>
+  <circle cx="880" cy="168" r="15" class="badge"/>
+  <text x="880" y="173" text-anchor="middle" class="num">5</text>
+
+  <rect x="95" y="500" width="1110" height="120" class="note"/>
+  <text x="120" y="535" class="small">1. Người dùng gửi báo cáo: hệ thống lưu report với trạng thái pending.</text>
+  <text x="120" y="565" class="small">2-4. Quản trị viên có thể cập nhật report sang reviewed, dismissed hoặc resolved.</text>
+  <text x="120" y="595" class="small">5. Code cho phép cập nhật trạng thái report nhiều lần qua endpoint moderate.</text>
+  <text x="705" y="535" class="small">Khi trạng thái thay đổi, hệ thống ghi admin_audit_logs.</text>
+  <text x="705" y="565" class="small">Nếu có reporter_id, hệ thống tạo thông báo report_update.</text>
+</svg>

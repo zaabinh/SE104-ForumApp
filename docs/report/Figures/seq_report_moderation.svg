@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="720" viewBox="0 0 1120 720">
+  <defs>
+    <style>
+      .title { font: 700 26px Arial, sans-serif; fill: #111827; }
+      .label { font: 600 16px Arial, sans-serif; fill: #111827; }
+      .small { font: 14px Arial, sans-serif; fill: #111827; }
+      .box { fill: #dcfce7; stroke: #15803d; stroke-width: 2; rx: 10; }
+      .line { stroke: #6b7280; stroke-width: 2; stroke-dasharray: 8 8; }
+      .msg { stroke: #111827; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .return { stroke: #475569; stroke-width: 2; fill: none; stroke-dasharray: 7 5; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111827"/>
+    </marker>
+  </defs>
+  <text x="560" y="38" text-anchor="middle" class="title">Sequence Diagram - Báo cáo và kiểm duyệt nội dung</text>
+  <rect x="40" y="70" width="145" height="52" class="box"/><text x="112" y="102" text-anchor="middle" class="label">Người báo cáo</text>
+  <rect x="245" y="70" width="135" height="52" class="box"/><text x="312" y="102" text-anchor="middle" class="label">Giao diện</text>
+  <rect x="450" y="70" width="135" height="52" class="box"/><text x="517" y="102" text-anchor="middle" class="label">Report API</text>
+  <rect x="655" y="70" width="135" height="52" class="box"/><text x="722" y="102" text-anchor="middle" class="label">CSDL</text>
+  <rect x="855" y="70" width="110" height="52" class="box"/><text x="910" y="102" text-anchor="middle" class="label">Admin</text>
+  <rect x="1000" y="70" width="95" height="52" class="box"/><text x="1047" y="102" text-anchor="middle" class="label">Thông báo</text>
+  <line x1="112" y1="122" x2="112" y2="665" class="line"/>
+  <line x1="312" y1="122" x2="312" y2="665" class="line"/>
+  <line x1="517" y1="122" x2="517" y2="665" class="line"/>
+  <line x1="722" y1="122" x2="722" y2="665" class="line"/>
+  <line x1="910" y1="122" x2="910" y2="665" class="line"/>
+  <line x1="1047" y1="122" x2="1047" y2="665" class="line"/>
+  <line x1="112" y1="165" x2="312" y2="165" class="msg"/><text x="212" y="153" text-anchor="middle" class="small">Chọn lý do báo cáo</text>
+  <line x1="312" y1="220" x2="517" y2="220" class="msg"/><text x="414" y="208" text-anchor="middle" class="small">POST /report</text>
+  <line x1="517" y1="275" x2="722" y2="275" class="msg"/><text x="620" y="263" text-anchor="middle" class="small">Kiểm tra nội dung và chống trùng</text>
+  <line x1="517" y1="330" x2="722" y2="330" class="msg"/><text x="620" y="318" text-anchor="middle" class="small">Lưu reports status=pending</text>
+  <line x1="517" y1="385" x2="312" y2="385" class="return"/><text x="414" y="373" text-anchor="middle" class="small">Báo cáo đã gửi</text>
+  <line x1="910" y1="440" x2="517" y2="440" class="msg"/><text x="714" y="428" text-anchor="middle" class="small">GET /api/admin/reports</text>
+  <line x1="910" y1="495" x2="517" y2="495" class="msg"/><text x="714" y="483" text-anchor="middle" class="small">POST /moderate</text>
+  <line x1="517" y1="550" x2="722" y2="550" class="msg"/><text x="620" y="538" text-anchor="middle" class="small">Cập nhật report, ghi admin_audit_logs</text>
+  <line x1="517" y1="605" x2="1047" y2="605" class="msg"/><text x="782" y="593" text-anchor="middle" class="small">Tạo thông báo cho người báo cáo</text>
+</svg>

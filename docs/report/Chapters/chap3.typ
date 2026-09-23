@@ -2,487 +2,299 @@
 
 == 3.1. Yêu cầu chức năng
 
-=== 3.1.1. Yêu cầu chức năng nghiệp vụ
-
-Bảng yêu cầu nghiệp vụ:
+=== 3.1.1. Danh sách nghiệp vụ
 
 #table(
-  columns: (auto, auto, auto, auto, auto, auto),
-  align: (center, left, left, center, center, center),
-  table.header(
-    [*STT*], [*Nghiệp vụ*], [*Thao tác cụ thể*], [*Biểu mẫu*], [*Quy định*], [*Ghi chú*],
-  ),
+  columns: (0.5fr, 1fr, 1fr, 0.5fr, 0.5fr, 1fr),
+  align: (center, left, left, center, center, left),
+  table.header([*STT*], [*Nghiệp vụ*], [*Thao tác cụ thể*], [*Biểu mẫu*], [*Quy định*], [*Ghi chú*]),
   table.hline(),
-  [1], table.cell(rowspan: 4)[Quản lý xác thực], [Đăng ký tài khoản], [BM 1], [QĐ 1.1], [Lưu trữ],
-  [2], [Đăng nhập], [BM 1], [QĐ 1.2], [],
-  [3], [Đăng xuất], [], [], [],
-  [4], [Quên mật khẩu], [BM 1], [], [],
+  [1], table.cell(rowspan: 4)[Quản lý xác thực], [Đăng ký tài khoản], [BM1], [QĐ 1.1, QĐ 1.2], [Tạo tài khoản và token xác minh email],
+  [2], [Đăng nhập], [BM1], [QĐ 1.3, QĐ 1.4], [Hỗ trợ email\/username, JWT access token và refresh token],
+  [3], [Đăng xuất], [], [], [Thu hồi refresh token trong `auth_sessions`],
+  [4], [Quên mật khẩu], [BM1], [QĐ 1.5], [Gửi token đặt lại mật khẩu, dùng một lần],
   table.hline(),
-  [5], table.cell(rowspan: 4)[Quản lý bài viết], [Tạo bài viết], [BM 2], [QĐ 2.1], [Lưu trữ],
-  [6], [Chỉnh sửa bài viết], [BM 2], [], [Lưu trữ],
-  [7], [Xóa bài viết], [], [], [],
-  [8], [Xem chi tiết bài viết], [], [], [Tra cứu],
+  [5], table.cell(rowspan: 4)[Quản lý bài viết], [Tạo bài viết], [BM2], [QĐ 2.1, QĐ 2.2], [Sinh viên tạo bài `pending`; admin duyệt để hiển thị],
+  [6], [Chỉnh sửa bài viết], [BM2], [QĐ 2.3], [Chỉ tác giả được sửa; sau khi sửa bài về `pending`],
+  [7], [Xóa bài viết], [], [QĐ 2.4], [Tác giả hoặc admin; sinh viên không xóa bài đã có comment],
+  [8], [Xem chi tiết bài viết], [], [QĐ 2.5], [Ghi nhận lượt xem và trả thống kê tương tác],
   table.hline(),
-  [9], table.cell(rowspan: 4)[Quản lý bảng tin], [Xem bảng tin], [], [], [Tra cứu],
-  [10], [Tìm kiếm bài viết], [], [], [Tra cứu],
-  [11], [Lọc bài viết theo tag], [], [], [Tra cứu],
-  [12], [Sắp xếp bài viết], [], [], [Tra cứu],
+  [9], table.cell(rowspan: 4)[Quản lý bảng tin], [Xem bảng tin], [], [], [Hỗ trợ For You, Following, Trending và phân trang],
+  [10], [Tìm kiếm bài viết], [], [], [Tìm theo tiêu đề và nội dung],
+  [11], [Lọc bài viết theo tag], [], [], [Dựa trên bảng `post_tags`],
+  [12], [Sắp xếp bài viết], [], [], [Latest, trending,\ most-liked,\ most-commented],
   table.hline(),
-  [13], table.cell(rowspan: 6)[Quản lý tương tác], [Like bài viết], [], [QĐ 3.1], [Lưu trữ],
-  [14], [Bookmark bài viết], [], [], [Lưu trữ],
-  [15], [Chia sẻ bài viết], [], [], [],
-  [16], [Bình luận bài viết], [BM 3], [QĐ 3.2], [Lưu trữ],
-  [17], [Trả lời bình luận], [BM 3], [QĐ 3.2], [Lưu trữ],
-  [18], [Báo cáo nội dung], [BM 4], [QĐ 4.1], [Lưu trữ],
+  [13], table.cell(rowspan: 6)[Quản lý tương tác], [Like bài viết], [], [QĐ 3.1, QĐ 3.2], [Toggle like, tạo notification nếu phù hợp],
+  [14], [Bookmark bài viết], [], [QĐ 3.3], [Toggle bookmark cá nhân],
+  [15], [Chia sẻ bài viết], [BM2], [], [Tạo bản ghi share và bài viết chia sẻ mới],
+  [16], [Bình luận bài viết], [BM3], [QĐ 3.4], [Tạo comment cấp 1],
+  [17], [Trả lời bình luận], [BM3], [QĐ 3.4, QĐ 3.5], [Tạo comment có `parent_id`],
+  [18], [Báo cáo nội dung], [BM4], [QĐ 4.1, QĐ 4.2], [Báo cáo bài viết hoặc bình luận, chống trùng],
   table.hline(),
-  [19], table.cell(rowspan: 4)[Quản lý hồ sơ \& xã hội], [Xem hồ sơ người dùng], [], [], [Tra cứu],
-  [20], [Chỉnh sửa hồ sơ], [BM 1], [], [Lưu trữ],
-  [21], [Follow\/Unfollow], [], [QĐ 5.1], [Lưu trữ],
-  [22], [Xem thông báo], [BM 6], [QĐ 6.1], [Tra cứu],
+  [19], table.cell(rowspan: 3)[Quản lý hồ sơ \& xã hội], [Xem hồ sơ người dùng], [], [], [Hồ sơ công khai theo username],
+  [20], [Chỉnh sửa hồ sơ], [BM1], [], [Cập nhật avatar, bio, chuyên ngành, năm học, mục tiêu, tag quan tâm],
+  [21], [Follow\/Unfollow], [BM5], [QĐ 5.1, QĐ 5.2], [Không được tự follow],
   table.hline(),
-  [23], table.cell(rowspan: 3)[Quản trị hệ thống], [Quản lý người dùng], [BM 1], [QĐ 1.3], [Lưu trữ],
-  [24], [Kiểm duyệt nội dung], [BM 4], [QĐ 4.2], [Lưu trữ],
-  [25], [Quản lý tags], [BM 5], [QĐ 5.1], [Lưu trữ],
+  [22], table.cell(rowspan: 3)[Quản trị hệ thống], [Quản lý người dùng], [BM1], [QĐ 1.6], [Tìm kiếm, lọc, ban\/unban và ghi audit log],
+  [23], [Kiểm duyệt nội dung], [BM2, BM4], [QĐ 2.6, QĐ 4.3], [Xử lý report và duyệt bài `pending`],
+  [24], [Quản lý tags], [BM7], [QĐ 7.1, QĐ 7.2], [Thêm, sửa, xóa tag; hỗ trợ duyệt tag mới từ bài pending],
+  table.hline(),
+  [25], [Thông báo], [Xem thông báo], [BM6], [QĐ 6.1, QĐ 6.2], [Xem và đánh dấu đã đọc],
 )
 
-=== 3.1.2. Danh sách các Biểu mẫu và Quy định
+=== 3.1.2. Biểu mẫu và quy định
 
-Các biểu mẫu dữ liệu chính trong hệ thống và quy định ràng buộc tương ứng:
-
-*Biểu mẫu 1: Tài khoản người dùng*
+*BM1. Tài khoản, xác thực và hồ sơ người dùng*
 
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, auto, 1.4fr, 1.4fr),
   align: (left, left, left, left),
   table.header([*Trường*], [*Kiểu dữ liệu*], [*Mô tả*], [*Ràng buộc*]),
   table.hline(),
-  [Username], [VARCHAR(50)], [Tên đăng nhập của người dùng], [Bắt buộc, duy nhất, 3-50 ký tự],
-  [Email], [VARCHAR(255)], [Địa chỉ email liên lạc], [Bắt buộc, duy nhất, đúng định dạng],
-  [Mật khẩu], [NVARCHAR(MAX)], [Mật khẩu đăng nhập (lưu dạng hash)], [Bắt buộc, 6-128 ký tự],
-  [Họ tên], [NVARCHAR(100)], [Tên hiển thị của người dùng], [Bắt buộc, 2-255 ký tự],
-  [Ảnh đại diện], [NVARCHAR(MAX)], [URL ảnh đại diện], [Tùy chọn],
-  [Tiểu sử], [NVARCHAR(MAX)], [Giới thiệu ngắn về bản thân], [Tùy chọn],
-  [Vai trò], [VARCHAR(20)], [Phân quyền: Student hoặc Admin], [Mặc định "Student"],
-  [Trạng thái], [VARCHAR(20)], [Trạng thái tài khoản], [Mặc định "Active"],
+  [`id`], [`UNIQUEIDENTIFIER`], [Định danh người dùng], [Khóa chính, tự sinh],
+  [`username`], [`VARCHAR(50)`], [Tên định danh công khai], [Duy nhất, 3-50 ký tự, bắt buộc khi complete profile],
+  [`email`], [`VARCHAR(255)`], [Email đăng nhập], [Duy nhất, đúng định dạng],
+  [`password_hash`], [`TEXT`], [Mật khẩu đã hash], [Argon2, không lưu plaintext],
+  [`full_name`], [`NVARCHAR(255)`], [Tên hiển thị], [2-255 ký tự],
+  [`avatar_url`], [`NVARCHAR(MAX)`], [Ảnh đại diện], [Tùy chọn],
+  [`bio`], [`NVARCHAR(MAX)`], [Tiểu sử], [Tùy chọn],
+  [`major`], [`NVARCHAR(120)`], [Chuyên ngành], [Tùy chọn],
+  [`academic_year`], [`VARCHAR(30)`], [Năm học], [Tùy chọn],
+  [`career_goal`], [`NVARCHAR(200)`], [Mục tiêu nghề nghiệp], [Tùy chọn],
+  [`interest_tags`], [`TEXT`], [Tag quan tâm], [Tối đa 20 tag từ request complete profile],
+  [`role`], [`VARCHAR(50)`], [Vai trò], [`Student` hoặc `Admin`, mặc định `Student`],
+  [`status`], [`VARCHAR(50)`], [Trạng thái tài khoản], [`active`, `banned`, `deleted`; mặc định `active`],
+  [`provider`], [`VARCHAR(50)`], [Nguồn xác thực], [`local` hoặc `google`],
+  [`is_verified`], [`BIT`], [Đã xác minh email], [Mặc định false],
 )
 
-- _QĐ 1.1:_ Có 2 vai trò: Student và Admin. Admin kế thừa toàn bộ quyền của Student.
-- _QĐ 1.2:_ Tài khoản có trạng thái "Banned" không được phép đăng nhập.
-- _QĐ 1.3:_ Username và email không được trùng lặp trong hệ thống.
+*Quy định BM1:*
+- _QĐ 1.1:_ Username và email không được trùng lặp. Hệ thống chuẩn hóa dữ liệu trước khi kiểm tra.
+- _QĐ 1.2:_ Khi đăng ký thành công, hệ thống tạo token xác minh email. Tài khoản chỉ được đăng nhập đầy đủ sau khi `is_verified = true`.
+- _QĐ 1.3:_ Người dùng có thể đăng nhập bằng email hoặc username. Nếu hợp lệ, hệ thống cấp access token và refresh token.
+- _QĐ 1.4:_ Tài khoản `banned` hoặc `deleted` không được đăng nhập hoặc gọi API bảo vệ.
+- _QĐ 1.5:_ Token đặt lại mật khẩu dùng một lần và có thời hạn. Sau khi reset mật khẩu thành công, các phiên đăng nhập cũ bị thu hồi.
+- _QĐ 1.6:_ Admin có thể khóa/mở khóa tài khoản người dùng thường, nhưng không được tự khóa tài khoản của mình và không được khóa tài khoản admin khác.
 
-*Biểu mẫu 2: Bài viết*
+*Dữ liệu xác thực liên quan:*
+- Đăng nhập sử dụng `identifier` và `password`.
+- Refresh token và logout sử dụng `refresh_token`.
+- Xác minh email sử dụng `token` xác minh.
+- Quên mật khẩu sử dụng `email`; đặt lại mật khẩu sử dụng `token` và `password` mới.
+- Hoàn thiện hồ sơ sử dụng `username`, `full_name`, `avatar_url`, `bio`, `major`, `academic_year`, `career_goal`, `interest_tags`.
+
+*BM2. Bài viết*
 
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, auto, 1.4fr, 1.4fr),
   align: (left, left, left, left),
   table.header([*Trường*], [*Kiểu dữ liệu*], [*Mô tả*], [*Ràng buộc*]),
   table.hline(),
-  [Tiêu đề], [NVARCHAR(255)], [Tiêu đề bài viết], [Bắt buộc, tối đa 255 ký tự],
-  [Nội dung], [NVARCHAR(MAX)], [Nội dung chi tiết bài viết], [Bắt buộc],
-  [Slug], [VARCHAR(255)], [Đường dẫn URL thân thiện], [Tự động tạo, duy nhất],
-  [Ảnh bìa], [NVARCHAR(MAX)], [URL ảnh bìa bài viết], [Tùy chọn],
-  [Lượt xem], [INT], [Số lần bài viết được xem], [Mặc định 0],
-  [Điểm xu hướng], [FLOAT], [Điểm xếp hạng trending], [Mặc định 0],
-  [Trạng thái], [VARCHAR(20)], [Trạng thái kiểm duyệt], [Mặc định "Pending"],
-  [Tags], [Quan hệ N-N], [Danh mục phân loại bài viết], [Tùy chọn, qua bảng post\_tags],
+  [`id`], [`INT`], [Định danh bài viết], [Khóa chính, tự tăng],
+  [`user_id`], [`UNIQUEIDENTIFIER`], [Tác giả], [FK tới `users.id`],
+  [`title`], [`NVARCHAR(255)`], [Tiêu đề], [5-255 ký tự],
+  [`slug`], [`VARCHAR(255)`], [Slug từ tiêu đề], [Tự tạo, duy nhất],
+  [`content`], [`NVARCHAR(MAX)`], [Nội dung bài viết], [Bắt buộc],
+  [`cover_image`], [`TEXT`], [Ảnh bìa], [Tùy chọn],
+  [`status`], [`VARCHAR(20)`], [Trạng thái kiểm duyệt], [`pending`, `active`, `rejected`],
+  [`original_post_id`], [`INT`], [Bài gốc khi chia sẻ], [Tùy chọn, FK tới `posts.id`],
+  [`share_caption`], [`NVARCHAR(MAX)`], [Chú thích khi share], [Tối đa 2000 ký tự ở request],
+  [`requested_new_tags`], [`NVARCHAR(MAX)`], [Tag mới sinh viên đề xuất], [Lưu JSON array],
+  [`created_at`], [`DATETIME`], [Thời điểm tạo], [Tự động],
 )
 
-- _QĐ 2.1:_ Mỗi bài viết có thể gắn nhiều tag, mỗi tag có thể thuộc nhiều bài viết.
-- _QĐ 2.2:_ Điểm xu hướng được tính: like (+4), comment (+3), view (+1).
-- _QĐ 2.3:_ Slug được tạo tự động từ tiêu đề, đảm bảo duy nhất.
+*Quy định BM2:*
+- _QĐ 2.1:_ Mỗi bài viết có thể gắn nhiều tag; mỗi tag có thể thuộc nhiều bài viết thông qua bảng `post_tags`.
+- _QĐ 2.2:_ Sinh viên tạo bài ở trạng thái `pending`; admin tạo bài ở trạng thái `active`.
+- _QĐ 2.3:_ Chỉ tác giả được chỉnh sửa bài viết của mình. Khi sinh viên chỉnh sửa, bài viết chuyển về `pending` để chờ duyệt lại.
+- _QĐ 2.4:_ Sinh viên chỉ được xóa bài viết của mình và không được xóa bài đã có bình luận. Admin có thể xóa bất kỳ bài viết nào.
+- _QĐ 2.5:_ Khi xem chi tiết bài viết, hệ thống ghi nhận lượt xem bằng bảng `post_views` và trả về thống kê tương tác.
+- _QĐ 2.6:_ Admin duyệt bài `pending` thành `active` hoặc từ chối thành `rejected`. Nếu bài có tag mới, tag được lưu trong `requested_new_tags` và chỉ được tạo chính thức khi admin duyệt.
+- _QĐ 2.7:_ Feed chỉ hiển thị bài viết có trạng thái `active`.
+- _QĐ 2.8:_ Chia sẻ bài viết tạo bản ghi `post_shares` và tạo một bài viết mới có `original_post_id` trỏ về bài gốc.
 
-*Biểu mẫu 3: Bình luận*
+*BM3. Bình luận*
 
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, auto, 1.4fr, 1.4fr),
   align: (left, left, left, left),
   table.header([*Trường*], [*Kiểu dữ liệu*], [*Mô tả*], [*Ràng buộc*]),
   table.hline(),
-  [Nội dung], [NVARCHAR(MAX)], [Nội dung bình luận], [Bắt buộc],
-  [Bài viết], [INT], [Bài viết được bình luận], [Bắt buộc, FK tới posts],
-  [Người viết], [UNIQUEIDENTIFIER], [Người tạo bình luận], [Bắt buộc, FK tới users],
-  [Parent ID], [INT], [Bình luận cha (nếu là trả lời)], [Tùy chọn, FK tới comments],
+  [`id`], [`INT`], [Định danh bình luận], [Khóa chính, tự tăng],
+  [`post_id`], [`INT`], [Bài viết], [FK tới `posts.id`],
+  [`user_id`], [`UNIQUEIDENTIFIER`], [Người bình luận], [FK tới `users.id`],
+  [`parent_id`], [`INT`], [Bình luận cha], [Tùy chọn, FK tới `comments.id`],
+  [`content`], [`NVARCHAR(MAX)`], [Nội dung], [Không được trống],
+  [`created_at`], [`DATETIME`], [Thời điểm tạo], [Tự động],
 )
 
-- _QĐ 3.1:_ Bình luận cấp 1 có parent\_id = NULL, trả lời bình luận có parent\_id = ID comment gốc.
+*Quy định BM3:*
+- _QĐ 3.4:_ Bình luận gốc có `parent_id = NULL`; trả lời bình luận có `parent_id` trỏ đến bình luận cha.
+- _QĐ 3.5:_ Trả lời bình luận phải tham chiếu bình luận cha tồn tại trong cùng bài viết.
+- Khi có comment/reply, hệ thống tạo notification cho tác giả bài viết hoặc tác giả comment cha nếu không phải tự tương tác.
 
-*Biểu mẫu 4: Báo cáo vi phạm*
+*Quy định tương tác không có biểu mẫu riêng:*
+- _QĐ 3.1:_ Mỗi người dùng chỉ được like một bài viết một lần; bấm lại sẽ hủy like.
+- _QĐ 3.2:_ Like của chính tác giả vẫn được ghi nhận nhưng không tạo notification cho bản thân.
+- _QĐ 3.3:_ Mỗi người dùng chỉ được bookmark một bài viết một lần; bấm lại sẽ hủy bookmark.
+
+*BM4. Báo cáo vi phạm*
 
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, auto, 1.4fr, 1.4fr),
   align: (left, left, left, left),
   table.header([*Trường*], [*Kiểu dữ liệu*], [*Mô tả*], [*Ràng buộc*]),
   table.hline(),
-  [Người báo cáo], [UNIQUEIDENTIFIER], [Người gửi báo cáo], [FK tới users],
-  [Loại mục tiêu], [VARCHAR(20)], [Loại nội dung bị báo cáo], [Bắt buộc: "Post" hoặc "Comment"],
-  [ID mục tiêu], [INT], [ID của bài viết/bình luận bị báo cáo], [Bắt buộc],
-  [Lý do], [NVARCHAR(255)], [Lý do báo cáo vi phạm], [Bắt buộc],
-  [Trạng thái], [VARCHAR(20)], [Trạng thái xử lý báo cáo], [Mặc định "Pending"],
+  [`id`], [`INT`], [Định danh báo cáo], [Khóa chính],
+  [`reporter_id`], [`UNIQUEIDENTIFIER`], [Người báo cáo], [FK tới users],
+  [`post_id`], [`INT`], [Bài bị báo cáo], [Tùy chọn],
+  [`comment_id`], [`INT`], [Bình luận bị báo cáo], [Tùy chọn],
+  [`reason`], [`VARCHAR(100)`], [Lý do], [`spam`, `harassment`, `hate_speech`, `violence`, `misinformation`, `other`],
+  [`details`], [`TEXT`], [Mô tả chi tiết], [Tối đa 2000 ký tự],
+  [`status`], [`VARCHAR(30)`], [Trạng thái xử lý], [`pending`, `reviewed`, `dismissed`, `resolved`],
+  [`reviewed_by`], [`UNIQUEIDENTIFIER`], [Admin xử lý], [Tùy chọn],
+  [`reviewed_at`], [`DATETIME`], [Thời điểm xử lý], [Tùy chọn],
 )
 
-- _QĐ 4.1:_ Báo cáo có thể nhắm vào bài viết hoặc bình luận.
-- _QĐ 4.2:_ Admin xử lý báo cáo bằng cách giữ lại, ẩn hoặc xóa nội dung.
+*Quy định BM4:*
+- _QĐ 4.1:_ Mỗi report nhắm vào một bài viết hoặc một bình luận.
+- _QĐ 4.2:_ Một người dùng không được báo cáo trùng cùng một nội dung.
+- _QĐ 4.3:_ Khi admin xử lý report, hệ thống cập nhật trạng thái, lưu người xử lý, thời điểm xử lý, tạo audit log và notification.
 
-*Biểu mẫu 5: Tag*
+*BM5. Quan hệ theo dõi*
 
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, auto, 1.4fr, 1.4fr),
   align: (left, left, left, left),
   table.header([*Trường*], [*Kiểu dữ liệu*], [*Mô tả*], [*Ràng buộc*]),
   table.hline(),
-  [Tên tag], [VARCHAR(50)], [Tên danh mục phân loại], [Bắt buộc, duy nhất],
-  [Slug], [VARCHAR(50)], [Đường dẫn URL thân thiện], [Tự động tạo, duy nhất],
+  [`follower_id`], [`UNIQUEIDENTIFIER`], [Người thực hiện theo dõi], [FK tới `users.id`],
+  [`following_id`], [`UNIQUEIDENTIFIER`], [Người được theo dõi], [FK tới `users.id`],
+  [`created_at`], [`DATETIME`], [Thời điểm tạo quan hệ], [Tự động],
 )
 
-- _QĐ 5.1:_ Tên tag không được trùng lặp trong hệ thống.
-- _QĐ 5.2:_ Chỉ Admin mới có quyền thêm, sửa, xóa tag.
+*Quy định BM5:*
 
-*Biểu mẫu 6: Thông báo*
+- _QĐ 5.1:_ Người dùng không được follow chính mình.
+- _QĐ 5.2:_ Mỗi cặp `follower_id` và `following_id` chỉ tồn tại một quan hệ follow; thao tác follow/unfollow hoạt động theo cơ chế toggle.
 
+*BM6. Thông báo*
 
 #table(
-  columns: (0.6fr, 1fr, 1fr, 1fr),
+  columns: (auto, auto, 1.4fr, 1.4fr),
   align: (left, left, left, left),
   table.header([*Trường*], [*Kiểu dữ liệu*], [*Mô tả*], [*Ràng buộc*]),
   table.hline(),
-  [Người nhận], [UNIQUEIDENTIFIER], [Người nhận thông báo], [Bắt buộc, FK tới users],
-  [Người gửi], [UNIQUEIDENTIFIER], [Người gây ra thông báo], [Tùy chọn, FK tới users],
-  [Loại thông báo], [VARCHAR(50)], [Loại sự kiện: like, comment, follow...], [Bắt buộc],
-  [Bài viết liên quan], [INT], [Bài viết liên quan đến thông báo], [Tùy chọn, FK tới posts],
-  [Đã đọc], [BIT], [Trạng thái đọc của thông báo], [Mặc định 0 (chưa đọc)],
+  [`id`], [`INT`], [Định danh thông báo], [Khóa chính],
+  [`user_id`], [`UNIQUEIDENTIFIER`], [Người nhận], [Bắt buộc],
+  [`actor_id`], [`UNIQUEIDENTIFIER`], [Người tạo sự kiện], [Tùy chọn],
+  [`type`], [`VARCHAR(50)`], [Loại thông báo], [Ví dụ: `post_like`, `post_comment`, `comment_reply`, `post_share`, `report_update`, `account_status`],
+  [`title`], [`VARCHAR(255)`], [Tiêu đề], [Bắt buộc],
+  [`message`], [`TEXT`], [Nội dung], [Tùy chọn],
+  [`is_read`], [`BIT`], [Đã đọc], [Mặc định false],
+  [`post_id`], [`INT`], [Bài liên quan], [Tùy chọn],
+  [`comment_id`], [`INT`], [Bình luận liên quan], [Tùy chọn],
+  [`report_id`], [`INT`], [Report liên quan], [Tùy chọn],
 )
 
-- _QĐ 6.1:_ Thông báo được hệ thống tự động tạo khi có tương tác (like, comment, follow, kiểm duyệt).
-- _QĐ 6.2:_ Người dùng có thể đánh dấu thông báo là đã đọc.
+BM6 là cấu trúc dữ liệu trả về khi người dùng xem thông báo, không phải form nhập liệu trực tiếp.
 
-=== 3.1.3. Bảng trách nhiệm yêu cầu nghiệp vụ
+*Quy định BM6:*
+- _QĐ 6.1:_ Thông báo được tạo tự động khi có tương tác hoặc thao tác quản trị liên quan đến người dùng.
+- _QĐ 6.2:_ Người dùng có thể đánh dấu thông báo là đã đọc bằng cách cập nhật `is_read = true`.
+
+*BM7. Tag*
 
 #table(
-  columns: (auto, 1fr, 1fr, 1fr, 0.7fr),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Tên yêu cầu*], [*Người dùng*], [*Phần mềm*], [*Ghi chú*]),
+  columns: (auto, auto, 1.4fr, 1.4fr),
+  align: (left, left, left, left),
+  table.header([*Trường*], [*Kiểu dữ liệu*], [*Mô tả*], [*Ràng buộc*]),
   table.hline(),
-  [1], [Quản lý xác thực], [Cung cấp thông tin đăng ký\/đăng nhập theo BM 1.], [Kiểm tra QĐ 1.1-1.3. Nếu hợp lệ: hash mật khẩu bằng Argon2, tạo tài khoản, cấp JWT token. Nếu không hợp lệ: báo lỗi chi tiết.], [],
-  table.hline(),
-  [2], [Quản lý bài viết], [Cung cấp thông tin bài viết theo BM 2.], [Kiểm tra QĐ 2.1-2.3. Tự động tạo slug từ tiêu đề, gắn tag, lưu bài viết vào CSDL. Khi xóa: kiểm tra quyền sở hữu.], [],
-  table.hline(),
-  [3], [Quản lý bảng tin], [Gửi yêu cầu xem bảng tin, nhập từ khóa tìm kiếm, chọn tag lọc, chọn tiêu chí sắp xếp.], [Truy vấn CSDL theo điều kiện, sắp xếp theo created\_at hoặc trending\_score, trả về danh sách kết quả (infinite scroll).], [],
-  table.hline(),
-  [4], [Quản lý tương tác], [Thực hiện like, bookmark, bình luận theo BM 3, báo cáo theo BM 4.], [Kiểm tra QĐ 3.1, QĐ 4.1. Ghi nhận tương tác, cập nhật trending\_score. Tự động tạo thông báo theo BM 6.], [Tự động cập nhật trending],
-  table.hline(),
-  [5], [Quản lý hồ sơ \& xã hội], [Cập nhật hồ sơ theo BM 1, thực hiện follow\/unfollow.], [Kiểm tra QĐ 5.1 (không tự follow). Lưu thay đổi hồ sơ, ghi nhận quan hệ follow. Tự động tạo thông báo.], [],
-  table.hline(),
-  [6], [Quản trị hệ thống], [Admin gửi lệnh khóa\/mở khóa user, xử lý báo cáo, thêm\/sửa\/xóa tag.], [Kiểm tra QĐ 1.3, QĐ 4.2, QĐ 5.1-5.2. Cập nhật trạng thái user\/báo cáo, quản lý danh mục tag trong CSDL.], [],
+  [`id`], [`INT`], [Định danh tag], [Khóa chính, tự tăng],
+  [`name`], [`NVARCHAR(100)`], [Tên tag], [Duy nhất, chuẩn hóa chữ thường],
+  [`slug`], [`VARCHAR(120)`], [Slug của tag], [Tự tạo, duy nhất],
+  [`created_at`], [`DATETIME`], [Thời điểm tạo tag], [Tự động],
 )
+
+*Quy định BM7:*
+- _QĐ 7.1:_ Tên tag không được trùng lặp trong hệ thống. Hệ thống chuẩn hóa tên tag về chữ thường.
+- _QĐ 7.2:_ Chỉ admin mới có quyền thêm, sửa, xóa tag.
 
 == 3.2. Yêu cầu phi chức năng
 
-=== 3.2.1. Yêu cầu hiệu quả
-
-Yêu cầu hiệu quả liên quan đến tốc độ xử lý và khả năng sử dụng tài nguyên của hệ thống, đặc biệt là các tác vụ thường xuyên và quan trọng.
-
-Bảng yêu cầu hiệu quả:
+=== 3.2.1. Hiệu năng
 
 #table(
-  columns: (auto, 1fr, 1fr, 0.7fr, 1fr),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Tốc độ xử lý*], [*Dung lượng lưu trữ*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Quản lý xác thực (Đăng ký\/Đăng nhập)], [Thao tác thành công < 2 giây], [], [],
-  table.hline(),
-  [2], [Quản lý bài viết], [Lưu trữ\/Cập nhật thông tin < 3 giây], [], [],
-  table.hline(),
-  [3], [Quản lý bảng tin], [Tải bảng tin < 3 giây. Tìm kiếm\/lọc\/sắp xếp < 2 giây], [], [Hỗ trợ infinite scroll, debounce 350ms],
-  table.hline(),
-  [4], [Quản lý tương tác], [Like\/Bookmark\/Share: phản hồi tức thì. Bình luận < 2 giây], [], [Cập nhật trending score tự động],
-  table.hline(),
-  [5], [Quản lý hồ sơ \& xã hội], [Cập nhật hồ sơ < 3 giây. Follow\/Unfollow: phản hồi tức thì], [], [],
-  table.hline(),
-  [6], [Quản trị hệ thống], [Xử lý lệnh quản trị < 3 giây], [], [],
-)
-
-Bảng trách nhiệm yêu cầu hiệu quả:
-
-#table(
-  columns: (auto, auto, 1fr, 1fr, auto),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Người dùng*], [*Phần mềm*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Quản lý xác thực], [Cung cấp thông tin tài khoản.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [2], [Quản lý bài viết], [Cung cấp thông tin bài viết.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [3], [Quản lý bảng tin], [Nhập từ khóa, chọn tag, chọn sắp xếp.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [4], [Quản lý tương tác], [Thực hiện like, comment, bookmark, report.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [5], [Quản lý hồ sơ \& xã hội], [Cập nhật hồ sơ, follow\/unfollow.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [6], [Quản trị hệ thống], [Gửi lệnh quản trị.], [Thực hiện đúng theo yêu cầu.], [],
-)
-
-=== 3.2.2. Yêu cầu tiện dụng
-
-Bảng yêu cầu tiện dụng:
-
-#table(
-  columns: (auto, 1fr, 1fr, 1fr, auto),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Mức độ dễ học*], [*Mức độ dễ sử dụng*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Quản lý xác thực], [5 phút hướng dẫn], [Dễ dàng thao tác. Sai sót dưới 1%.], [],
-  table.hline(),
-  [2], [Quản lý bài viết], [10 phút hướng dẫn], [Dễ dàng tạo, sửa, xóa bài viết. Hỗ trợ gắn tag phân loại.], [],
-  table.hline(),
-  [3], [Quản lý bảng tin], [5 phút hướng dẫn], [Dễ dàng tìm kiếm, lọc, sắp xếp. Cuộn tải thêm tự động.], [Toast notification],
-  table.hline(),
-  [4], [Quản lý tương tác], [5 phút hướng dẫn], [Like\/bookmark bằng 1 click. Bình luận đa cấp trực quan.], [],
-  table.hline(),
-  [5], [Quản lý hồ sơ \& xã hội], [5 phút hướng dẫn], [Dễ dàng cập nhật hồ sơ, follow\/unfollow bằng 1 click.], [],
-  table.hline(),
-  [6], [Quản trị hệ thống], [10 phút hướng dẫn], [Giao diện quản trị riêng, rõ ràng, dễ thao tác.], [],
-)
-
-Bảng trách nhiệm yêu cầu tiện dụng:
-
-#table(
-  columns: (auto, auto, 1fr, 1fr, auto),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Người dùng*], [*Phần mềm*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Quản lý xác thực], [Đọc tài liệu hướng dẫn.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [2], [Quản lý bài viết], [Đọc tài liệu hướng dẫn.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [3], [Quản lý bảng tin], [Đọc tài liệu hướng dẫn.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [4], [Quản lý tương tác], [Đọc tài liệu hướng dẫn.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [5], [Quản lý hồ sơ \& xã hội], [Đọc tài liệu hướng dẫn.], [Thực hiện đúng theo yêu cầu.], [],
-  table.hline(),
-  [6], [Quản trị hệ thống], [Đọc tài liệu hướng dẫn.], [Thực hiện đúng theo yêu cầu.], [],
-)
-
-=== 3.2.3. Yêu cầu tương thích
-
-#table(
-  columns: (auto, 1fr, 1fr),
+  columns: (auto, 1.2fr, 1.8fr),
   align: (center, left, left),
   table.header([*STT*], [*Yêu cầu*], [*Mô tả*]),
   table.hline(),
-  [1], [Tương thích trình duyệt], [Ứng dụng web hoạt động tốt trên Google Chrome, Mozilla Firefox, Microsoft Edge.],
-  table.hline(),
-  [2], [Tương thích thiết bị], [Giao diện responsive, hiển thị đúng trên desktop, tablet và mobile.],
-  table.hline(),
-  [3], [Tương thích API], [Backend cung cấp RESTful API chuẩn, cho phép tích hợp với nhiều loại client (web, mobile, third-party).],
+  [1], [Phản hồi nhanh], [Các thao tác đăng nhập, đăng bài, tương tác và cập nhật hồ sơ nên phản hồi trong 2-3 giây ở môi trường phát triển hoặc thử nghiệm.],
+  [2], [Phân trang], [Bảng tin, danh sách người dùng quản trị, báo cáo và bài chờ duyệt dùng `page`, `page_size` để tránh trả dữ liệu quá lớn trong một lần.],
+  [3], [Giảm số lần tìm kiếm], [Ô tìm kiếm chờ 350ms sau khi người dùng ngừng nhập rồi mới gửi yêu cầu, giúp giảm số lần gọi máy chủ.],
+  [4], [Tính số liệu khi truy vấn], [Số lượt thích, bình luận, xem và chia sẻ được tính từ các bảng tương tác thay vì lưu dư thừa trong bảng bài viết.],
 )
 
-=== 3.2.4. Yêu cầu tiến hoá
-
-Yêu cầu tiến hoá mô tả khả năng thay đổi các quy định, tham số nghiệp vụ mà không cần lập trình lại hệ thống.
-
-Bảng yêu cầu tiến hoá:
+=== 3.2.2. Bảo mật
 
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, 1.2fr, 1.8fr),
+  align: (center, left, left),
+  table.header([*STT*], [*Yêu cầu*], [*Mô tả*]),
+  table.hline(),
+  [1], [Mã hóa mật khẩu], [Mật khẩu được băm bằng Argon2, không lưu mật khẩu dạng văn bản gốc.],
+  [2], [Mã xác thực và phiên đăng nhập], [Access token dùng để xác thực yêu cầu; refresh token được lưu trong cơ sở dữ liệu để có thể thu hồi khi đăng xuất hoặc đặt lại mật khẩu.],
+  [3], [Xác minh email], [Tài khoản đăng ký bằng email phải xác minh email trước khi sử dụng đầy đủ chức năng.],
+  [4], [Phân quyền], [Các đường dẫn API quản trị yêu cầu vai trò admin; các đường dẫn nghiệp vụ yêu cầu người dùng đang hoạt động, đã xác minh email và đã hoàn thiện hồ sơ.],
+  [5], [Kiểm tra quyền sở hữu], [Sửa/xóa bài viết và xem danh sách bài đã lưu phải kiểm tra quyền của người dùng hiện tại.],
+  [6], [Kiểm soát nguồn truy cập], [Backend chỉ cho phép các nguồn frontend được khai báo trong biến môi trường `CORS_ALLOWED_ORIGINS`.],
+)
+
+=== 3.2.3. Tiện dụng
+
+- Giao diện web tự thích nghi với nhiều kích thước màn hình, hỗ trợ máy tính và điện thoại.
+- Thanh điều hướng bên có trạng thái thu gọn và lưu lựa chọn của người dùng trên trình duyệt.
+- Bảng tin hỗ trợ tìm kiếm, lọc, sắp xếp và tải thêm bài khi cuộn trang.
+- Người dùng nhận được thông báo phản hồi sau các thao tác như thích bài, lưu bài, báo cáo nội dung hoặc cập nhật hồ sơ.
+- Trang quản trị cung cấp bảng dữ liệu, bộ lọc và thống kê tổng quan.
+
+=== 3.2.4. Tương thích và triển khai
+
+- Giao diện người dùng chạy trên các trình duyệt hiện đại như Chrome, Edge, Firefox.
+- Máy chủ cung cấp API dạng REST để giao diện web hiện tại hoặc các ứng dụng khác trong tương lai có thể sử dụng lại.
+- Hệ thống có tệp Docker cho frontend/backend và cấu hình Docker Compose để chạy cùng SQL Server.
+- Các biến môi trường bắt buộc gồm `DATABASE_URL`, `JWT_SECRET_KEY`, `CORS_ALLOWED_ORIGINS`, `FRONTEND_URL`, `NEXT_PUBLIC_API_URL`.
+
+== 3.3. Phân tích trách nhiệm
+
+Sau khi xác định danh sách nghiệp vụ, biểu mẫu và quy định, bảng sau phân chia trách nhiệm giữa người dùng và phần mềm theo từng nhóm chức năng chính. Cách phân chia này giúp làm rõ dữ liệu nào do người dùng cung cấp và phần nào do hệ thống tự kiểm tra, xử lý, lưu trữ.
+
+#table(
+  columns: (auto, 1.1fr, 1.6fr, 1.8fr),
   align: (center, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Tham số cần thay đổi*], [*Miền giá trị cần thay đổi*]),
+  table.header([*STT*], [*Nhóm*], [*Người dùng*], [*Phần mềm*]),
   table.hline(),
-  [1], [Thay đổi phân quyền hệ thống], [Vai trò tài khoản], [Bảng users (cột role)],
-  table.hline(),
-  [2], [Thay đổi trạng thái tài khoản], [Trạng thái Active\/Banned], [Bảng users (cột status)],
-  table.hline(),
-  [3], [Thay đổi danh mục tag], [Tên tag, slug], [Bảng tags],
-  table.hline(),
-  [4], [Thay đổi trạng thái bài viết], [Trạng thái kiểm duyệt], [Bảng posts (cột status)],
+  [1], [Quản lý xác thực], [Cung cấp email, tên đăng nhập, mật khẩu hoặc tài khoản Google.], [Kiểm tra dữ liệu, băm mật khẩu, tạo mã xác thực, lưu phiên đăng nhập và kiểm tra trạng thái tài khoản.],
+  [2], [Quản lý bài viết], [Nhập tiêu đề, nội dung, ảnh bìa, tag hoặc chú thích khi chia sẻ.], [Tạo đường dẫn thân thiện, xác định trạng thái kiểm duyệt, đồng bộ tag và kiểm tra quyền sửa/xóa.],
+  [3], [Quản lý bảng tin], [Chọn chế độ xem, nhập từ khóa, chọn tag và tiêu chí sắp xếp.], [Truy vấn bài viết đang hiển thị, phân trang, tính thống kê tương tác và trạng thái đã thích/đã lưu của người dùng hiện tại.],
+  [4], [Quản lý tương tác], [Thực hiện thích bài, lưu bài, chia sẻ, bình luận, trả lời, báo cáo và theo dõi người dùng.], [Ghi nhận tương tác, chống thao tác trùng, tạo thông báo và cập nhật dữ liệu liên quan.],
+  [5], [Quản lý hồ sơ \& xã hội], [Cập nhật hồ sơ, xem hồ sơ người khác, theo dõi/hủy theo dõi và xem thông báo.], [Lưu thông tin hồ sơ, kiểm tra quan hệ theo dõi, trả dữ liệu hoạt động cá nhân và đánh dấu thông báo đã đọc.],
+  [6], [Quản trị hệ thống], [Lọc dữ liệu, khóa/mở khóa tài khoản, xử lý báo cáo, duyệt bài chờ kiểm duyệt và quản lý tag.], [Kiểm tra vai trò quản trị viên, cập nhật cơ sở dữ liệu, ghi nhật ký quản trị và tạo thông báo cho người dùng liên quan.],
 )
 
-Bảng trách nhiệm yêu cầu tiến hoá:
+== 3.4. Tổng kết yêu cầu
 
 #table(
-  columns: (auto, 1fr, 1fr, 1fr, 0.7fr),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Người dùng*], [*Phần mềm*], [*Ghi chú*]),
+  columns: (1.2fr, auto, 2fr),
+  align: (left, center, left),
+  table.header([*Loại yêu cầu*], [*Số lượng*], [*Ghi chú*]),
   table.hline(),
-  [1], [Thay đổi phân quyền], [Cho biết tài khoản cần thay đổi vai trò.], [Ghi nhận giá trị mới và thay đổi cách thức kiểm tra.], [],
-  table.hline(),
-  [2], [Thay đổi trạng thái tài khoản], [Cho biết tài khoản cần khóa\/mở khóa.], [Ghi nhận giá trị mới, chặn đăng nhập nếu Banned.], [],
-  table.hline(),
-  [3], [Thay đổi danh mục tag], [Cho biết tag cần thêm\/sửa\/xóa.], [Ghi nhận giá trị mới. Các bài viết đã gắn tag cũ không bị ảnh hưởng.], [Không ảnh hưởng bài viết cũ],
-  table.hline(),
-  [4], [Thay đổi trạng thái bài viết], [Cho biết bài viết cần thay đổi trạng thái.], [Ghi nhận giá trị mới và cập nhật hiển thị.], [],
+  [Nghiệp vụ chức năng], [25], [Giữ theo danh sách nghiệp vụ chính của hệ thống; các luồng bổ sung như xác minh email, đăng nhập Google, duyệt bài và gợi ý nội dung được mô tả trong ghi chú, quy định hoặc phần mở rộng.],
+  [Biểu mẫu chính], [7], [Tài khoản/hồ sơ, bài viết, bình luận, báo cáo, quan hệ theo dõi, thông báo và tag.],
+  [Nhóm phi chức năng], [4], [Hiệu năng, bảo mật, tiện dụng, tương thích và triển khai.],
+  [Vai trò người dùng], [3], [Khách, Sinh viên, Quản trị viên.],
 )
 
-== 3.3. Yêu cầu hệ thống
-
-=== 3.3.1. Yêu cầu bảo mật
-
-Yêu cầu bảo mật đảm bảo tính toàn vẹn, bảo mật của dữ liệu người dùng và thiết lập cơ chế phân quyền truy cập rõ ràng, giải quyết vấn đề "phân quyền dựa trên vai trò".
-
-Bảng yêu cầu bảo mật:
-
-#table(
-  columns: (auto, auto, auto, auto, auto, auto),
-  align: (center, left, left, center, center, center),
-  table.header([*STT*], [*Nghiệp vụ*], [*Thao tác cụ thể*], [*Admin*], [*Sinh viên*], [*Khách*]),
-  table.hline(),
-  [1], table.cell(rowspan: 4)[Quản lý xác thực], [Đăng ký tài khoản], [], [], [✓],
-  [2], [Đăng nhập], [✓], [✓], [✓],
-  [3], [Đăng xuất], [✓], [✓], [],
-  [4], [Quên mật khẩu], [], [], [✓],
-  table.hline(),
-  [5], table.cell(rowspan: 4)[Quản lý bài viết], [Tạo bài viết], [✓], [✓], [],
-  [6], [Chỉnh sửa bài viết], [✓], [✓], [],
-  [7], [Xóa bài viết], [✓], [✓], [],
-  [8], [Xem chi tiết bài viết], [✓], [✓], [],
-  table.hline(),
-  [9], table.cell(rowspan: 4)[Quản lý bảng tin], [Xem bảng tin], [✓], [✓], [],
-  [10], [Tìm kiếm bài viết], [✓], [✓], [],
-  [11], [Lọc bài viết theo tag], [✓], [✓], [],
-  [12], [Sắp xếp bài viết], [✓], [✓], [],
-  table.hline(),
-  [13], table.cell(rowspan: 6)[Quản lý tương tác], [Like bài viết], [✓], [✓], [],
-  [14], [Bookmark bài viết], [✓], [✓], [],
-  [15], [Chia sẻ bài viết], [✓], [✓], [],
-  [16], [Bình luận bài viết], [✓], [✓], [],
-  [17], [Trả lời bình luận], [✓], [✓], [],
-  [18], [Báo cáo nội dung], [✓], [✓], [],
-  table.hline(),
-  [19], table.cell(rowspan: 4)[Quản lý hồ sơ \& xã hội], [Xem hồ sơ], [✓], [✓], [],
-  [20], [Chỉnh sửa hồ sơ], [✓], [✓], [],
-  [21], [Follow\/Unfollow], [✓], [✓], [],
-  [22], [Xem thông báo], [✓], [✓], [],
-  table.hline(),
-  [23], table.cell(rowspan: 3)[Quản trị hệ thống], [Quản lý người dùng], [✓], [], [],
-  [24], [Kiểm duyệt nội dung], [✓], [], [],
-  [25], [Quản lý tags], [✓], [], [],
-)
-
-Bảng trách nhiệm yêu cầu bảo mật:
-
-#table(
-  columns: (auto, auto, 1fr, 1fr, auto),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Vai trò*], [*Người dùng*], [*Phần mềm*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Admin], [Cung cấp tên đăng nhập và mật khẩu. Quản lý phân quyền và trạng thái tài khoản.], [Ghi nhận và thực hiện đúng.], [],
-  table.hline(),
-  [2], [Sinh viên], [Cung cấp tên đăng nhập và mật khẩu.], [Ghi nhận và thực hiện đúng.], [],
-  table.hline(),
-  [3], [Khách], [Cung cấp thông tin đăng ký tài khoản.], [Ghi nhận và thực hiện đúng.], [],
-)
-
-=== 3.3.2. Yêu cầu an toàn
-
-Bảng yêu cầu an toàn:
-
-#table(
-  columns: (auto, 1fr, 1fr, 1fr),
-  align: (center, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Đối tượng*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Không cho phép xóa], [Tài khoản người dùng], [Chỉ được phép thay đổi trạng thái Active\/Banned. Không xóa vĩnh viễn.],
-  table.hline(),
-  [2], [Không cho phép xóa], [Bài viết có bình luận], [Sinh viên không được xóa bài viết đã có bình luận. Chỉ Admin mới có quyền.],
-  table.hline(),
-  [3], [Không cho phép], [Tự follow chính mình], [Constraint\ CHK\_no\_self\_follow ở tầng database ngăn chặn.],
-  table.hline(),
-  [4], [Không cho phép chỉnh sửa], [Báo cáo đã xử lý], [Báo cáo có trạng thái Resolved không được phép thay đổi.],
-  table.hline(),
-  [5], [Không cho phép truy cập], [API khi tài khoản Banned], [Tài khoản bị khóa không được đăng nhập hoặc gọi API.],
-  table.hline(),
-  [6], [Không lưu dạng plaintext], [Mật khẩu người dùng], [Mật khẩu phải được mã hóa bằng Argon2 trước khi lưu.],
-)
-
-Bảng trách nhiệm yêu cầu an toàn:
-
-#table(
-  columns: (auto, 1fr, 1fr, 1fr, auto),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Người dùng*], [*Phần mềm*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Không cho phép xóa tài khoản], [Xóa tài khoản người dùng.], [Thực hiện theo đúng yêu cầu.], [],
-  table.hline(),
-  [2], [Không cho phép xóa bài viết có bình luận], [Xóa bài viết.], [Thực hiện theo đúng yêu cầu.], [],
-  table.hline(),
-  [3], [Không cho phép tự follow], [Follow chính mình.], [Thực hiện theo đúng yêu cầu.], [],
-  table.hline(),
-  [4], [Không cho phép sửa báo cáo đã xử lý], [Chỉnh sửa báo cáo.], [Thực hiện theo đúng yêu cầu.], [],
-  table.hline(),
-  [5], [Không cho phép truy cập khi Banned], [Đăng nhập khi bị khóa.], [Thực hiện theo đúng yêu cầu.], [],
-  table.hline(),
-  [6], [Không lưu mật khẩu plaintext], [Cung cấp mật khẩu.], [Thực hiện theo đúng yêu cầu.], [],
-)
-
-== 3.4. Yêu cầu công nghệ
-
-Bảng yêu cầu công nghệ:
-
-#table(
-  columns: (auto, auto, 1fr, 1fr),
-  align: (center, left, left, left),
-  table.header([*STT*], [*Yêu cầu*], [*Mô tả chi tiết*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Dễ sửa lỗi], [Xác định lỗi trung bình trong 10 phút.], [Khi sửa lỗi một chức năng không ảnh hưởng đến chức năng khác.],
-  table.hline(),
-  [2], [Dễ bảo trì], [Thêm chức năng mới nhanh.], [Không ảnh hưởng đến chức năng đã có.],
-  table.hline(),
-  [3], [Nền tảng], [Web], [Sinh viên truy cập qua trình duyệt.],
-  table.hline(),
-  [4], [Cơ sở dữ liệu], [Microsoft SQL Server], [],
-  table.hline(),
-  [5], [Công nghệ Backend], [FastAPI (Python)], [],
-  table.hline(),
-  [6], [Công nghệ Frontend], [Next.js (React)], [],
-  table.hline(),
-  [7], [Môi trường triển khai], [Trên máy chủ tại chỗ hoặc Cloud], [],
-)
-
-Bảng trách nhiệm yêu cầu công nghệ:
-
-#table(
-  columns: (auto, auto, auto, 1fr, auto),
-  align: (center, left, left, left, left),
-  table.header([*STT*], [*Nghiệp vụ*], [*Người dùng*], [*Phần mềm*], [*Ghi chú*]),
-  table.hline(),
-  [1], [Vận hành Backend], [], [Cung cấp các API nhanh, bảo mật (sử dụng JWT). Xử lý logic nghiệp vụ chính xác.], [],
-  table.hline(),
-  [2], [Vận hành Frontend], [Tất cả], [Chạy được trên trình duyệt web hiện đại (Chrome, Edge,...).], [],
-  table.hline(),
-  [3], [Vận hành cơ sở dữ liệu], [], [Đảm bảo các ràng buộc và khóa ngoại được thiết lập đúng để duy trì tính toàn vẹn dữ liệu.], [],
-)
-
-== 3.5. Phân tích yêu cầu
-
-Tổng hợp các yêu cầu đã thu thập:
-
-#table(
-  columns: (1fr, auto, 1.5fr),
-  align: (left, left, left),
-  table.header(
-    [*Loại yêu cầu*], [*Số lượng*], [*Chi tiết*],
-  ),
-  table.hline(),
-  [Chức năng nghiệp vụ], [25], [YC-01 → YC-25],
-  [Biểu mẫu], [6], [Tài khoản, Bài viết, Bình luận, Báo cáo, Tag, Thông báo],
-  [Quy định], [15], [QĐ 1.1-1.3, QĐ 2.1-2.3, QĐ 3.1, QĐ 4.1-4.2, QĐ 5.1-5.2, QĐ 6.1-6.2],
-  table.hline(),
-  [Phi chức năng — Hiệu quả], [6], [Đảm bảo tốc độ phản hồi < 2-3s, infinite scroll],
-  [Phi chức năng — Tiện dụng], [6], [Toast, thao tác 1 click, giao diện quản trị riêng, dễ học],
-  [Phi chức năng — Tương thích], [3], [Đa trình duyệt, đa thiết bị, API mở],
-  [Phi chức năng — Tiến hoá], [4], [Dễ dàng thay đổi tham số phân quyền, trạng thái, thiết lập],
-  table.hline(),
-  [Hệ thống — Bảo mật], [25], [Ma trận phân quyền chi tiết cho 25 thao tác x 3 vai trò],
-  [Hệ thống — An toàn], [6], [Chống xóa vĩnh viễn, chống SQL injection, mã hóa mật khẩu],
-  table.hline(),
-  [Công nghệ], [7], [Next.js, FastAPI, SQL Server, triển khai linh hoạt],
-)
-
-*Nhận xét chung:*
-Qua quá trình khảo sát và phân tích, các yêu cầu của hệ thống đã được thể hiện đầy đủ, làm cơ sở vững chắc cho giai đoạn thiết kế tiếp theo. Nhìn chung:
-- **Về mặt dữ liệu:** Đòi hỏi tính nhất quán, toàn vẹn dữ liệu và phương án tổ chức lưu trữ chặt chẽ, an toàn.
-- **Về mặt nghiệp vụ:** Các luồng hoạt động được định nghĩa sát với thực tế, quy định rõ ràng giới hạn thao tác của từng nhóm người dùng trong hệ thống.
-- **Về mặt kỹ thuật ứng dụng:** Hệ thống hướng đến kiến trúc dễ bảo trì, cho phép mở rộng quy mô trong tương lai, đồng thời ưu tiên trải nghiệm thân thiện và tính bảo mật cao đối với người dùng cuối.
-
+Như vậy, chương 3 đã xác định đầy đủ phạm vi yêu cầu của hệ thống ở mức nghiệp vụ, dữ liệu nhập/xuất, quy định xử lý và yêu cầu chất lượng. Đây là cơ sở để chuyển sang chương thiết kế hệ thống, nơi các yêu cầu được cụ thể hóa thành kiến trúc, mô hình dữ liệu và luồng xử lý.
 
 #pagebreak()
